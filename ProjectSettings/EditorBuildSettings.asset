@@ -8,5 +8,6 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/_Project/Scenes/VRTest.unity
     guid: 0bbf35ff6b7943b0bd0d304ba05d2d6f
-  m_configObjects: {}
+  m_configObjects:
+    com.unity.xr.openxr.settings4: {fileID: 11400000, guid: 73effeed05952b345a7a8eab156323cd, type: 2}
   m_UseUCBPForAssetBundles: 0
