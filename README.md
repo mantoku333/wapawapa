@@ -1,13 +1,32 @@
 # wapawapa
 
-Unity6（3.13.f1）でのVRゲーム開発を前提に、Photon Fusion を使ったオンラインマルチプレイ構成の土台を整えたリポジトリです。
+Unity 6.3で開発する、Photon Fusion 2ベースの2人用VRマルチプレイプロジェクトです。
 
 ## 開発前提
 
-- **Unity**: Unity6 3.13.f1
+- **Unity**: Unity 6.3 (`6000.3.13f1`)
 - **XR**: OpenXR ベース（Meta Quest / PCVR を想定）
-- **オンライン**: Photon Fusion（Host/Client 方式を想定）
+- **オンライン**: Photon Fusion 2.0.12（Shared Mode）
 - **チーム規模**: 6人
+
+## 現在の動作
+
+1. `Title`シーンで3文字以上のルームキーを入力
+2. 同じキーを使った最大2人が同じ非公開Fusionセッションへ接続
+3. `Game`シーンへ移動し、各プレイヤーの位置・頭・両手を同期
+
+デスクトップでは`WASD`で移動、マウスで視点操作します。`Esc`でカーソルを解放し、左クリックで再ロックします。XRランタイムが有効な場合はHMDと左右コントローラーを使用し、左スティックで移動、右スティックで旋回します。
+
+StandaloneはHMDなしでも起動できるよう、標準ではデスクトップモードです。PCVRとして起動するときは実行ファイルへ`-enableXR`を渡してください。Quest向けAndroidビルドはOpenXRを自動初期化します。
+
+## ローカル2人テスト
+
+1. Build Settingsの先頭が`Title`、次が`Game`であることを確認
+2. Standaloneビルドを作成して起動
+3. Unity Editorでも`Title`をPlay
+4. 両方で同じルームキーを入力
+
+Photon App IDは`Assets/Photon/Fusion/Resources/PhotonAppSettings.asset`で設定します。SDK更新時はこのファイルと`NetworkProjectConfig.fusion`を保持してください。
 
 ## 推奨フォルダ構成
 
