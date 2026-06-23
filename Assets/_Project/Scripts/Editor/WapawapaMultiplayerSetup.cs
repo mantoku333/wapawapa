@@ -9,18 +9,12 @@ using Wapawapa.Networking;
 
 namespace Wapawapa.Editor
 {
-    [InitializeOnLoad]
     public static class WapawapaMultiplayerSetup
     {
         private const string Root = "Assets/_Project";
         private const string TitleScenePath = Root + "/Scenes/Title.unity";
         private const string GameScenePath = Root + "/Scenes/Game.unity";
         private const string PlayerPrefabPath = Root + "/Prefabs/NetworkPlayer.prefab";
-
-        static WapawapaMultiplayerSetup()
-        {
-            EditorApplication.delayCall += GenerateIfNeeded;
-        }
 
         [MenuItem("Tools/Wapawapa/Generate Multiplayer Setup")]
         public static void Generate()
@@ -40,14 +34,6 @@ namespace Wapawapa.Editor
             AssetDatabase.Refresh();
             NetworkProjectConfigUtilities.RebuildPrefabTable();
             Debug.Log("Wapawapa multiplayer setup generated successfully.");
-        }
-
-        private static void GenerateIfNeeded()
-        {
-            if (!EditorApplication.isPlayingOrWillChangePlaymode && !AssetDatabase.LoadAssetAtPath<SceneAsset>(TitleScenePath))
-            {
-                Generate();
-            }
         }
 
         private static void EnsureFolders()
@@ -137,9 +123,17 @@ namespace Wapawapa.Editor
 
             var connectionObject = new GameObject("Room Connection Controller");
             var connection = connectionObject.AddComponent<RoomConnectionController>();
+
+            var runnerObject = new GameObject("Fusion Runner");
+            runnerObject.transform.SetParent(connectionObject.transform, false);
+            var runner = runnerObject.AddComponent<NetworkRunner>();
+            var sceneManager = runnerObject.AddComponent<NetworkSceneManagerDefault>();
+
             var serializedConnection = new SerializedObject(connection);
             serializedConnection.FindProperty("playerPrefab").objectReferenceValue = playerPrefab;
             serializedConnection.FindProperty("gameSceneBuildIndex").intValue = 1;
+            serializedConnection.FindProperty("runner").objectReferenceValue = runner;
+            serializedConnection.FindProperty("sceneManager").objectReferenceValue = sceneManager;
             serializedConnection.ApplyModifiedPropertiesWithoutUndo();
 
             EditorSceneManager.SaveScene(scene, TitleScenePath);

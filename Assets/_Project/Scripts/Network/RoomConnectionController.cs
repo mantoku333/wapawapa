@@ -14,8 +14,9 @@ namespace Wapawapa.Networking
     {
         [SerializeField] private GameObject playerPrefab;
         [SerializeField] private int gameSceneBuildIndex = 1;
+        [SerializeField] private NetworkRunner runner;
+        [SerializeField] private NetworkSceneManagerDefault sceneManager;
 
-        private NetworkRunner runner;
         private string roomKey = string.Empty;
         private string status = "Enter a room key to create or join a room.";
         private bool isConnecting;
@@ -124,13 +125,23 @@ namespace Wapawapa.Networking
             isConnecting = true;
             status = "Connecting to Photon Cloud...";
 
-            var runnerObject = new GameObject("Fusion Runner");
-            runnerObject.transform.SetParent(transform);
-            runner = runnerObject.AddComponent<NetworkRunner>();
+            if (runner == null)
+            {
+                status = "NetworkRunner is not configured in the scene.";
+                isConnecting = false;
+                return;
+            }
+
+            if (sceneManager == null)
+            {
+                status = "NetworkSceneManagerDefault is not configured in the scene.";
+                isConnecting = false;
+                return;
+            }
+
             runner.ProvideInput = false;
             runner.AddCallbacks(this);
 
-            var sceneManager = runnerObject.AddComponent<NetworkSceneManagerDefault>();
             var sceneInfo = new NetworkSceneInfo();
             sceneInfo.AddSceneRef(SceneRef.FromIndex(gameSceneBuildIndex), LoadSceneMode.Single);
 
@@ -149,8 +160,6 @@ namespace Wapawapa.Networking
             {
                 status = $"Connection failed: {result.ShutdownReason}";
                 isConnecting = false;
-                Destroy(runnerObject);
-                runner = null;
             }
         }
 
