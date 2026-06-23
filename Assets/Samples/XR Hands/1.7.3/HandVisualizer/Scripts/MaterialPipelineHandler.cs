@@ -7,19 +7,14 @@ using UnityEditor;
 namespace UnityEngine.XR.Hands.Samples.VisualizerSample
 {
 #if UNITY_EDITOR
-    [InitializeOnLoad]
     static class RenderPipelineValidation
     {
         static RenderPipelineValidation()
         {
-            // Use delayCall to ensure this runs after the editor is fully initialized and all assets are imported.
-            // Without delayCall, this script may execute before new assets (such as newly imported samples)
-            // are registered in the AssetDatabase, so they won't be found or converted.
-            EditorApplication.delayCall += () =>
-            {
-                foreach (var pipelineHandler in GetAllInstances())
-                    pipelineHandler.AutoRefreshPipelineShaders();
-            };
+            // Disabled for this project.
+            // Unity 6000.3.13f1 can crash during startup when this sample code calls
+            // AssetDatabase.FindAssets from editor initialization.
+            // The MaterialPipelineHandler can still be refreshed manually from its inspector.
         }
 
         static List<MaterialPipelineHandler> GetAllInstances()

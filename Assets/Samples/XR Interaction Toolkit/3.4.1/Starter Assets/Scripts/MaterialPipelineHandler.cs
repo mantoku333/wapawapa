@@ -7,13 +7,14 @@ using UnityEditor;
 namespace UnityEngine.XR.Interaction.Toolkit.Samples.StarterAssets
 {
 #if UNITY_EDITOR
-    [InitializeOnLoad]
     static class RenderPipelineValidation
     {
         static RenderPipelineValidation()
         {
-            foreach (var pipelineHandler in GetAllInstances())
-                pipelineHandler.AutoRefreshPipelineShaders();
+            // Disabled for this project.
+            // Unity 6000.3.13f1 can crash during startup when this sample code calls
+            // AssetDatabase.FindAssets from an InitializeOnLoad static constructor.
+            // The MaterialPipelineHandler can still be refreshed manually from its inspector.
         }
 
         static List<MaterialPipelineHandler> GetAllInstances()
