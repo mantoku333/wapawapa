@@ -18,11 +18,18 @@ namespace Wapawapa.Gameplay
         [Header("Movement")]
         [SerializeField] private float moveSpeed = 3.5f;
         [SerializeField] private float mouseSensitivity = 0.12f;
+        [SerializeField] private float keyboardLookSpeed = 90f;
         [SerializeField] private float vrTurnSpeed = 75f;
+        [SerializeField] private float jumpHeight = 1.1f;
+        [SerializeField] private float gravity = -18f;
+        [SerializeField] private float desktopPunchDistance = 0.65f;
+        [SerializeField] private float desktopPunchSpeed = 12f;
 
         private CharacterController characterController;
         private Vector2 accumulatedMouseDelta;
         private float desktopPitch;
+        private bool jumpRequested;
+        private float verticalVelocity;
         private bool xrTrackingAvailable;
 
         private Vector3 trackedHeadPosition;
@@ -72,6 +79,8 @@ namespace Wapawapa.Gameplay
             if (!xrTrackingAvailable)
             {
                 CaptureDesktopLook();
+                CaptureKeyboardLook();
+                CaptureDesktopJump();
             }
         }
 
@@ -99,17 +108,36 @@ namespace Wapawapa.Gameplay
                 desktopPitch = Mathf.Clamp(desktopPitch - accumulatedMouseDelta.y * mouseSensitivity, -80f, 80f);
                 head.localPosition = new Vector3(0f, 1.65f, 0f);
                 head.localRotation = Quaternion.Euler(desktopPitch, 0f, 0f);
-                leftHand.localPosition = new Vector3(-0.32f, 1.25f, 0.38f);
+                var mouse = Mouse.current;
+                var leftPunching = mouse != null && mouse.leftButton.isPressed;
+                var rightPunching = mouse != null && mouse.rightButton.isPressed;
+                var leftHandTarget = new Vector3(-0.32f, 1.25f, 0.38f + (leftPunching ? desktopPunchDistance : 0f));
+                var rightHandTarget = new Vector3(0.32f, 1.25f, 0.38f + (rightPunching ? desktopPunchDistance : 0f));
+                leftHand.localPosition = Vector3.Lerp(leftHand.localPosition, leftHandTarget, 1f - Mathf.Exp(-desktopPunchSpeed * Runner.DeltaTime));
                 leftHand.localRotation = Quaternion.identity;
-                rightHand.localPosition = new Vector3(0.32f, 1.25f, 0.38f);
+                rightHand.localPosition = Vector3.Lerp(rightHand.localPosition, rightHandTarget, 1f - Mathf.Exp(-desktopPunchSpeed * Runner.DeltaTime));
                 rightHand.localRotation = Quaternion.identity;
                 accumulatedMouseDelta = Vector2.zero;
             }
 
             var forward = Vector3.ProjectOnPlane(transform.forward, Vector3.up).normalized;
             var right = Vector3.ProjectOnPlane(transform.right, Vector3.up).normalized;
-            var movement = (forward * moveInput.y + right * moveInput.x) * (moveSpeed * Runner.DeltaTime);
-            characterController.Move(movement + Vector3.down * (2f * Runner.DeltaTime));
+            var movement = (forward * moveInput.y + right * moveInput.x) * moveSpeed;
+
+            if (characterController.isGrounded && verticalVelocity < 0f)
+            {
+                verticalVelocity = -2f;
+            }
+
+            if (characterController.isGrounded && jumpRequested)
+            {
+                verticalVelocity = Mathf.Sqrt(jumpHeight * -2f * gravity);
+            }
+
+            jumpRequested = false;
+            verticalVelocity += gravity * Runner.DeltaTime;
+            movement.y = verticalVelocity;
+            characterController.Move(movement * Runner.DeltaTime);
         }
 
         private Vector2 ReadMovement()
@@ -148,7 +176,7 @@ namespace Wapawapa.Gameplay
                 return;
             }
 
-            if (mouse.leftButton.wasPressedThisFrame)
+            if (mouse.middleButton.wasPressedThisFrame)
             {
                 Cursor.lockState = CursorLockMode.Locked;
                 Cursor.visible = false;
@@ -158,6 +186,37 @@ namespace Wapawapa.Gameplay
             {
                 accumulatedMouseDelta += mouse.delta.ReadValue();
             }
+        }
+
+        private void CaptureDesktopJump()
+        {
+            var keyboard = Keyboard.current;
+            if (keyboard != null && keyboard.spaceKey.wasPressedThisFrame)
+            {
+                jumpRequested = true;
+            }
+        }
+
+        private void CaptureKeyboardLook()
+        {
+            var keyboard = Keyboard.current;
+            if (keyboard == null)
+            {
+                return;
+            }
+
+            var look = Vector2.zero;
+            if (keyboard.rightArrowKey.isPressed) look.x += 1f;
+            if (keyboard.leftArrowKey.isPressed) look.x -= 1f;
+            if (keyboard.upArrowKey.isPressed) look.y += 1f;
+            if (keyboard.downArrowKey.isPressed) look.y -= 1f;
+
+            if (look == Vector2.zero)
+            {
+                return;
+            }
+
+            accumulatedMouseDelta += look * (keyboardLookSpeed / mouseSensitivity * Time.deltaTime);
         }
 
         private bool TryReadXrRig()
