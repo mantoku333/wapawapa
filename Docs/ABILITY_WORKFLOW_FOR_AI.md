@@ -128,9 +128,9 @@ namespace Wapawapa.Abilities
     public sealed class ExampleAbility : AbilityBase
     {
         [Header("攻撃設定")]
-        [SerializeField] private float damage = 20f;
-        [SerializeField] private float range = 5f;
-        [SerializeField] private float pushForce = 5f;
+        [SerializeField] private float ダメージ = 20f;
+        [SerializeField] private float 射程 = 5f;
+        [SerializeField] private float ノックバック力 = 5f;
 
         protected override void Activate(in AbilityContext context, in AbilityActivationData activation)
         {
@@ -250,9 +250,9 @@ var rotation = activation.Rotation;
 ```csharp
 var damageData = new AbilityDamage(
     abilityId: activation.AbilityId,
-    amount: damage,
+    amount: ダメージ,
     direction: activation.Direction,
-    pushForce: pushForce,
+    pushForce: ノックバック力,
     point: hitPoint,
     source: context.Owner
 );
@@ -316,17 +316,17 @@ if (context.Owner != null && hit.transform.IsChildOf(context.Owner.transform))
 
 ```csharp
 [Header("攻撃設定")]
-[SerializeField] private float damage = 20f;
-[SerializeField] private float range = 4f;
-[SerializeField] private float radius = 1.25f;
-[SerializeField] private float pushForce = 5f;
-[SerializeField] private LayerMask hitMask = ~0;
+[SerializeField] private float ダメージ = 20f;
+[SerializeField] private float 射程 = 4f;
+[SerializeField] private float 攻撃半径 = 1.25f;
+[SerializeField] private float ノックバック力 = 5f;
+[SerializeField] private LayerMask 命中レイヤー = ~0;
 
 protected override void Activate(in AbilityContext context, in AbilityActivationData activation)
 {
     var origin = activation.Origin;
-    var center = origin + activation.Direction * (range * 0.5f);
-    var hits = Physics.OverlapSphere(center, radius, hitMask, QueryTriggerInteraction.Collide);
+    var center = origin + activation.Direction * (射程 * 0.5f);
+    var hits = Physics.OverlapSphere(center, 攻撃半径, 命中レイヤー, QueryTriggerInteraction.Collide);
 
     foreach (var hit in hits)
     {
@@ -343,9 +343,9 @@ protected override void Activate(in AbilityContext context, in AbilityActivation
 
         var damageData = new AbilityDamage(
             activation.AbilityId,
-            damage,
+            ダメージ,
             direction,
-            pushForce,
+            ノックバック力,
             hit.ClosestPoint(origin),
             context.Owner
         );
@@ -359,14 +359,14 @@ protected override void Activate(in AbilityContext context, in AbilityActivation
 
 ```csharp
 [Header("攻撃設定")]
-[SerializeField] private float damage = 30f;
-[SerializeField] private float range = 5f;
-[SerializeField] private float pushForce = 8f;
-[SerializeField] private LayerMask hitMask = ~0;
+[SerializeField] private float ダメージ = 30f;
+[SerializeField] private float 射程 = 5f;
+[SerializeField] private float ノックバック力 = 8f;
+[SerializeField] private LayerMask 命中レイヤー = ~0;
 
 protected override void Activate(in AbilityContext context, in AbilityActivationData activation)
 {
-    if (!Physics.Raycast(activation.Origin, activation.Direction, out var hit, range, hitMask, QueryTriggerInteraction.Collide))
+    if (!Physics.Raycast(activation.Origin, activation.Direction, out var hit, 射程, 命中レイヤー, QueryTriggerInteraction.Collide))
     {
         return;
     }
@@ -378,9 +378,9 @@ protected override void Activate(in AbilityContext context, in AbilityActivation
 
     var damageData = new AbilityDamage(
         activation.AbilityId,
-        damage,
+        ダメージ,
         activation.Direction,
-        pushForce,
+        ノックバック力,
         hit.point,
         context.Owner
     );
@@ -393,15 +393,15 @@ protected override void Activate(in AbilityContext context, in AbilityActivation
 
 ```csharp
 [Header("攻撃設定")]
-[SerializeField] private float damage = 15f;
-[SerializeField] private float radius = 3f;
-[SerializeField] private float pushForce = 4f;
-[SerializeField] private LayerMask hitMask = ~0;
+[SerializeField] private float ダメージ = 15f;
+[SerializeField] private float 攻撃半径 = 3f;
+[SerializeField] private float ノックバック力 = 4f;
+[SerializeField] private LayerMask 命中レイヤー = ~0;
 
 protected override void Activate(in AbilityContext context, in AbilityActivationData activation)
 {
     var origin = activation.Origin;
-    var hits = Physics.OverlapSphere(origin, radius, hitMask, QueryTriggerInteraction.Collide);
+    var hits = Physics.OverlapSphere(origin, 攻撃半径, 命中レイヤー, QueryTriggerInteraction.Collide);
 
     foreach (var hit in hits)
     {
@@ -418,9 +418,9 @@ protected override void Activate(in AbilityContext context, in AbilityActivation
 
         var damageData = new AbilityDamage(
             activation.AbilityId,
-            damage,
+            ダメージ,
             direction,
-            pushForce,
+            ノックバック力,
             hit.ClosestPoint(origin),
             context.Owner
         );
@@ -434,22 +434,22 @@ protected override void Activate(in AbilityContext context, in AbilityActivation
 
 ```csharp
 [Header("見た目")]
-[SerializeField] private GameObject effectPrefab;
-[SerializeField] private float effectLifetime = 2f;
+[SerializeField] private GameObject エフェクトPrefab;
+[SerializeField] private float エフェクト表示時間 = 2f;
 
 protected override void Activate(in AbilityContext context, in AbilityActivationData activation)
 {
-    if (effectPrefab == null)
+    if (エフェクトPrefab == null)
     {
         return;
     }
 
-    var effect = Instantiate(effectPrefab, activation.Origin, activation.Rotation);
-    Destroy(effect, effectLifetime);
+    var effect = Instantiate(エフェクトPrefab, activation.Origin, activation.Rotation);
+    Destroy(effect, エフェクト表示時間);
 }
 ```
 
-一時的なエフェクトは必ず `Destroy(effect, effectLifetime)` で消してください。  
+一時的なエフェクトは必ず `Destroy(effect, エフェクト表示時間)` で消してください。
 生成しっぱなしにしないでください。
 
 ---
@@ -459,24 +459,56 @@ protected override void Activate(in AbilityContext context, in AbilityActivation
 アビリティの数値は、できるだけ `[SerializeField]` にしてください。  
 プランナーや他メンバーがInspectorで調整できるようにするためです。
 
+このプロジェクトでは、**Inspectorに表示されるパラメーター名は日本語**にしてください。
+AIが新しくアビリティを作る場合、調整用フィールドは日本語の変数名にして構いません。
+
 良い例：
 
 ```csharp
 [Header("攻撃設定")]
 [Tooltip("相手に与えるダメージ量です")]
-[SerializeField] private float damage = 20f;
+[SerializeField] private float ダメージ = 20f;
 
 [Tooltip("攻撃が届く距離です")]
-[SerializeField] private float range = 5f;
+[SerializeField] private float 射程 = 5f;
 
 [Tooltip("攻撃判定の半径です")]
-[SerializeField] private float radius = 1.25f;
+[SerializeField] private float 攻撃半径 = 1.25f;
 
 [Tooltip("命中時に相手を押し出す強さです")]
-[SerializeField] private float pushForce = 6f;
+[SerializeField] private float ノックバック力 = 6f;
 
 [Header("見た目")]
-[SerializeField] private GameObject effectPrefab;
+[Tooltip("発動時に表示するエフェクトPrefabです")]
+[SerializeField] private GameObject エフェクトPrefab;
+```
+
+コード内で使うときも、日本語フィールド名をそのまま使ってください。
+
+```csharp
+var damageData = new AbilityDamage(
+    activation.AbilityId,
+    ダメージ,
+    activation.Direction,
+    ノックバック力,
+    hitPoint,
+    context.Owner
+);
+```
+
+よく使う日本語パラメーター名：
+
+```text
+ダメージ
+射程
+攻撃半径
+ノックバック力
+効果時間
+クールダウン
+移動速度倍率
+エフェクトPrefab
+エフェクト表示時間
+命中レイヤー
 ```
 
 避けること：
@@ -484,6 +516,7 @@ protected override void Activate(in AbilityContext context, in AbilityActivation
 - ダメージや射程をコード内に大量に直書きする
 - Inspectorで変更できないprivate定数だけで作る
 - 調整項目の意味が分からない名前にする
+- 新規アビリティのInspectorパラメーター名を英語だけにする
 
 ---
 
@@ -493,6 +526,30 @@ protected override void Activate(in AbilityContext context, in AbilityActivation
 テストPlayerやNetworkPlayerにある `AbilityLoadout` のSlotsに登録されて発動します。
 
 あなたがコード内で直接キー入力を見る必要はありません。
+
+発動キーは `AbilityLoadout` の `Activation Key` で設定します。
+Unity Input Systemの `Key` enumを使っており、数字キーは以下のように指定します。
+
+```text
+キーボードの1 : Digit1
+キーボードの2 : Digit2
+キーボードの3 : Digit3
+キーボードの4 : Digit4
+キーボードの5 : Digit5
+キーボードの6 : Digit6
+キーボードの7 : Digit7
+キーボードの8 : Digit8
+キーボードの9 : Digit9
+キーボードの0 : Digit0
+```
+
+重要：
+
+- `1`〜`0` のキー入力処理は、アビリティスクリプトに書かない
+- `Keyboard.current.digit1Key` などをアビリティ側で直接見ない
+- `Input.GetKeyDown(...)` をアビリティ側で使わない
+- どのキーで発動するかは、`AbilityLoadout` のSlot設定で決める
+- `1` は見本アビリティ用に使われている可能性があるため、新規アビリティは基本 `2`〜`0` を案内する
 
 登録作業の想定：
 
@@ -508,6 +565,32 @@ protected override void Activate(in AbilityContext context, in AbilityActivation
 Label          : Fire Punch
 Activation Key : Digit2
 Ability        : FirePunchAbility
+```
+
+複数アビリティを登録する場合の例：
+
+```text
+Slot 0
+Label          : Forward Shockwave
+Activation Key : Digit1
+Ability        : ForwardShockwaveAbility
+
+Slot 1
+Label          : Fire Punch
+Activation Key : Digit2
+Ability        : FirePunchAbility
+
+Slot 2
+Label          : Ice Ring
+Activation Key : Digit3
+Ability        : IceRingAbility
+
+...
+
+Slot 9
+Label          : Ultimate Ability
+Activation Key : Digit0
+Ability        : UltimateAbility
 ```
 
 実装後の回答では、どのGameObjectに追加し、どのキーに登録すればよいかを必ず説明してください。
@@ -696,11 +779,11 @@ Unityでの設定：
 5. Ability欄に〇〇Abilityを入れる
 
 Inspectorで調整できる値：
-- damage
-- range
-- radius
-- pushForce
-- effectPrefab
+- ダメージ
+- 射程
+- 攻撃半径
+- ノックバック力
+- エフェクトPrefab
 
 テスト方法：
 - AbilityTest_〇〇.unityを開く

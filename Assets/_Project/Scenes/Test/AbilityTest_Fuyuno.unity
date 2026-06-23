@@ -499,11 +499,63 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 8940767640447576866, guid: 00e6fc18643fd45638c9d68dd490e058, type: 3}
+      propertyPath: slots.Array.size
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 8940767640447576866, guid: 00e6fc18643fd45638c9d68dd490e058, type: 3}
+      propertyPath: slots.Array.data[1].label
+      value: Railway Pass
+      objectReference: {fileID: 0}
+    - target: {fileID: 8940767640447576866, guid: 00e6fc18643fd45638c9d68dd490e058, type: 3}
+      propertyPath: slots.Array.data[1].activationKey
+      value: 42
+      objectReference: {fileID: 0}
+    - target: {fileID: 8940767640447576866, guid: 00e6fc18643fd45638c9d68dd490e058, type: 3}
+      propertyPath: slots.Array.data[1].ability
+      value: 
+      objectReference: {fileID: 720230613002}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 815842106983561014, guid: 00e6fc18643fd45638c9d68dd490e058, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 720230613002}
   m_SourcePrefab: {fileID: 100100000, guid: 00e6fc18643fd45638c9d68dd490e058, type: 3}
+--- !u!1 &720230613001 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 815842106983561014, guid: 00e6fc18643fd45638c9d68dd490e058, type: 3}
+  m_PrefabInstance: {fileID: 1369764086}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &720230613002
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 720230613001}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 36f1a89416e74e2ba5c9942119cbfb8e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Wapawapa.Abilities.RailwayPassAbility
+  abilityId: fuyuno.railway_pass
+  abilityName: Railway Pass
+  cooldownSeconds: 4
+  targetDistance: 10
+  spawnRightOffset: 7
+  trainSpeed: 6
+  lifetime: 10
+  trainSize: {x: 4, y: 1.6, z: 1.2}
+  heightOffset: 0.8
+  damage: 30
+  pushForce: 12
+  hitMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  soundDuration: 2.5
+  soundVolume: 0.6
 --- !u!1 &1775834476
 GameObject:
   m_ObjectHideFlags: 0
