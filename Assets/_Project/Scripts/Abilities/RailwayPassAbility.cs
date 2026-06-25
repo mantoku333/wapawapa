@@ -5,22 +5,61 @@ namespace Wapawapa.Abilities
 {
     public sealed class RailwayPassAbility : AbilityBase
     {
+        [Header("Visual")]
+        [Tooltip("見た目として表示する電車Prefabです。未設定の場合は緑の仮キューブを表示します。")]
+        [SerializeField] private GameObject trainPrefab;
+
+        [Tooltip("電車Prefabの見た目だけをローカル位置でずらします。浮く場合はYをマイナスにしてください。")]
+        [SerializeField] private Vector3 trainPrefabLocalPosition = new Vector3(0f, -0.75f, 0f);
+
+        [Tooltip("電車Prefabの見た目だけのスケールです。")]
+        [SerializeField] private Vector3 trainPrefabScale = Vector3.one;
+
+        [Tooltip("電車Prefabの見た目だけの回転補正です。進行方向と見た目が合わない場合に調整します。")]
+        [SerializeField] private Vector3 trainPrefabEulerAngles = new Vector3(0f, -90f, 0f);
+
         [Header("Train Movement")]
+        [Tooltip("視線の先、何m地点を電車が通るかです。")]
+        [Min(0f)]
         [SerializeField] private float targetDistance = 10f;
-        [SerializeField] private float spawnRightOffset = 7f;
-        [SerializeField] private float trainSpeed = 6f;
+
+        [Tooltip("目標地点の右側、何m離れた場所から出発するかです。大きいほど助走が長くなります。")]
+        [Min(0f)]
+        [SerializeField] private float spawnRightOffset = 14f;
+
+        [Tooltip("電車の移動速度です。Inspectorでここを変えると速さが変わります。")]
+        [Min(0.1f)]
+        [SerializeField] private float trainSpeed = 300f;
+
+        [Tooltip("発動後、何秒で電車を消すかです。")]
+        [Min(0.1f)]
         [SerializeField] private float lifetime = 10f;
-        [SerializeField] private Vector3 trainSize = new Vector3(4f, 1.6f, 1.2f);
-        [SerializeField] private float heightOffset = 0.8f;
+
+        [Tooltip("攻撃判定のサイズです。見た目ではなく当たり判定に使います。")]
+        [SerializeField] private Vector3 trainSize = new Vector3(2f, 2f, 8f);
+
+        [Tooltip("電車の本体位置の高さです。浮く場合は小さくしてください。")]
+        [SerializeField] private float heightOffset = 0.05f;
 
         [Header("Attack")]
+        [Min(0f)]
         [SerializeField] private float damage = 30f;
+
+        [Min(0f)]
         [SerializeField] private float pushForce = 12f;
         [SerializeField] private LayerMask hitMask = ~0;
 
         [Header("Sound")]
+        [SerializeField] private AudioClip trainSound;
+        [SerializeField] private AudioClip hornSound;
+        [Min(0.1f)]
         [SerializeField] private float soundDuration = 2.5f;
-        [SerializeField] private float soundVolume = 0.6f;
+
+        [Min(0f)]
+        [SerializeField] private float soundVolume = 0.85f;
+
+        [Min(0f)]
+        [SerializeField] private float hornVolume = 1.25f;
 
         protected override void Activate(in AbilityContext context, in AbilityActivationData activation)
         {
@@ -38,22 +77,15 @@ namespace Wapawapa.Abilities
             targetPoint.y = baseHeight + heightOffset;
             var spawnPoint = targetPoint + right * spawnRightOffset;
 
-            var train = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            var train = new GameObject("Railway Pass Train");
             train.name = "Railway Pass Train";
             train.transform.SetPositionAndRotation(spawnPoint, Quaternion.LookRotation(travelDirection, Vector3.up));
-            train.transform.localScale = trainSize;
 
-            var renderer = train.GetComponent<Renderer>();
-            if (renderer != null)
-            {
-                renderer.material.color = new Color(0.05f, 0.65f, 0.2f);
-            }
+            CreateTrainVisual(train.transform);
 
-            var collider = train.GetComponent<BoxCollider>();
-            if (collider != null)
-            {
-                collider.isTrigger = true;
-            }
+            var collider = train.AddComponent<BoxCollider>();
+            collider.isTrigger = true;
+            collider.size = trainSize;
 
             var rigidbody = train.AddComponent<Rigidbody>();
             rigidbody.isKinematic = true;
@@ -68,16 +100,64 @@ namespace Wapawapa.Abilities
                 lifetime,
                 damage,
                 pushForce,
+                trainSize,
                 hitMask);
 
+            PlayHornSound(spawnPoint);
             PlayTrainSound(spawnPoint);
+        }
+
+        private void CreateTrainVisual(Transform parent)
+        {
+            if (trainPrefab != null)
+            {
+                var visual = Instantiate(trainPrefab, parent);
+                visual.name = trainPrefab.name;
+                visual.transform.localPosition = trainPrefabLocalPosition;
+                visual.transform.localRotation = Quaternion.Euler(trainPrefabEulerAngles);
+                visual.transform.localScale = trainPrefabScale;
+                return;
+            }
+
+            var fallback = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            fallback.name = "Fallback Train Cube";
+            fallback.transform.SetParent(parent, false);
+            fallback.transform.localScale = trainSize;
+
+            var fallbackCollider = fallback.GetComponent<Collider>();
+            if (fallbackCollider != null)
+            {
+                Destroy(fallbackCollider);
+            }
+
+            var renderer = fallback.GetComponent<Renderer>();
+            if (renderer != null)
+            {
+                renderer.material.color = new Color(0.05f, 0.65f, 0.2f);
+            }
         }
 
         private void PlayTrainSound(Vector3 position)
         {
+            if (trainSound != null)
+            {
+                AudioSource.PlayClipAtPoint(trainSound, position, soundVolume);
+                return;
+            }
+
             var clip = CreateTrainClip(soundDuration);
             AudioSource.PlayClipAtPoint(clip, position, soundVolume);
             Destroy(clip, soundDuration + 0.25f);
+        }
+
+        private void PlayHornSound(Vector3 position)
+        {
+            if (hornSound == null)
+            {
+                return;
+            }
+
+            AudioSource.PlayClipAtPoint(hornSound, position, hornVolume);
         }
 
         private static AudioClip CreateTrainClip(float duration)
@@ -113,6 +193,7 @@ namespace Wapawapa.Abilities
         private float destroyTime;
         private float damage;
         private float pushForce;
+        private Vector3 hitboxSize;
         private LayerMask hitMask;
 
         public void Initialize(
@@ -123,6 +204,7 @@ namespace Wapawapa.Abilities
             float lifetime,
             float damage,
             float pushForce,
+            Vector3 hitboxSize,
             LayerMask hitMask)
         {
             this.abilityId = abilityId;
@@ -132,12 +214,16 @@ namespace Wapawapa.Abilities
             this.destroyTime = Time.time + Mathf.Max(0.1f, lifetime);
             this.damage = damage;
             this.pushForce = pushForce;
+            this.hitboxSize = hitboxSize;
             this.hitMask = hitMask;
         }
 
         private void Update()
         {
-            transform.position += travelDirection * (speed * Time.deltaTime);
+            var startPosition = transform.position;
+            var distance = speed * Time.deltaTime;
+            transform.position += travelDirection * distance;
+            ApplyDamageAlongPath(startPosition, distance);
 
             if (Time.time >= destroyTime)
             {
@@ -146,6 +232,26 @@ namespace Wapawapa.Abilities
         }
 
         private void OnTriggerEnter(Collider other)
+        {
+            TryApplyDamage(other, transform.position);
+        }
+
+        private void ApplyDamageAlongPath(Vector3 startPosition, float distance)
+        {
+            var center = startPosition + travelDirection * (distance * 0.5f);
+            var halfExtents = new Vector3(
+                Mathf.Max(0.01f, hitboxSize.x * 0.5f),
+                Mathf.Max(0.01f, hitboxSize.y * 0.5f),
+                Mathf.Max(0.01f, hitboxSize.z * 0.5f + distance * 0.5f));
+            var rotation = transform.rotation;
+            var hits = Physics.OverlapBox(center, halfExtents, rotation, hitMask, QueryTriggerInteraction.Collide);
+            foreach (var hit in hits)
+            {
+                TryApplyDamage(hit, center);
+            }
+        }
+
+        private void TryApplyDamage(Collider other, Vector3 sourcePosition)
         {
             if (((1 << other.gameObject.layer) & hitMask.value) == 0)
             {
@@ -163,7 +269,7 @@ namespace Wapawapa.Abilities
                 return;
             }
 
-            var hitPoint = other.ClosestPoint(transform.position);
+            var hitPoint = other.ClosestPoint(sourcePosition);
             var damageData = new AbilityDamage(abilityId, damage, travelDirection, pushForce, hitPoint, owner);
             AbilityDamageUtility.TryApplyDamage(other, damageData);
         }
