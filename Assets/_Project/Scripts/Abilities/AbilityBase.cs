@@ -19,12 +19,17 @@ namespace Wapawapa.Abilities
 
         public bool TryActivate(in AbilityContext context)
         {
+            var activation = AbilityActivationData.FromContext(abilityId, context);
+            return TryActivate(context, activation);
+        }
+
+        public bool TryActivate(in AbilityContext context, in AbilityActivationData activation)
+        {
             if (!enabled || !IsReady)
             {
                 return false;
             }
 
-            var activation = AbilityActivationData.FromContext(abilityId, context);
             Activate(context, activation);
             nextReadyTime = Time.time + cooldownSeconds;
             Debug.Log($"Ability activated: {abilityName} ({abilityId})");

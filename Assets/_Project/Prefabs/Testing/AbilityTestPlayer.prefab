@@ -233,6 +233,7 @@ GameObject:
   - component: {fileID: 154464258500715438}
   - component: {fileID: 4440638995107345496}
   - component: {fileID: 8069183724186603606}
+  - component: {fileID: 720230613002}
   - component: {fileID: 8940767640447576866}
   m_Layer: 0
   m_Name: AbilityTestPlayer
@@ -396,6 +397,41 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 4294967295
   effectPrefab: {fileID: 7641784299579720180, guid: 1fc29026f7be04830a033c0c393e821f, type: 3}
+--- !u!114 &720230613002
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 815842106983561014}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 36f1a89416e74e2ba5c9942119cbfb8e, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::Wapawapa.Abilities.RailwayPassAbility
+  abilityId: fuyuno.railway_pass
+  abilityName: Railway Pass
+  cooldownSeconds: 4
+  trainPrefab: {fileID: 4805999474358170395, guid: 9f46b3bc92d84f84380e3044d963b067, type: 3}
+  trainPrefabLocalPosition: {x: 0, y: -0.75, z: 0}
+  trainPrefabScale: {x: 1, y: 1, z: 1}
+  trainPrefabEulerAngles: {x: 0, y: -90, z: 0}
+  targetDistance: 10
+  spawnRightOffset: 14
+  trainSpeed: 300
+  lifetime: 10
+  trainSize: {x: 2, y: 2, z: 8}
+  heightOffset: 0.05
+  damage: 30
+  pushForce: 12
+  hitMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  trainSound: {fileID: 8300000, guid: 4fd0423871e34e0eb1aa47703a4020a6, type: 3}
+  hornSound: {fileID: 8300000, guid: 2d98b26aef864d76935ac69f9e6b2744, type: 3}
+  soundDuration: 2.5
+  soundVolume: 0.85
+  hornVolume: 1.25
 --- !u!114 &8940767640447576866
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -415,6 +451,9 @@ MonoBehaviour:
   - label: Sample Shockwave
     activationKey: 41
     ability: {fileID: 8069183724186603606}
+  - label: Railway Pass
+    activationKey: 42
+    ability: {fileID: 720230613002}
 --- !u!1 &5232864735544927397
 GameObject:
   m_ObjectHideFlags: 0
