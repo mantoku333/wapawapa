@@ -617,7 +617,7 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1001 &72195616138478477
+--- !u!1001 &2645560421622318051
 PrefabInstance:
   m_ObjectHideFlags: 0
   serializedVersion: 2
@@ -627,15 +627,15 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 4249407403077311357, guid: 0cefcac00a5e55445be100c1211905d8, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 0
+      value: 12.76237
       objectReference: {fileID: 0}
     - target: {fileID: 4249407403077311357, guid: 0cefcac00a5e55445be100c1211905d8, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0
+      value: -0
       objectReference: {fileID: 0}
     - target: {fileID: 4249407403077311357, guid: 0cefcac00a5e55445be100c1211905d8, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 0
+      value: 7.82188
       objectReference: {fileID: 0}
     - target: {fileID: 4249407403077311357, guid: 0cefcac00a5e55445be100c1211905d8, type: 3}
       propertyPath: m_LocalRotation.w
@@ -669,6 +669,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: MeteorPenguen
       objectReference: {fileID: 0}
+    - target: {fileID: 7754382093645127712, guid: 0cefcac00a5e55445be100c1211905d8, type: 3}
+      propertyPath: m_CenterOfMass.z
+      value: -0.16
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -685,4 +689,4 @@ SceneRoots:
   - {fileID: 1611390994}
   - {fileID: 796954507}
   - {fileID: 359668045}
-  - {fileID: 72195616138478477}
+  - {fileID: 2645560421622318051}

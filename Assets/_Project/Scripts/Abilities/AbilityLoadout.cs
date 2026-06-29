@@ -26,6 +26,8 @@ namespace Wapawapa.Abilities
         [Header("Slots")]
         [SerializeField] private AbilitySlot[] slots = Array.Empty<AbilitySlot>();
 
+        private AbilitySlot heldSlot;
+
         private void Update()
         {
             var keyboard = Keyboard.current;
@@ -43,7 +45,47 @@ namespace Wapawapa.Abilities
                 }
 
                 var keyControl = keyboard[slot.ActivationKey];
-                if (keyControl != null && keyControl.wasPressedThisFrame)
+                if (keyControl == null)
+                {
+                    continue;
+                }
+
+                if (slot.Ability is IHoldAbility holdAbility)
+                {
+                    if (keyControl.wasPressedThisFrame)
+                    {
+                        if (slot.Ability.IsReady)
+                        {
+                            heldSlot = slot;
+                            holdAbility.BeginHold(context);
+                        }
+                        else
+                        {
+                            Debug.Log($"Ability not ready: {slot.Label} ({slot.Ability.RemainingCooldown:0.0}s)");
+                        }
+                    }
+
+                    if (heldSlot == slot && keyControl.isPressed)
+                    {
+                        holdAbility.UpdateHold(context);
+                    }
+
+                    if (heldSlot == slot && keyControl.wasReleasedThisFrame)
+                    {
+                        holdAbility.EndHold(context, true);
+                        var activated = slot.Ability.TryActivate(context);
+                        if (!activated)
+                        {
+                            Debug.Log($"Ability not ready: {slot.Label} ({slot.Ability.RemainingCooldown:0.0}s)");
+                        }
+
+                        heldSlot = null;
+                    }
+
+                    continue;
+                }
+
+                if (keyControl.wasPressedThisFrame)
                 {
                     var activated = slot.Ability.TryActivate(context);
                     if (!activated)
@@ -51,6 +93,16 @@ namespace Wapawapa.Abilities
                         Debug.Log($"Ability not ready: {slot.Label} ({slot.Ability.RemainingCooldown:0.0}s)");
                     }
                 }
+            }
+        }
+
+        private void OnDisable()
+        {
+            if (heldSlot != null && heldSlot.Ability is IHoldAbility holdAbility)
+            {
+                var context = new AbilityContext(gameObject, head, leftHand, rightHand);
+                holdAbility.EndHold(context, false);
+                heldSlot = null;
             }
         }
     }

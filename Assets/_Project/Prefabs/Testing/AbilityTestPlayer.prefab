@@ -234,6 +234,7 @@ GameObject:
   - component: {fileID: 4440638995107345496}
   - component: {fileID: 8069183724186603606}
   - component: {fileID: 720230613002}
+  - component: {fileID: 6629011852349001201}
   - component: {fileID: 8940767640447576866}
   m_Layer: 0
   m_Name: AbilityTestPlayer
@@ -432,6 +433,48 @@ MonoBehaviour:
   soundDuration: 2.5
   soundVolume: 0.85
   hornVolume: 1.25
+--- !u!114 &6629011852349001201
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 815842106983561014}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4d3cdd150db520243897a57a5db98b27, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Wapawapa.Abilities.PenguinMeteorAbility
+  abilityId: tamura.penguin_meteor
+  abilityName: Penguin Meteor
+  cooldownSeconds: 3
+  targetRadius: 2.5
+  targetEdgeColor: {r: 1, g: 0, b: 0, a: 1}
+  targetFillColor: {r: 1, g: 0, b: 0, a: 0.22}
+  maxAimDistance: 30
+  fallbackTargetDistance: 6
+  useMouseCursorTargeting: 1
+  mouseTargetCamera: {fileID: 8262331073779829304}
+  groundMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  activationDelay: 0.5
+  meteorHeight: 7
+  meteorAngleDegrees: 60
+  spawnFromCameraViewRight: 1
+  penguinCount: 8
+  emissionDuration: 1.2
+  launchSpeed: 12
+  damagePerPenguin: 5
+  pushForce: 3
+  hitMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  penguinPrefab: {fileID: 5351036153012573012, guid: 0cefcac00a5e55445be100c1211905d8, type: 3}
+  penguinAnimatorController: {fileID: 9100000, guid: 7d1f8831137fd734aa5b0d34221b7b3f, type: 2}
+  penguinSwimAnimation: {fileID: 7400000, guid: cec7366f5855ebd46a9a5838d535496a, type: 2}
+  penguinForwardEulerOffset: {x: 0, y: 0, z: 0}
+  penguinLifetime: 8
 --- !u!114 &8940767640447576866
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -448,11 +491,14 @@ MonoBehaviour:
   leftHand: {fileID: 8875108605018845296}
   rightHand: {fileID: 7287373612709021972}
   slots:
-  - label: Sample Shockwave
+  - label: Penguin Meteor
     activationKey: 41
+    ability: {fileID: 6629011852349001201}
+  - label: Sample Shockwave
+    activationKey: 42
     ability: {fileID: 8069183724186603606}
   - label: Railway Pass
-    activationKey: 42
+    activationKey: 43
     ability: {fileID: 720230613002}
 --- !u!1 &5232864735544927397
 GameObject:
