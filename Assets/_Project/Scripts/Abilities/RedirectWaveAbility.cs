@@ -143,11 +143,29 @@ namespace Wapawapa.Abilities
         {
             if (sampledPunchSpeed >= minimumPunchSpeed)
             {
-                direction = sampledPunchDirection;
+                direction = ResolveForwardSafePunchDirection(sampledPunchDirection);
                 return true;
             }
 
-            return TryGetArmedPunchDirection(out direction);
+            if (TryGetArmedPunchDirection(out direction))
+            {
+                direction = ResolveForwardSafePunchDirection(direction);
+                return true;
+            }
+
+            return false;
+        }
+
+        private Vector3 ResolveForwardSafePunchDirection(Vector3 direction)
+        {
+            var forward = fallbackAim != null ? fallbackAim.forward : transform.forward;
+            if (direction.sqrMagnitude <= 0.0001f)
+            {
+                return forward;
+            }
+
+            direction = direction.normalized;
+            return Vector3.Dot(direction, forward) < 0f ? forward : direction;
         }
 
         private void ConsumePunch(Vector3 direction)
@@ -156,10 +174,7 @@ namespace Wapawapa.Abilities
             HideArmedMarker();
             sampledPunchSpeed = 0f;
 
-            if (direction.sqrMagnitude <= 0.0001f)
-            {
-                direction = fallbackAim != null ? fallbackAim.forward : transform.forward;
-            }
+            direction = ResolveForwardSafePunchDirection(direction);
 
             if (activeWave == null)
             {
@@ -178,7 +193,9 @@ namespace Wapawapa.Abilities
         {
             var origin = rightHand != null
                 ? rightHand.position + direction * 0.35f
-                : fallbackAim.position + direction * 0.6f;
+                : fallbackAim != null
+                    ? fallbackAim.position + direction * 0.6f
+                    : transform.position + direction * 0.6f;
 
             var waveObject = GameObject.CreatePrimitive(PrimitiveType.Sphere);
             waveObject.name = "Redirect Wave";
