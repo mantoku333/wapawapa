@@ -87,7 +87,13 @@ namespace Wapawapa.Abilities
             var attacker = TryGetDamageSourcePlayer(damage.Source);
             if (IsNetworked && !HasStateAuthority)
             {
-                RPC_RequestDamage(damage.Amount, damage.Direction, damage.PushForce, damage.Point, attacker);
+                RPC_RequestDamage(
+                    damage.Amount,
+                    damage.Direction,
+                    damage.PushForce,
+                    damage.Point,
+                    attacker,
+                    damage.AbilityId == BloodFocusStrikeAbility.BlackFlashAbilityId);
                 return;
             }
 
@@ -139,9 +145,10 @@ namespace Wapawapa.Abilities
         }
 
         [Rpc(RpcSources.All, RpcTargets.StateAuthority)]
-        private void RPC_RequestDamage(float amount, Vector3 direction, float pushForce, Vector3 point, PlayerRef attacker)
+        private void RPC_RequestDamage(float amount, Vector3 direction, float pushForce, Vector3 point, PlayerRef attacker, bool isBlackFlash)
         {
-            ApplyDamageAuthoritative(new AbilityDamage("network.damage", amount, direction, pushForce, point, null), attacker);
+            var abilityId = isBlackFlash ? BloodFocusStrikeAbility.BlackFlashAbilityId : "network.damage";
+            ApplyDamageAuthoritative(new AbilityDamage(abilityId, amount, direction, pushForce, point, null), attacker);
         }
 
         [Rpc(RpcSources.All, RpcTargets.StateAuthority)]
@@ -157,8 +164,13 @@ namespace Wapawapa.Abilities
         }
 
         [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
-        private void RPC_PlayDamageFeedback(PlayerRef attacker, Vector3 point)
+        private void RPC_PlayDamageFeedback(PlayerRef attacker, Vector3 point, Vector3 direction, bool isBlackFlash)
         {
+            if (isBlackFlash)
+            {
+                BloodFocusStrikeAbility.PlayNetworkFeedback(point, direction);
+            }
+
             if (IsLocalPlayer)
             {
                 PlayerCombatAudio.PlayLocalHitTaken(transform.position);
@@ -185,10 +197,15 @@ namespace Wapawapa.Abilities
 
             if (IsNetworked)
             {
-                RPC_PlayDamageFeedback(attacker, damage.Point);
+                RPC_PlayDamageFeedback(attacker, damage.Point, damage.Direction, damage.AbilityId == BloodFocusStrikeAbility.BlackFlashAbilityId);
             }
             else
             {
+                if (damage.AbilityId == BloodFocusStrikeAbility.BlackFlashAbilityId)
+                {
+                    BloodFocusStrikeAbility.PlayNetworkFeedback(damage.Point, damage.Direction);
+                }
+
                 PlayerCombatAudio.PlayLocalHitTaken(transform.position);
                 PlayerCombatAudio.PlayLocalHitLanded(damage.Point);
             }

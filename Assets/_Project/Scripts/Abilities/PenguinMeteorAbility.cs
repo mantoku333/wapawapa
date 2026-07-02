@@ -457,6 +457,7 @@ namespace Wapawapa.Abilities
     internal sealed class PenguinMeteorProjectile : MonoBehaviour
     {
         private readonly HashSet<Transform> damagedRoots = new HashSet<Transform>();
+        private readonly Collider[] overlapHits = new Collider[16];
 
         private string abilityId;
         private GameObject owner;
@@ -464,6 +465,7 @@ namespace Wapawapa.Abilities
         private float pushForce;
         private LayerMask hitMask;
         private float destroyTime;
+        private Collider projectileCollider;
 
         public void Initialize(string abilityId, GameObject owner, float damage, float pushForce, LayerMask hitMask, float lifetime)
         {
@@ -473,6 +475,7 @@ namespace Wapawapa.Abilities
             this.pushForce = pushForce;
             this.hitMask = hitMask;
             destroyTime = Time.time + Mathf.Max(0.1f, lifetime);
+            projectileCollider = GetComponent<Collider>();
         }
 
         private void Update()
@@ -480,7 +483,44 @@ namespace Wapawapa.Abilities
             if (Time.time >= destroyTime)
             {
                 Destroy(gameObject);
+                return;
             }
+
+            ScanOverlaps();
+        }
+
+        private void ScanOverlaps()
+        {
+            var radius = GetDamageRadius();
+            var count = Physics.OverlapSphereNonAlloc(transform.position, radius, overlapHits, hitMask, QueryTriggerInteraction.Collide);
+            for (var i = 0; i < count; i++)
+            {
+                var other = overlapHits[i];
+                overlapHits[i] = null;
+
+                if (other == projectileCollider)
+                {
+                    continue;
+                }
+
+                TryApplyDamage(other, other != null ? other.ClosestPoint(transform.position) : transform.position);
+            }
+        }
+
+        private float GetDamageRadius()
+        {
+            if (projectileCollider == null)
+            {
+                projectileCollider = GetComponent<Collider>();
+            }
+
+            if (projectileCollider == null)
+            {
+                return 0.5f;
+            }
+
+            var extents = projectileCollider.bounds.extents;
+            return Mathf.Max(0.2f, Mathf.Max(extents.x, Mathf.Max(extents.y, extents.z)) * 0.9f);
         }
 
         private void OnCollisionEnter(Collision collision)

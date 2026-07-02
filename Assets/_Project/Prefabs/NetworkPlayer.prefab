@@ -22,6 +22,8 @@ GameObject:
   - component: {fileID: 648263914010001001}
   - component: {fileID: 648263914010001002}
   - component: {fileID: 4983933929722795847}
+  - component: {fileID: 648263914010001003}
+  - component: {fileID: 648263914010001004}
   m_Layer: 0
   m_Name: NetworkPlayer
   m_TagString: Untagged
@@ -122,8 +124,8 @@ CharacterController:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Height: 4.16
-  m_Radius: 1.17
+  m_Height: 2.51
+  m_Radius: 0.54
   m_SlopeLimit: 45
   m_StepOffset: 0.3
   m_SkinWidth: 0.08
@@ -139,7 +141,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: -1552182283, guid: e725a070cec140c4caffb81624c8c787, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Fusion.Runtime.dll::Fusion.NetworkObject
   SortKey: 2640479367
   ObjectInterest: 1
@@ -164,7 +166,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 158639473, guid: e725a070cec140c4caffb81624c8c787, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Fusion.Runtime.dll::Fusion.NetworkTransform
   _stateAuthorityChangeErrorCorrectionDelta: 0
   SyncScale: 0
@@ -193,8 +195,9 @@ MonoBehaviour:
   vrTurnSpeed: 75
   jumpHeight: 1.1
   gravity: -18
-  desktopPunchDistance: 0.65
+  desktopPunchDistance: 0.95
   desktopPunchSpeed: 12
+  desktopPunchHitWindow: 0.45
 --- !u!114 &2254623602058013638
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -239,12 +242,12 @@ MonoBehaviour:
   trainPrefabEulerAngles: {x: 0, y: -90, z: 0}
   targetDistance: 10
   spawnRightOffset: 14
-  trainSpeed: 300
+  trainSpeed: 50
   lifetime: 10
   trainSize: {x: 2, y: 2, z: 8}
   heightOffset: 0.05
-  damage: 30
-  pushForce: 12
+  damage: 80
+  pushForce: 40
   hitMask:
     serializedVersion: 2
     m_Bits: 4294967295
@@ -275,6 +278,9 @@ MonoBehaviour:
   - label: Railway Pass
     activationKey: 42
     ability: {fileID: 720230613002}
+  - label: Penguin Meteor
+    activationKey: 43
+    ability: {fileID: 648263914010001004}
 --- !u!114 &39447127725387979
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -346,6 +352,83 @@ MonoBehaviour:
   repeatHitDelay: 0.25
   ignoreHandToHandHits: 1
   ignoreSelfHits: 1
+--- !u!114 &648263914010001003
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 378567223904163175}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e835ac2d67ba415f97abf1754102ef07, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::Wapawapa.Abilities.BloodFocusStrikeAbility
+  abilityId: kita.blood_focus_strike
+  abilityName: Blood Focus Strike
+  cooldownSeconds: 0.15
+  gaugeCycleSeconds: 1.4
+  maxZoneStartRatio: 0.9
+  baseDamage: 18
+  focusedDamageMultiplier: 2
+  pushForce: 9
+  hitRadius: 0.45
+  minimumHandSpeed: 0.9
+  hitMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  showGaugeUi: 1
+  gaugeAnchoredPosition: {x: -88, y: 0}
+  gaugeSize: {x: 34, y: 260}
+  spawnDebugVisuals: 1
+  focusVisualScale: 0.5
+  impactEffectLifetime: 0.35
+  impactEffectScale: 1.2
+  blackFlashClip: {fileID: 0}
+  blackFlashVolume: 1
+  generatedSoundDuration: 0.28
+--- !u!114 &648263914010001004
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 378567223904163175}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4d3cdd150db520243897a57a5db98b27, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::Wapawapa.Abilities.PenguinMeteorAbility
+  abilityId: tamura.penguin_meteor
+  abilityName: Penguin Meteor
+  cooldownSeconds: 3
+  targetRadius: 2.5
+  targetEdgeColor: {r: 1, g: 0, b: 0, a: 1}
+  targetFillColor: {r: 1, g: 0, b: 0, a: 0.22}
+  maxAimDistance: 30
+  fallbackTargetDistance: 6
+  useMouseCursorTargeting: 1
+  mouseTargetCamera: {fileID: 7274429187156850369}
+  groundMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  activationDelay: 0.5
+  meteorHeight: 7
+  meteorAngleDegrees: 60
+  spawnFromCameraViewRight: 1
+  penguinCount: 8
+  emissionDuration: 1.2
+  launchSpeed: 12
+  damagePerPenguin: 5
+  pushForce: 3
+  hitMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  penguinPrefab: {fileID: 5351036153012573012, guid: 0cefcac00a5e55445be100c1211905d8, type: 3}
+  penguinAnimatorController: {fileID: 9100000, guid: 7d1f8831137fd734aa5b0d34221b7b3f, type: 2}
+  penguinSwimAnimation: {fileID: 7400000, guid: cec7366f5855ebd46a9a5838d535496a, type: 2}
+  penguinForwardEulerOffset: {x: 0, y: 0, z: 0}
+  penguinLifetime: 8
 --- !u!1 &3812546525580562755
 GameObject:
   m_ObjectHideFlags: 0
@@ -490,6 +573,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Wapawapa.Boxing.PunchHitbox
   punchSettings: {fileID: 4983933929722795847}
+  hitMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  overlapRadiusMultiplier: 2.5
+  minimumOverlapRadius: 0.32
 --- !u!1 &4479789907585880043
 GameObject:
   m_ObjectHideFlags: 0
@@ -880,3 +968,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Wapawapa.Boxing.PunchHitbox
   punchSettings: {fileID: 4983933929722795847}
+  hitMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  overlapRadiusMultiplier: 2.5
+  minimumOverlapRadius: 0.32

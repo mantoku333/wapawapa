@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
+using Wapawapa.Boxing;
 
 namespace Wapawapa.Testing
 {
@@ -15,9 +16,12 @@ namespace Wapawapa.Testing
         [SerializeField] private float gravity = -18f;
         [SerializeField] private float punchDistance = 0.65f;
         [SerializeField] private float punchSpeed = 12f;
+        [SerializeField] private float punchHitWindow = 0.35f;
 
         private Vector3 leftRestLocalPosition;
         private Vector3 rightRestLocalPosition;
+        private PunchHitbox leftPunchHitbox;
+        private PunchHitbox rightPunchHitbox;
         private float pitch;
         private float verticalVelocity;
         private float groundY;
@@ -29,11 +33,13 @@ namespace Wapawapa.Testing
             if (leftHand != null)
             {
                 leftRestLocalPosition = leftHand.localPosition;
+                leftPunchHitbox = leftHand.GetComponent<PunchHitbox>();
             }
 
             if (rightHand != null)
             {
                 rightRestLocalPosition = rightHand.localPosition;
+                rightPunchHitbox = rightHand.GetComponent<PunchHitbox>();
             }
         }
 
@@ -74,6 +80,16 @@ namespace Wapawapa.Testing
             var mouse = Mouse.current;
             var leftPunching = mouse != null && mouse.leftButton.isPressed;
             var rightPunching = mouse != null && mouse.rightButton.isPressed;
+            if (mouse != null && mouse.leftButton.wasPressedThisFrame)
+            {
+                leftPunchHitbox?.StartManualPunch(transform.forward, punchHitWindow);
+            }
+
+            if (mouse != null && mouse.rightButton.wasPressedThisFrame)
+            {
+                rightPunchHitbox?.StartManualPunch(transform.forward, punchHitWindow);
+            }
+
             ApplyPunchPose(leftHand, leftRestLocalPosition, leftPunching);
             ApplyPunchPose(rightHand, rightRestLocalPosition, rightPunching);
         }
