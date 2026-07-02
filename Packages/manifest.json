@@ -12,7 +12,6 @@
     }
   ],
   "dependencies": {
-<<<<<<< HEAD
     "com.coffee.softmask-for-ugui": "3.5.1",
     "com.coffee.ui-effect": "5.10.9",
     "com.coffee.ui-particle": "5.0.0-preview.17",
@@ -21,9 +20,7 @@
     "com.cysharp.unitask": "2.5.11",
     "com.dbrizov.naughtyattributes": "2.1.5",
     "com.github-glitchenzo.nugetforunity": "4.5.0",
-=======
     "com.unity.cloud.gltfast": "6.12.0",
->>>>>>> origin/Develop
     "com.unity.feature.development": "1.0.2",
     "com.unity.ide.rider": "3.0.39",
     "com.unity.inputsystem": "1.19.0",
