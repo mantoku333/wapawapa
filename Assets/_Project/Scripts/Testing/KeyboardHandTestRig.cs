@@ -77,15 +77,14 @@ namespace Wapawapa.Testing
                 verticalVelocity = -0.5f;
             }
 
-            var mouse = Mouse.current;
-            var leftPunching = keyboard.qKey.isPressed || (mouse != null && mouse.leftButton.isPressed);
-            var rightPunching = keyboard.eKey.isPressed || (mouse != null && mouse.rightButton.isPressed);
-            if (keyboard.qKey.wasPressedThisFrame || (mouse != null && mouse.leftButton.wasPressedThisFrame))
+            var leftPunching = keyboard.qKey.isPressed;
+            var rightPunching = keyboard.eKey.isPressed;
+            if (keyboard.qKey.wasPressedThisFrame)
             {
                 leftPunchHitbox?.StartManualPunch(transform.forward, punchHitWindow);
             }
 
-            if (keyboard.eKey.wasPressedThisFrame || (mouse != null && mouse.rightButton.wasPressedThisFrame))
+            if (keyboard.eKey.wasPressedThisFrame)
             {
                 rightPunchHitbox?.StartManualPunch(transform.forward, punchHitWindow);
             }

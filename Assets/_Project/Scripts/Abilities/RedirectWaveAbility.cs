@@ -397,6 +397,12 @@ namespace Wapawapa.Abilities
                 var moveDistance = Mathf.Min(speed * Time.fixedDeltaTime, remainingTravelDistance);
                 transform.position += direction * moveDistance;
                 remainingTravelDistance -= moveDistance;
+
+                if (redirected && remainingTravelDistance <= 0f)
+                {
+                    Destroy(gameObject);
+                    return;
+                }
             }
 
             if (Time.time >= destroyTime)
