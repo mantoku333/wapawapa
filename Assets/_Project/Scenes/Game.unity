@@ -1485,7 +1485,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2100000002}
   m_Layer: 0
-  m_Name: Player1SpawnPoint
+  m_Name: StartPoint1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1516,7 +1516,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2100000004}
   m_Layer: 0
-  m_Name: Player2SpawnPoint
+  m_Name: StartPoint2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

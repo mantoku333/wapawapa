@@ -81,6 +81,26 @@ namespace Wapawapa.Abilities
         [Min(0.1f)]
         [SerializeField] private float penguinLifetime = 8f;
 
+        [Header("Sound")]
+        [Tooltip("ペンギンが1匹生成されるたびに鳴るSEです。")]
+        [SerializeField] private AudioClip penguinSpawnSound;
+        [Tooltip("ペンギン生成SEの音量です。")]
+        [Min(0f)]
+        [SerializeField] private float penguinSpawnVolume = 0.85f;
+        [Tooltip("ペンギン生成SEの3D感です。0に近いほど距離で小さくなりにくくなります。")]
+        [SerializeField, Range(0f, 1f)] private float penguinSpawnSpatialBlend = 0f;
+        [Tooltip("ペンギン生成SEが減衰し始める距離です。")]
+        [Min(0f)]
+        [SerializeField] private float penguinSpawnMinDistance = 10f;
+        [Tooltip("ペンギン生成SEが聞こえる最大距離です。")]
+        [Min(0.01f)]
+        [SerializeField] private float penguinSpawnMaxDistance = 80f;
+        [Tooltip("ペンギンがプレイヤーにダメージを与えた時に鳴るSEです。")]
+        [SerializeField] private AudioClip penguinDamageSound;
+        [Tooltip("ペンギンダメージSEの音量です。")]
+        [Min(0f)]
+        [SerializeField] private float penguinDamageVolume = 1f;
+
         private TargetIndicator indicator;
         private bool hasTarget;
         private Vector3 targetCenter;
@@ -333,6 +353,7 @@ namespace Wapawapa.Abilities
                 : GameObject.CreatePrimitive(PrimitiveType.Capsule);
 
             penguin.name = "Penguin Meteor Projectile";
+            PlayConfiguredSound(penguinSpawnSound, position, penguinSpawnVolume, penguinSpawnSpatialBlend, penguinSpawnMinDistance, penguinSpawnMaxDistance);
             EnsureAnimator(penguin);
 
             var collider = penguin.GetComponent<Collider>();
@@ -357,7 +378,27 @@ namespace Wapawapa.Abilities
                 projectile = penguin.AddComponent<PenguinMeteorProjectile>();
             }
 
-            projectile.Initialize(abilityId, owner, damagePerPenguin, pushForce, hitMask, penguinLifetime);
+            projectile.Initialize(abilityId, owner, damagePerPenguin, pushForce, hitMask, penguinLifetime, penguinDamageSound, penguinDamageVolume);
+        }
+
+        private static void PlayConfiguredSound(AudioClip clip, Vector3 position, float volume, float spatialBlend, float minDistance, float maxDistance)
+        {
+            if (clip == null)
+            {
+                return;
+            }
+
+            var audioObject = new GameObject($"Penguin Audio - {clip.name}");
+            audioObject.transform.position = position;
+            var source = audioObject.AddComponent<AudioSource>();
+            source.clip = clip;
+            source.volume = volume;
+            source.spatialBlend = spatialBlend;
+            source.minDistance = minDistance;
+            source.maxDistance = Mathf.Max(minDistance + 0.01f, maxDistance);
+            source.rolloffMode = AudioRolloffMode.Linear;
+            source.Play();
+            Destroy(audioObject, clip.length + 0.25f);
         }
 
         private void EnsureAnimator(GameObject penguin)
@@ -466,14 +507,26 @@ namespace Wapawapa.Abilities
         private LayerMask hitMask;
         private float destroyTime;
         private Collider projectileCollider;
+        private AudioClip damageSound;
+        private float damageSoundVolume;
 
-        public void Initialize(string abilityId, GameObject owner, float damage, float pushForce, LayerMask hitMask, float lifetime)
+        public void Initialize(
+            string abilityId,
+            GameObject owner,
+            float damage,
+            float pushForce,
+            LayerMask hitMask,
+            float lifetime,
+            AudioClip damageSound,
+            float damageSoundVolume)
         {
             this.abilityId = abilityId;
             this.owner = owner;
             this.damage = damage;
             this.pushForce = pushForce;
             this.hitMask = hitMask;
+            this.damageSound = damageSound;
+            this.damageSoundVolume = damageSoundVolume;
             destroyTime = Time.time + Mathf.Max(0.1f, lifetime);
             projectileCollider = GetComponent<Collider>();
         }
@@ -559,7 +612,20 @@ namespace Wapawapa.Abilities
             }
 
             var damageData = new AbilityDamage(abilityId, damage, direction, pushForce, point, owner);
-            AbilityDamageUtility.TryApplyDamage(other, damageData);
+            if (AbilityDamageUtility.TryApplyDamage(other, damageData))
+            {
+                PlaySound(damageSound, point, damageSoundVolume);
+            }
+        }
+
+        private static void PlaySound(AudioClip clip, Vector3 position, float volume)
+        {
+            if (clip == null)
+            {
+                return;
+            }
+
+            AudioSource.PlayClipAtPoint(clip, position, volume);
         }
     }
 

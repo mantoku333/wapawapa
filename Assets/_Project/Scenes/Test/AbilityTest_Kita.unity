@@ -546,7 +546,8 @@ MonoBehaviour:
   focusVisualScale: 0.5
   impactEffectLifetime: 0.35
   impactEffectScale: 1.2
-  blackFlashClip: {fileID: 0}
+  blackFlashClip: {fileID: 8300000, guid: d305c6bc97894ef8b3c45ded6919821a, type: 3}
+  blackFlashLightningClip: {fileID: 8300000, guid: e5e656ec29cd48fcb27e2c8aa3935f93, type: 3}
   blackFlashVolume: 1
   generatedSoundDuration: 0.28
 --- !u!1 &1775834476

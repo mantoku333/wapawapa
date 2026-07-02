@@ -102,7 +102,9 @@ namespace Wapawapa.Networking
                 }
             }
 
-            GUILayout.BeginArea(new Rect(16f, 16f, 360f, 150f), GUI.skin.box);
+            const float width = 360f;
+            const float height = 150f;
+            GUILayout.BeginArea(new Rect(16f, Screen.height - height - 16f, width, height), GUI.skin.box);
             GUILayout.Label($"Players: {playerCount} / 2");
             GUILayout.Label("Desktop: WASD + Mouse | Esc unlocks cursor");
             GUILayout.Label("VR: Head/controllers + left stick movement");
