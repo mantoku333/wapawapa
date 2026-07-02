@@ -1,6 +1,8 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.Rendering;
+using UnityEngine.Video;
 
 namespace Wapawapa.Abilities
 {
@@ -71,12 +73,31 @@ namespace Wapawapa.Abilities
         [Min(0.1f)]
         [SerializeField] private float 最大飛行時間 = 8f;
 
+        [Header("デバッグ")]
+        [Tooltip("飛行中の炎をその場で爆発させるデバッグ用キーです。Noneなら使いません。")]
+        [SerializeField] private Key デバッグ爆発キー = Key.None;
+
         [Header("見た目")]
         [Tooltip("飛んでいく炎の見た目Prefabです。未設定の場合は簡易表示を生成します。")]
         [SerializeField] private GameObject 炎エフェクトPrefab;
 
         [Tooltip("爆発時の見た目Prefabです。未設定の場合は簡易表示を生成します。")]
         [SerializeField] private GameObject 爆発エフェクトPrefab;
+
+        [Tooltip("爆発時にビルボード表示する動画です。設定されている場合はPrefabより優先します。")]
+        [SerializeField] private VideoClip 爆発動画;
+
+        [Tooltip("爆発動画の音量です。")]
+        [Range(0f, 1f)]
+        [SerializeField] private float 爆発動画音量 = 1f;
+
+        [Tooltip("爆発動画の再生速度です。")]
+        [Min(0.1f)]
+        [SerializeField] private float 爆発動画再生速度 = 1f;
+
+        [Tooltip("爆発動画ビルボードの高さです。横幅は動画の元サイズ比率に合わせます。")]
+        [Min(0.1f)]
+        [SerializeField] private float 爆発動画サイズ = 3f;
 
         [Tooltip("爆発エフェクトを消すまでの時間です。")]
         [Min(0.1f)]
@@ -168,7 +189,7 @@ namespace Wapawapa.Abilities
                 return;
             }
 
-            if (handIsClosed)
+            if (handIsClosed || IsDebugExplosionKeyPressed())
             {
                 Explode(activeEffect.transform.position);
                 return;
@@ -222,6 +243,23 @@ namespace Wapawapa.Abilities
             }
 
             return Mathf.Clamp01(action.ReadValue<float>());
+        }
+
+        private bool IsDebugExplosionKeyPressed()
+        {
+            if (デバッグ爆発キー == Key.None)
+            {
+                return false;
+            }
+
+            var keyboard = Keyboard.current;
+            if (keyboard == null)
+            {
+                return false;
+            }
+
+            var keyControl = keyboard[デバッグ爆発キー];
+            return keyControl != null && keyControl.wasPressedThisFrame;
         }
 
         private bool IsRightHandPushedForward(in AbilityContext context)
@@ -324,7 +362,18 @@ namespace Wapawapa.Abilities
         private void CreateExplosionEffect(Vector3 center)
         {
             GameObject effect;
-            if (爆発エフェクトPrefab != null)
+            if (爆発動画 != null)
+            {
+                FlameBombExplosionVideoBillboard.Create(
+                    爆発動画,
+                    center,
+                    頭,
+                    爆発動画サイズ,
+                    爆発動画音量,
+                    爆発動画再生速度);
+                return;
+            }
+            else if (爆発エフェクトPrefab != null)
             {
                 effect = Instantiate(爆発エフェクトPrefab, center, Quaternion.identity);
             }
@@ -386,6 +435,149 @@ namespace Wapawapa.Abilities
 
             Gizmos.color = new Color(1f, 0.2f, 0f, 0.35f);
             Gizmos.DrawWireSphere(activeEffect.transform.position, 爆発半径);
+        }
+    }
+
+    internal sealed class FlameBombExplosionVideoBillboard : MonoBehaviour
+    {
+        private Transform target;
+        private RenderTexture renderTexture;
+        private Material videoMaterial;
+
+        public static GameObject Create(
+            VideoClip clip,
+            Vector3 position,
+            Transform lookTarget,
+            float size,
+            float volume,
+            float playbackSpeed)
+        {
+            var billboard = GameObject.CreatePrimitive(PrimitiveType.Quad);
+            billboard.name = "Flame Bomb Explosion Video";
+            billboard.transform.position = position;
+            billboard.transform.localScale = CalculateBillboardScale(clip, size);
+
+            var collider = billboard.GetComponent<Collider>();
+            if (collider != null)
+            {
+                Destroy(collider);
+            }
+
+            var controller = billboard.AddComponent<FlameBombExplosionVideoBillboard>();
+            controller.Initialize(clip, lookTarget, volume, playbackSpeed);
+
+            var duration = clip != null
+                ? Mathf.Max(0.1f, (float)(clip.length / Mathf.Max(0.1f, playbackSpeed)))
+                : 0.1f;
+            Destroy(billboard, duration + 0.25f);
+
+            return billboard;
+        }
+
+        private static Vector3 CalculateBillboardScale(VideoClip clip, float height)
+        {
+            var safeHeight = Mathf.Max(0.1f, height);
+            if (clip == null || clip.height == 0)
+            {
+                return Vector3.one * safeHeight;
+            }
+
+            var aspect = Mathf.Max(0.01f, clip.width / (float)clip.height);
+            return new Vector3(safeHeight * aspect, safeHeight, 1f);
+        }
+
+        private void Initialize(VideoClip clip, Transform lookTarget, float volume, float playbackSpeed)
+        {
+            target = lookTarget;
+
+            var textureSize = CalculateRenderTextureSize(clip);
+            renderTexture = new RenderTexture(textureSize.x, textureSize.y, 0, RenderTextureFormat.ARGB32);
+            renderTexture.Create();
+
+            var shader = Shader.Find("Unlit/Texture");
+            videoMaterial = shader != null ? new Material(shader) : new Material(Shader.Find("Standard"));
+            videoMaterial.mainTexture = renderTexture;
+            videoMaterial.SetInt("_Cull", (int)CullMode.Off);
+
+            var meshRenderer = GetComponent<MeshRenderer>();
+            if (meshRenderer != null)
+            {
+                meshRenderer.material = videoMaterial;
+            }
+
+            var audioSource = gameObject.AddComponent<AudioSource>();
+            audioSource.playOnAwake = false;
+            audioSource.spatialBlend = 1f;
+            audioSource.volume = Mathf.Clamp01(volume);
+
+            var videoPlayer = gameObject.AddComponent<VideoPlayer>();
+            videoPlayer.playOnAwake = false;
+            videoPlayer.isLooping = false;
+            videoPlayer.clip = clip;
+            videoPlayer.renderMode = VideoRenderMode.RenderTexture;
+            videoPlayer.targetTexture = renderTexture;
+            videoPlayer.audioOutputMode = VideoAudioOutputMode.AudioSource;
+            videoPlayer.playbackSpeed = Mathf.Max(0.1f, playbackSpeed);
+            videoPlayer.controlledAudioTrackCount = 1;
+            videoPlayer.EnableAudioTrack(0, true);
+            videoPlayer.SetTargetAudioSource(0, audioSource);
+            videoPlayer.Play();
+        }
+
+        private static Vector2Int CalculateRenderTextureSize(VideoClip clip)
+        {
+            const int maxSide = 1024;
+            if (clip == null || clip.width == 0 || clip.height == 0)
+            {
+                return new Vector2Int(maxSide, maxSide);
+            }
+
+            var width = (int)clip.width;
+            var height = (int)clip.height;
+            if (width >= height)
+            {
+                var scaledHeight = Mathf.Max(1, Mathf.RoundToInt(maxSide * (height / (float)width)));
+                return new Vector2Int(maxSide, scaledHeight);
+            }
+
+            var scaledWidth = Mathf.Max(1, Mathf.RoundToInt(maxSide * (width / (float)height)));
+            return new Vector2Int(scaledWidth, maxSide);
+        }
+
+        private void LateUpdate()
+        {
+            var lookSource = target != null
+                ? target
+                : Camera.main != null
+                    ? Camera.main.transform
+                    : null;
+
+            if (lookSource == null)
+            {
+                return;
+            }
+
+            var direction = transform.position - lookSource.position;
+            if (direction.sqrMagnitude <= 0.0001f)
+            {
+                return;
+            }
+
+            transform.rotation = Quaternion.LookRotation(direction.normalized, Vector3.up);
+        }
+
+        private void OnDestroy()
+        {
+            if (videoMaterial != null)
+            {
+                Destroy(videoMaterial);
+            }
+
+            if (renderTexture != null)
+            {
+                renderTexture.Release();
+                Destroy(renderTexture);
+            }
         }
     }
 }
