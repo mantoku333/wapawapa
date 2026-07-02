@@ -2,6 +2,7 @@ using Fusion;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.XR;
+using Wapawapa.Boxing;
 using XRCommonUsages = UnityEngine.XR.CommonUsages;
 
 namespace Wapawapa.Gameplay
@@ -24,11 +25,16 @@ namespace Wapawapa.Gameplay
         [SerializeField] private float gravity = -18f;
         [SerializeField] private float desktopPunchDistance = 0.65f;
         [SerializeField] private float desktopPunchSpeed = 12f;
+        [SerializeField] private float desktopPunchHitWindow = 0.35f;
 
         private CharacterController characterController;
+        private PunchHitbox leftPunchHitbox;
+        private PunchHitbox rightPunchHitbox;
         private Vector2 accumulatedMouseDelta;
         private float desktopPitch;
         private bool jumpRequested;
+        private bool leftPunchRequested;
+        private bool rightPunchRequested;
         private float verticalVelocity;
         private bool xrTrackingAvailable;
 
@@ -42,6 +48,8 @@ namespace Wapawapa.Gameplay
         private void Awake()
         {
             characterController = GetComponent<CharacterController>();
+            leftPunchHitbox = leftHand != null ? leftHand.GetComponent<PunchHitbox>() : null;
+            rightPunchHitbox = rightHand != null ? rightHand.GetComponent<PunchHitbox>() : null;
         }
 
         public override void Spawned()
@@ -81,6 +89,7 @@ namespace Wapawapa.Gameplay
                 CaptureDesktopLook();
                 CaptureKeyboardLook();
                 CaptureDesktopJump();
+                CaptureDesktopPunch();
             }
         }
 
@@ -111,6 +120,18 @@ namespace Wapawapa.Gameplay
                 var mouse = Mouse.current;
                 var leftPunching = mouse != null && mouse.leftButton.isPressed;
                 var rightPunching = mouse != null && mouse.rightButton.isPressed;
+                if (leftPunchRequested)
+                {
+                    leftPunchHitbox?.StartManualPunch(transform.forward, desktopPunchHitWindow);
+                }
+
+                if (rightPunchRequested)
+                {
+                    rightPunchHitbox?.StartManualPunch(transform.forward, desktopPunchHitWindow);
+                }
+
+                leftPunchRequested = false;
+                rightPunchRequested = false;
                 var leftHandTarget = new Vector3(-0.32f, 1.25f, 0.38f + (leftPunching ? desktopPunchDistance : 0f));
                 var rightHandTarget = new Vector3(0.32f, 1.25f, 0.38f + (rightPunching ? desktopPunchDistance : 0f));
                 leftHand.localPosition = Vector3.Lerp(leftHand.localPosition, leftHandTarget, 1f - Mathf.Exp(-desktopPunchSpeed * Runner.DeltaTime));
@@ -195,6 +216,18 @@ namespace Wapawapa.Gameplay
             {
                 jumpRequested = true;
             }
+        }
+
+        private void CaptureDesktopPunch()
+        {
+            var mouse = Mouse.current;
+            if (mouse == null)
+            {
+                return;
+            }
+
+            leftPunchRequested |= mouse.leftButton.wasPressedThisFrame;
+            rightPunchRequested |= mouse.rightButton.wasPressedThisFrame;
         }
 
         private void CaptureKeyboardLook()

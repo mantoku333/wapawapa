@@ -12,6 +12,8 @@ namespace Wapawapa.Boxing
         private Transform ownerRoot;
         private Vector3 previousPosition;
         private Vector3 velocity;
+        private Vector3 manualPunchDirection;
+        private float manualPunchEndsAt;
 
         private void OnEnable()
         {
@@ -58,7 +60,8 @@ namespace Wapawapa.Boxing
                 return;
             }
 
-            if (velocity.magnitude < punchSettings.MinimumHitSpeed)
+            var hasManualPunch = Time.time <= manualPunchEndsAt;
+            if (!hasManualPunch && velocity.magnitude < punchSettings.MinimumHitSpeed)
             {
                 return;
             }
@@ -73,7 +76,7 @@ namespace Wapawapa.Boxing
                 return;
             }
 
-            var direction = velocity.normalized;
+            var direction = hasManualPunch ? manualPunchDirection : velocity.normalized;
             var hitPoint = other.ClosestPoint(transform.position);
             receiver.ApplyDamage(new AbilityDamage(
                 punchSettings.PunchId,
@@ -88,6 +91,17 @@ namespace Wapawapa.Boxing
         public void SetPunchSettings(PlayerPunchSettings settings)
         {
             punchSettings = settings;
+        }
+
+        public void StartManualPunch(Vector3 direction, float duration)
+        {
+            if (duration <= 0f)
+            {
+                return;
+            }
+
+            manualPunchDirection = direction.sqrMagnitude > 0.0001f ? direction.normalized : transform.forward;
+            manualPunchEndsAt = Time.time + duration;
         }
 
         private static bool TryGetReceiver(Collider other, out IAbilityDamageReceiver receiver, out Component receiverComponent)
