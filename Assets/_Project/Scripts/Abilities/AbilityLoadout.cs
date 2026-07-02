@@ -27,6 +27,7 @@ namespace Wapawapa.Abilities
         [Header("Slots")]
         [SerializeField] private AbilitySlot[] slots = Array.Empty<AbilitySlot>();
 
+        private AbilitySlot heldSlot;
         private NetworkObject networkObject;
 
         private void Awake()
@@ -56,10 +57,55 @@ namespace Wapawapa.Abilities
                 }
 
                 var keyControl = keyboard[slot.ActivationKey];
-                if (keyControl != null && keyControl.wasPressedThisFrame)
+                if (keyControl == null)
+                {
+                    continue;
+                }
+
+                if (slot.Ability is IHoldAbility holdAbility)
+                {
+                    var context = CreateContext();
+                    if (keyControl.wasPressedThisFrame)
+                    {
+                        if (slot.Ability.IsReady)
+                        {
+                            heldSlot = slot;
+                            holdAbility.BeginHold(context);
+                        }
+                        else
+                        {
+                            Debug.Log($"Ability not ready: {slot.Label} ({slot.Ability.RemainingCooldown:0.0}s)");
+                        }
+                    }
+
+                    if (heldSlot == slot && keyControl.isPressed)
+                    {
+                        holdAbility.UpdateHold(context);
+                    }
+
+                    if (heldSlot == slot && keyControl.wasReleasedThisFrame)
+                    {
+                        holdAbility.EndHold(context, true);
+                        TryActivateSlot(i);
+                        heldSlot = null;
+                    }
+
+                    continue;
+                }
+
+                if (keyControl.wasPressedThisFrame)
                 {
                     TryActivateSlot(i);
                 }
+            }
+        }
+
+        private void OnDisable()
+        {
+            if (heldSlot != null && heldSlot.Ability is IHoldAbility holdAbility)
+            {
+                holdAbility.EndHold(CreateContext(), false);
+                heldSlot = null;
             }
         }
 
