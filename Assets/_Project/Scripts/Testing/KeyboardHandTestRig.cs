@@ -78,13 +78,13 @@ namespace Wapawapa.Testing
             }
 
             var leftPunching = keyboard.qKey.isPressed;
-            var rightPunching = keyboard.eKey.isPressed;
+            var rightPunching = keyboard.eKey.isPressed || keyboard.digit5Key.isPressed;
             if (keyboard.qKey.wasPressedThisFrame)
             {
                 leftPunchHitbox?.StartManualPunch(transform.forward, punchHitWindow);
             }
 
-            if (keyboard.eKey.wasPressedThisFrame)
+            if (keyboard.eKey.wasPressedThisFrame || keyboard.digit5Key.wasPressedThisFrame)
             {
                 rightPunchHitbox?.StartManualPunch(transform.forward, punchHitWindow);
             }
