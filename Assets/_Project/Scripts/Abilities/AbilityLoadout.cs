@@ -1,10 +1,11 @@
 using System;
+using Fusion;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
 namespace Wapawapa.Abilities
 {
-    public sealed class AbilityLoadout : MonoBehaviour
+    public sealed class AbilityLoadout : NetworkBehaviour
     {
         [Serializable]
         private sealed class AbilitySlot
@@ -27,18 +28,29 @@ namespace Wapawapa.Abilities
         [SerializeField] private AbilitySlot[] slots = Array.Empty<AbilitySlot>();
 
         private AbilitySlot heldSlot;
+        private NetworkObject networkObject;
+
+        private void Awake()
+        {
+            networkObject = GetComponentInParent<NetworkObject>();
+        }
 
         private void Update()
         {
+            if (!CanReadLocalInput())
+            {
+                return;
+            }
+
             var keyboard = Keyboard.current;
             if (keyboard == null)
             {
                 return;
             }
 
-            var context = new AbilityContext(gameObject, head, leftHand, rightHand);
-            foreach (var slot in slots)
+            for (var i = 0; i < slots.Length; i++)
             {
+                var slot = slots[i];
                 if (slot == null || slot.Ability == null)
                 {
                     continue;
@@ -52,6 +64,7 @@ namespace Wapawapa.Abilities
 
                 if (slot.Ability is IHoldAbility holdAbility)
                 {
+                    var context = CreateContext();
                     if (keyControl.wasPressedThisFrame)
                     {
                         if (slot.Ability.IsReady)
@@ -73,12 +86,7 @@ namespace Wapawapa.Abilities
                     if (heldSlot == slot && keyControl.wasReleasedThisFrame)
                     {
                         holdAbility.EndHold(context, true);
-                        var activated = slot.Ability.TryActivate(context);
-                        if (!activated)
-                        {
-                            Debug.Log($"Ability not ready: {slot.Label} ({slot.Ability.RemainingCooldown:0.0}s)");
-                        }
-
+                        TryActivateSlot(i);
                         heldSlot = null;
                     }
 
@@ -87,11 +95,7 @@ namespace Wapawapa.Abilities
 
                 if (keyControl.wasPressedThisFrame)
                 {
-                    var activated = slot.Ability.TryActivate(context);
-                    if (!activated)
-                    {
-                        Debug.Log($"Ability not ready: {slot.Label} ({slot.Ability.RemainingCooldown:0.0}s)");
-                    }
+                    TryActivateSlot(i);
                 }
             }
         }
@@ -100,9 +104,74 @@ namespace Wapawapa.Abilities
         {
             if (heldSlot != null && heldSlot.Ability is IHoldAbility holdAbility)
             {
-                var context = new AbilityContext(gameObject, head, leftHand, rightHand);
-                holdAbility.EndHold(context, false);
+                holdAbility.EndHold(CreateContext(), false);
                 heldSlot = null;
+            }
+        }
+
+        private bool CanReadLocalInput()
+        {
+            return networkObject == null || !networkObject.IsValid || networkObject.HasStateAuthority;
+        }
+
+        private void TryActivateSlot(int slotIndex)
+        {
+            if (!TryGetSlot(slotIndex, out var slot))
+            {
+                return;
+            }
+
+            if (!slot.Ability.IsReady)
+            {
+                Debug.Log($"Ability not ready: {slot.Label} ({slot.Ability.RemainingCooldown:0.0}s)");
+                return;
+            }
+
+            var activation = AbilityActivationData.FromContext(slot.Ability.AbilityId, CreateContext());
+            if (networkObject != null && networkObject.IsValid)
+            {
+                RPC_ActivateAbility(slotIndex, activation.Origin, activation.Direction, activation.Rotation);
+                return;
+            }
+
+            ActivateSlot(slot, activation, true);
+        }
+
+        [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
+        private void RPC_ActivateAbility(int slotIndex, Vector3 origin, Vector3 direction, Quaternion rotation)
+        {
+            if (!TryGetSlot(slotIndex, out var slot))
+            {
+                return;
+            }
+
+            var activation = new AbilityActivationData(slot.Ability.AbilityId, origin, direction, rotation, gameObject);
+            ActivateSlot(slot, activation, false);
+        }
+
+        private bool TryGetSlot(int slotIndex, out AbilitySlot slot)
+        {
+            slot = null;
+            if (slotIndex < 0 || slotIndex >= slots.Length)
+            {
+                return false;
+            }
+
+            slot = slots[slotIndex];
+            return slot != null && slot.Ability != null;
+        }
+
+        private AbilityContext CreateContext()
+        {
+            return new AbilityContext(gameObject, head, leftHand, rightHand);
+        }
+
+        private void ActivateSlot(AbilitySlot slot, in AbilityActivationData activation, bool logNotReady)
+        {
+            var activated = slot.Ability.TryActivate(CreateContext(), activation);
+            if (!activated && logNotReady)
+            {
+                Debug.Log($"Ability not ready: {slot.Label} ({slot.Ability.RemainingCooldown:0.0}s)");
             }
         }
     }

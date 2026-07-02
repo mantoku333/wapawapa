@@ -657,6 +657,18 @@ PrefabInstance:
       propertyPath: m_Name
       value: Xin Zhao
       objectReference: {fileID: 0}
+    - target: {fileID: 7960101357139979788, guid: 4c937b62da3305c444ce0d944842c948, type: 3}
+      propertyPath: m_Animations.Array.size
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 7960101357139979788, guid: 4c937b62da3305c444ce0d944842c948, type: 3}
+      propertyPath: 'm_Animations.Array.data[0]'
+      value: 
+      objectReference: {fileID: 7400000, guid: ebfa13455423c254e943b87bf6e1f310, type: 2}
+    - target: {fileID: 7960101357139979788, guid: 4c937b62da3305c444ce0d944842c948, type: 3}
+      propertyPath: 'm_Animations.Array.data[1]'
+      value: 
+      objectReference: {fileID: -3020990790245188044, guid: 4c937b62da3305c444ce0d944842c948, type: 3}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
