@@ -13,7 +13,9 @@ namespace Wapawapa.Abilities
 
         [Header("Wave")]
         [SerializeField] private float speed = 7.5f;
-        [SerializeField] private float lifetime = 4f;
+        [SerializeField] private float lifetime = 8f;
+        [SerializeField] private float firstTravelDistance = 3.2f;
+        [SerializeField] private float redirectedTravelDistance = 3.2f;
         [SerializeField] private float radius = 0.28f;
         [SerializeField] private LayerMask hitMask = ~0;
 
@@ -217,6 +219,8 @@ namespace Wapawapa.Abilities
                 direction,
                 speed,
                 lifetime,
+                firstTravelDistance,
+                redirectedTravelDistance,
                 initialDamage,
                 redirectedDamage,
                 initialPushForce,
@@ -316,6 +320,8 @@ namespace Wapawapa.Abilities
         private Vector3 direction;
         private float speed;
         private float destroyTime;
+        private float remainingTravelDistance;
+        private float redirectedTravelDistance;
         private float initialDamage;
         private float redirectedDamage;
         private float initialPushForce;
@@ -334,6 +340,8 @@ namespace Wapawapa.Abilities
             Vector3 direction,
             float speed,
             float lifetime,
+            float firstTravelDistance,
+            float redirectedTravelDistance,
             float initialDamage,
             float redirectedDamage,
             float initialPushForce,
@@ -351,6 +359,8 @@ namespace Wapawapa.Abilities
             this.direction = direction;
             this.speed = Mathf.Max(0.1f, speed);
             destroyTime = Time.time + Mathf.Max(0.1f, lifetime);
+            remainingTravelDistance = Mathf.Max(0.1f, firstTravelDistance);
+            this.redirectedTravelDistance = Mathf.Max(0.1f, redirectedTravelDistance);
             this.initialDamage = initialDamage;
             this.redirectedDamage = redirectedDamage;
             this.initialPushForce = initialPushForce;
@@ -373,6 +383,7 @@ namespace Wapawapa.Abilities
 
             redirected = true;
             direction = newDirection.normalized;
+            remainingTravelDistance = redirectedTravelDistance;
             transform.rotation = Quaternion.LookRotation(direction, Vector3.up);
             SetColor(redirectedColor);
             Debug.Log("Redirect Wave changed direction.");
@@ -381,7 +392,12 @@ namespace Wapawapa.Abilities
 
         private void FixedUpdate()
         {
-            transform.position += direction * (speed * Time.fixedDeltaTime);
+            if (remainingTravelDistance > 0f)
+            {
+                var moveDistance = Mathf.Min(speed * Time.fixedDeltaTime, remainingTravelDistance);
+                transform.position += direction * moveDistance;
+                remainingTravelDistance -= moveDistance;
+            }
 
             if (Time.time >= destroyTime)
             {
