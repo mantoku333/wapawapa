@@ -146,7 +146,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 5c2bd3f969b084a55b53bbaf20677820, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::Wapawapa.Testing.TestSceneNote
   note: 'Ability test scene.
 
@@ -159,6 +159,8 @@ MonoBehaviour:
     Q / E: left or right punch
 
     - 1: sample ability
+
+    - Black Flash: land a punch while the right-side gauge is near MAX
 
 
     Network code is not
@@ -502,8 +504,51 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 815842106983561014, guid: 00e6fc18643fd45638c9d68dd490e058, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1369764088}
   m_SourcePrefab: {fileID: 100100000, guid: 00e6fc18643fd45638c9d68dd490e058, type: 3}
+--- !u!1 &1369764087 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 815842106983561014, guid: 00e6fc18643fd45638c9d68dd490e058, type: 3}
+  m_PrefabInstance: {fileID: 1369764086}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1369764088
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1369764087}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e835ac2d67ba415f97abf1754102ef07, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::Wapawapa.Abilities.BloodFocusStrikeAbility
+  abilityId: kita.blood_focus_strike
+  abilityName: Blood Focus Strike
+  cooldownSeconds: 0.15
+  gaugeCycleSeconds: 1.4
+  maxZoneStartRatio: 0.9
+  baseDamage: 18
+  focusedDamageMultiplier: 2
+  pushForce: 9
+  hitRadius: 0.45
+  minimumHandSpeed: 0.9
+  hitMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  showGaugeUi: 1
+  gaugeAnchoredPosition: {x: -88, y: 0}
+  gaugeSize: {x: 34, y: 260}
+  spawnDebugVisuals: 1
+  focusVisualScale: 0.5
+  impactEffectLifetime: 0.35
+  impactEffectScale: 1.2
+  blackFlashClip: {fileID: 0}
+  blackFlashVolume: 1
+  generatedSoundDuration: 0.28
 --- !u!1 &1775834476
 GameObject:
   m_ObjectHideFlags: 0

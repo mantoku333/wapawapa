@@ -106,6 +106,7 @@ namespace Wapawapa.Networking
             GUILayout.Label($"Players: {playerCount} / 2");
             GUILayout.Label("Desktop: WASD + Mouse | Esc unlocks cursor");
             GUILayout.Label("VR: Head/controllers + left stick movement");
+            GUILayout.Label("Abilities: 1 Shockwave | 2 Railway | 3 Penguin");
             if (GUILayout.Button("LEAVE ROOM"))
             {
                 RequestLeaveRoom();

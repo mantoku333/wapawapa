@@ -23,9 +23,9 @@ namespace Wapawapa.Gameplay
         [SerializeField] private float vrTurnSpeed = 75f;
         [SerializeField] private float jumpHeight = 1.1f;
         [SerializeField] private float gravity = -18f;
-        [SerializeField] private float desktopPunchDistance = 0.65f;
+        [SerializeField] private float desktopPunchDistance = 0.95f;
         [SerializeField] private float desktopPunchSpeed = 12f;
-        [SerializeField] private float desktopPunchHitWindow = 0.35f;
+        [SerializeField] private float desktopPunchHitWindow = 0.45f;
 
         private CharacterController characterController;
         private PunchHitbox leftPunchHitbox;
