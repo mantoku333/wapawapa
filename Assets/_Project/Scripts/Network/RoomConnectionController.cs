@@ -7,6 +7,8 @@ using Fusion;
 using Fusion.Sockets;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using Wapawapa.Abilities;
+using Wapawapa.Gameplay;
 
 namespace Wapawapa.Networking
 {
@@ -18,6 +20,7 @@ namespace Wapawapa.Networking
         [SerializeField] private NetworkSceneManagerDefault sceneManager;
 
         private string roomKey = string.Empty;
+        private string playerName = string.Empty;
         private string status = "Enter a room key to create or join a room.";
         private bool isConnecting;
         private bool localPlayerJoined;
@@ -60,7 +63,7 @@ namespace Wapawapa.Networking
         private void DrawTitleScreen()
         {
             const float width = 520f;
-            const float height = 310f;
+            const float height = 370f;
             var rect = new Rect((Screen.width - width) * 0.5f, (Screen.height - height) * 0.5f, width, height);
 
             GUILayout.BeginArea(rect, GUI.skin.window);
@@ -69,6 +72,9 @@ namespace Wapawapa.Networking
             GUILayout.Space(12f);
             GUILayout.Label("Photon Fusion VR Multiplayer", CenteredLabelStyle(18));
             GUILayout.Space(24f);
+            GUILayout.Label("PLAYER NAME", CenteredLabelStyle(14));
+            playerName = GUILayout.TextField(playerName, 20, GUILayout.Height(36f));
+            GUILayout.Space(10f);
             GUILayout.Label("ROOM KEY", CenteredLabelStyle(14));
             GUI.enabled = !isConnecting;
             roomKey = GUILayout.TextField(roomKey, 32, GUILayout.Height(42f));
@@ -100,11 +106,17 @@ namespace Wapawapa.Networking
             GUILayout.Label($"Players: {playerCount} / 2");
             GUILayout.Label("Desktop: WASD + Mouse | Esc unlocks cursor");
             GUILayout.Label("VR: Head/controllers + left stick movement");
+            GUILayout.Label("Abilities: 1 Shockwave | 2 Railway | 3 Penguin");
             if (GUILayout.Button("LEAVE ROOM"))
             {
-                _ = LeaveRoomAsync();
+                RequestLeaveRoom();
             }
             GUILayout.EndArea();
+        }
+
+        public void RequestLeaveRoom()
+        {
+            _ = LeaveRoomAsync();
         }
 
         private async Task ConnectAsync()
@@ -204,11 +216,24 @@ namespace Wapawapa.Networking
                 return;
             }
 
-            var slot = Math.Abs(runner.LocalPlayer.AsIndex) % 2;
-            var spawnPosition = slot == 0 ? new Vector3(-1.5f, 0f, 0f) : new Vector3(1.5f, 0f, 0f);
-            var playerObject = runner.Spawn(playerPrefab.GetComponent<NetworkObject>(), spawnPosition, Quaternion.identity, runner.LocalPlayer);
+            var spawnPose = PlayerSpawnPoints.GetSpawnPose(runner.LocalPlayer);
+            var playerObject = runner.Spawn(playerPrefab.GetComponent<NetworkObject>(), spawnPose.position, spawnPose.rotation, runner.LocalPlayer);
+            var damageReceiver = playerObject.GetComponent<PlayerDamageReceiver>();
+            if (damageReceiver != null)
+            {
+                damageReceiver.SetPlayerName(GetDisplayPlayerName());
+            }
+
             runner.SetPlayerObject(runner.LocalPlayer, playerObject);
             Debug.Log($"Wapawapa local player spawned. PlayerId={runner.LocalPlayer.PlayerId}");
+        }
+
+        private string GetDisplayPlayerName()
+        {
+            var trimmedName = playerName.Trim();
+            return string.IsNullOrWhiteSpace(trimmedName)
+                ? $"Player {runner.LocalPlayer.PlayerId}"
+                : trimmedName;
         }
 
         public void OnPlayerJoined(NetworkRunner networkRunner, PlayerRef player)

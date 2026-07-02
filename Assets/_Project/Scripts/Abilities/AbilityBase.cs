@@ -5,8 +5,11 @@ namespace Wapawapa.Abilities
     public abstract class AbilityBase : MonoBehaviour
     {
         [Header("Ability")]
+        [Tooltip("アビリティを識別するためのIDです。ログやダメージ情報に使われます。")]
         [SerializeField] private string abilityId = "sample.ability";
+        [Tooltip("Inspectorやログで表示するアビリティ名です。")]
         [SerializeField] private string abilityName = "New Ability";
+        [Tooltip("発動後、次に使えるようになるまでの秒数です。")]
         [SerializeField] private float cooldownSeconds = 1f;
 
         private float nextReadyTime;
@@ -19,12 +22,17 @@ namespace Wapawapa.Abilities
 
         public bool TryActivate(in AbilityContext context)
         {
+            var activation = AbilityActivationData.FromContext(abilityId, context);
+            return TryActivate(context, activation);
+        }
+
+        public bool TryActivate(in AbilityContext context, in AbilityActivationData activation)
+        {
             if (!enabled || !IsReady)
             {
                 return false;
             }
 
-            var activation = AbilityActivationData.FromContext(abilityId, context);
             Activate(context, activation);
             nextReadyTime = Time.time + cooldownSeconds;
             Debug.Log($"Ability activated: {abilityName} ({abilityId})");
