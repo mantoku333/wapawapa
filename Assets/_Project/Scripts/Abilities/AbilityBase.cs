@@ -5,8 +5,11 @@ namespace Wapawapa.Abilities
     public abstract class AbilityBase : MonoBehaviour
     {
         [Header("Ability")]
+        [Tooltip("アビリティを識別するためのIDです。ログやダメージ情報に使われます。")]
         [SerializeField] private string abilityId = "sample.ability";
+        [Tooltip("Inspectorやログで表示するアビリティ名です。")]
         [SerializeField] private string abilityName = "New Ability";
+        [Tooltip("発動後、次に使えるようになるまでの秒数です。")]
         [SerializeField] private float cooldownSeconds = 1f;
 
         private float nextReadyTime;
