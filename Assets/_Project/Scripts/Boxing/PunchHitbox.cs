@@ -164,6 +164,7 @@ namespace Wapawapa.Boxing
 
             manualPunchDirection = direction.sqrMagnitude > 0.0001f ? direction.normalized : transform.forward;
             manualPunchEndsAt = Time.time + duration;
+            PlayerCombatAudio.PlayPunchSwing(transform.position, punchSettings != null ? punchSettings.PunchSwingVolume : 0.8f);
         }
 
         private static bool TryGetReceiver(Collider other, out IAbilityDamageReceiver receiver, out Component receiverComponent)

@@ -21,6 +21,7 @@ namespace Wapawapa.Editor
             Draw("minimumHitSpeed", "ダメージが入る最低速度", "手の移動速度がこの値以上の時だけダメージが入ります。小さいほど軽い接触でもダメージになります。");
             Draw("pushForce", "押し出す強さ", "ヒットした相手やサンドバッグを押す強さです。");
             Draw("repeatHitDelay", "連続ヒット間隔", "同じ相手に連続でダメージが入るまでの待ち時間です。");
+            Draw("punchSwingVolume", "パンチ発動SE音量", "パンチを出した瞬間に鳴るSEの音量です。");
             Draw("ignoreHandToHandHits", "手と手の接触は無効", "ONの場合、相手の手に当たってもダメージは入りません。");
             Draw("ignoreSelfHits", "自分自身への接触は無効", "ONの場合、自分の体や手に当たってもダメージは入りません。");
 
