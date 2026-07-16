@@ -351,6 +351,7 @@ MonoBehaviour:
   minimumHitSpeed: 1.4
   pushForce: 4
   repeatHitDelay: 0.25
+  punchSwingVolume: 0.8
   ignoreHandToHandHits: 1
   ignoreSelfHits: 1
 --- !u!114 &4440638995107345496
@@ -428,11 +429,15 @@ MonoBehaviour:
   hitMask:
     serializedVersion: 2
     m_Bits: 4294967295
-  trainSound: {fileID: 8300000, guid: 4fd0423871e34e0eb1aa47703a4020a6, type: 3}
-  hornSound: {fileID: 8300000, guid: 2d98b26aef864d76935ac69f9e6b2744, type: 3}
+  trainSound: {fileID: 8300000, guid: 0659c2a97b4348bdbe490eb4497f84dc, type: 3}
+  hornSound: {fileID: 0}
   soundDuration: 2.5
-  soundVolume: 0.85
+  soundVolume: 10
+  soundSpatialBlend: 0.15
+  soundMinDistance: 8
+  soundMaxDistance: 80
   hornVolume: 1.25
+  trainHitSoundVolume: 3
 --- !u!114 &6629011852349001201
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -475,6 +480,13 @@ MonoBehaviour:
   penguinSwimAnimation: {fileID: 7400000, guid: cec7366f5855ebd46a9a5838d535496a, type: 2}
   penguinForwardEulerOffset: {x: 0, y: 0, z: 0}
   penguinLifetime: 8
+  penguinSpawnSound: {fileID: 8300000, guid: b06ddb8952064deab71861aff92a19ad, type: 3}
+  penguinSpawnVolume: 0.85
+  penguinSpawnSpatialBlend: 0
+  penguinSpawnMinDistance: 10
+  penguinSpawnMaxDistance: 80
+  penguinDamageSound: {fileID: 8300000, guid: 71033ea0dfc243c6a2cbd74190e1289e, type: 3}
+  penguinDamageVolume: 1
 --- !u!114 &8940767640447576866
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -34,6 +34,7 @@ namespace Wapawapa.Abilities
 
         [Header("Sound")]
         [SerializeField] private AudioClip blackFlashClip;
+        [SerializeField] private AudioClip blackFlashLightningClip;
         [SerializeField] private float blackFlashVolume = 1f;
         [SerializeField] private float generatedSoundDuration = 0.28f;
 
@@ -396,13 +397,7 @@ namespace Wapawapa.Abilities
 
         private void PlayBlackFlashSound(Vector3 position)
         {
-            var clip = blackFlashClip != null ? blackFlashClip : GetGeneratedBlackFlashClip();
-            if (clip == null)
-            {
-                return;
-            }
-
-            AudioSource.PlayClipAtPoint(clip, position, blackFlashVolume);
+            PlayerCombatAudio.PlayBlackFlashImpact(position, blackFlashClip, blackFlashLightningClip, blackFlashVolume);
         }
 
         private AudioClip GetGeneratedBlackFlashClip()
@@ -436,12 +431,7 @@ namespace Wapawapa.Abilities
 
         public static void PlayNetworkFeedback(Vector3 position, Vector3 direction)
         {
-            var clip = GetSharedGeneratedBlackFlashClip();
-            if (clip != null)
-            {
-                AudioSource.PlayClipAtPoint(clip, position, 1f);
-            }
-
+            PlayerCombatAudio.PlayBlackFlashImpact(position);
             SpawnSharedBlackFlashEffect(position, direction);
         }
 

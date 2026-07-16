@@ -58,8 +58,19 @@ namespace Wapawapa.Abilities
         [Min(0f)]
         [SerializeField] private float soundVolume = 0.85f;
 
+        [SerializeField, Range(0f, 1f)] private float soundSpatialBlend = 0.15f;
+
+        [Min(0f)]
+        [SerializeField] private float soundMinDistance = 8f;
+
+        [Min(0.01f)]
+        [SerializeField] private float soundMaxDistance = 80f;
+
         [Min(0f)]
         [SerializeField] private float hornVolume = 1.25f;
+
+        [Min(0f)]
+        [SerializeField] private float trainHitSoundVolume = 1f;
 
         protected override void Activate(in AbilityContext context, in AbilityActivationData activation)
         {
@@ -101,7 +112,8 @@ namespace Wapawapa.Abilities
                 damage,
                 pushForce,
                 trainSize,
-                hitMask);
+                hitMask,
+                trainHitSoundVolume);
 
             PlayHornSound(spawnPoint);
             PlayTrainSound(spawnPoint);
@@ -141,12 +153,12 @@ namespace Wapawapa.Abilities
         {
             if (trainSound != null)
             {
-                AudioSource.PlayClipAtPoint(trainSound, position, soundVolume);
+                PlayConfiguredClip(trainSound, position, soundVolume);
                 return;
             }
 
             var clip = CreateTrainClip(soundDuration);
-            AudioSource.PlayClipAtPoint(clip, position, soundVolume);
+            PlayConfiguredClip(clip, position, soundVolume);
             Destroy(clip, soundDuration + 0.25f);
         }
 
@@ -157,7 +169,27 @@ namespace Wapawapa.Abilities
                 return;
             }
 
-            AudioSource.PlayClipAtPoint(hornSound, position, hornVolume);
+            PlayConfiguredClip(hornSound, position, hornVolume);
+        }
+
+        private void PlayConfiguredClip(AudioClip clip, Vector3 position, float volume)
+        {
+            if (clip == null)
+            {
+                return;
+            }
+
+            var audioObject = new GameObject($"Railway Audio - {clip.name}");
+            audioObject.transform.position = position;
+            var source = audioObject.AddComponent<AudioSource>();
+            source.clip = clip;
+            source.volume = volume;
+            source.spatialBlend = soundSpatialBlend;
+            source.minDistance = soundMinDistance;
+            source.maxDistance = Mathf.Max(soundMinDistance + 0.01f, soundMaxDistance);
+            source.rolloffMode = AudioRolloffMode.Linear;
+            source.Play();
+            Destroy(audioObject, clip.length + 0.25f);
         }
 
         private static AudioClip CreateTrainClip(float duration)
@@ -195,6 +227,7 @@ namespace Wapawapa.Abilities
         private float pushForce;
         private Vector3 hitboxSize;
         private LayerMask hitMask;
+        private float hitSoundVolume;
 
         public void Initialize(
             string abilityId,
@@ -205,7 +238,8 @@ namespace Wapawapa.Abilities
             float damage,
             float pushForce,
             Vector3 hitboxSize,
-            LayerMask hitMask)
+            LayerMask hitMask,
+            float hitSoundVolume)
         {
             this.abilityId = abilityId;
             this.owner = owner;
@@ -216,6 +250,7 @@ namespace Wapawapa.Abilities
             this.pushForce = pushForce;
             this.hitboxSize = hitboxSize;
             this.hitMask = hitMask;
+            this.hitSoundVolume = hitSoundVolume;
         }
 
         private void Update()
@@ -271,7 +306,10 @@ namespace Wapawapa.Abilities
 
             var hitPoint = other.ClosestPoint(sourcePosition);
             var damageData = new AbilityDamage(abilityId, damage, travelDirection, pushForce, hitPoint, owner);
-            AbilityDamageUtility.TryApplyDamage(other, damageData);
+            if (AbilityDamageUtility.TryApplyDamage(other, damageData))
+            {
+                PlayerCombatAudio.PlayRailwayPlayerHit(hitPoint, hitSoundVolume);
+            }
         }
     }
 }
