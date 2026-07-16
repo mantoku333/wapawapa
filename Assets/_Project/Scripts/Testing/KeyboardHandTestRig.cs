@@ -1,6 +1,8 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.XR;
 using Wapawapa.Boxing;
+using XRCommonUsages = UnityEngine.XR.CommonUsages;
 
 namespace Wapawapa.Testing
 {
@@ -12,6 +14,7 @@ namespace Wapawapa.Testing
         [SerializeField] private float moveSpeed = 3f;
         [SerializeField] private float mouseSensitivity = 0.12f;
         [SerializeField] private float keyboardLookSpeed = 90f;
+        [SerializeField] private float vrTurnSpeed = 75f;
         [SerializeField] private float jumpHeight = 1.1f;
         [SerializeField] private float gravity = -18f;
         [SerializeField] private float punchDistance = 0.65f;
@@ -25,6 +28,14 @@ namespace Wapawapa.Testing
         private float pitch;
         private float verticalVelocity;
         private float groundY;
+        private Vector3 trackedHeadPosition;
+        private Quaternion trackedHeadRotation = Quaternion.identity;
+        private Vector3 trackedLeftHandPosition;
+        private Quaternion trackedLeftHandRotation = Quaternion.identity;
+        private Vector3 trackedRightHandPosition;
+        private Quaternion trackedRightHandRotation = Quaternion.identity;
+        private bool hasTrackedLeftHandPose;
+        private bool hasTrackedRightHandPose;
 
         private void Awake()
         {
@@ -43,8 +54,25 @@ namespace Wapawapa.Testing
             }
         }
 
+        private void OnEnable()
+        {
+            Application.onBeforeRender += ApplyXrPoseBeforeRender;
+        }
+
+        private void OnDisable()
+        {
+            Application.onBeforeRender -= ApplyXrPoseBeforeRender;
+        }
+
         private void Update()
         {
+            if (TryReadXrRig())
+            {
+                ApplyTrackedRig();
+                UpdateVrLocomotion();
+                return;
+            }
+
             var keyboard = Keyboard.current;
             if (keyboard == null)
             {
@@ -77,21 +105,114 @@ namespace Wapawapa.Testing
                 verticalVelocity = -0.5f;
             }
 
-            var mouse = Mouse.current;
-            var leftPunching = mouse != null && mouse.leftButton.isPressed;
-            var rightPunching = mouse != null && mouse.rightButton.isPressed;
-            if (mouse != null && mouse.leftButton.wasPressedThisFrame)
+            var leftPunching = keyboard.qKey.isPressed;
+            var rightPunching = keyboard.eKey.isPressed || keyboard.digit5Key.isPressed;
+            if (keyboard.qKey.wasPressedThisFrame)
             {
                 leftPunchHitbox?.StartManualPunch(transform.forward, punchHitWindow);
             }
 
-            if (mouse != null && mouse.rightButton.wasPressedThisFrame)
+            if (keyboard.eKey.wasPressedThisFrame || keyboard.digit5Key.wasPressedThisFrame)
             {
                 rightPunchHitbox?.StartManualPunch(transform.forward, punchHitWindow);
             }
 
             ApplyPunchPose(leftHand, leftRestLocalPosition, leftPunching);
             ApplyPunchPose(rightHand, rightRestLocalPosition, rightPunching);
+        }
+
+        private void UpdateVrLocomotion()
+        {
+            var leftDevice = InputDevices.GetDeviceAtXRNode(XRNode.LeftHand);
+            var moveInput = Vector2.zero;
+            leftDevice.TryGetFeatureValue(XRCommonUsages.primary2DAxis, out moveInput);
+
+            var rightDevice = InputDevices.GetDeviceAtXRNode(XRNode.RightHand);
+            if (rightDevice.TryGetFeatureValue(XRCommonUsages.primary2DAxis, out var turnInput))
+            {
+                transform.Rotate(0f, turnInput.x * vrTurnSpeed * Time.deltaTime, 0f);
+            }
+
+            var forward = Vector3.ProjectOnPlane(head != null ? head.forward : transform.forward, Vector3.up).normalized;
+            var right = Vector3.ProjectOnPlane(head != null ? head.right : transform.right, Vector3.up).normalized;
+            var movement = (forward * moveInput.y + right * moveInput.x) * moveSpeed;
+
+            verticalVelocity += gravity * Time.deltaTime;
+            movement.y = verticalVelocity;
+            transform.position += movement * Time.deltaTime;
+
+            if (transform.position.y <= groundY)
+            {
+                transform.position = new Vector3(transform.position.x, groundY, transform.position.z);
+                verticalVelocity = -0.5f;
+            }
+        }
+
+        private bool TryReadXrRig()
+        {
+            if (!IsXrDisplayRunning())
+            {
+                return false;
+            }
+
+            var headDevice = InputDevices.GetDeviceAtXRNode(XRNode.Head);
+            var leftDevice = InputDevices.GetDeviceAtXRNode(XRNode.LeftHand);
+            var rightDevice = InputDevices.GetDeviceAtXRNode(XRNode.RightHand);
+
+            var hasHeadPosition = headDevice.TryGetFeatureValue(XRCommonUsages.devicePosition, out trackedHeadPosition);
+            var hasHeadRotation = headDevice.TryGetFeatureValue(XRCommonUsages.deviceRotation, out trackedHeadRotation);
+            hasTrackedLeftHandPose =
+                leftDevice.TryGetFeatureValue(XRCommonUsages.devicePosition, out trackedLeftHandPosition) &&
+                leftDevice.TryGetFeatureValue(XRCommonUsages.deviceRotation, out trackedLeftHandRotation);
+            hasTrackedRightHandPose =
+                rightDevice.TryGetFeatureValue(XRCommonUsages.devicePosition, out trackedRightHandPosition) &&
+                rightDevice.TryGetFeatureValue(XRCommonUsages.deviceRotation, out trackedRightHandRotation);
+
+            return hasHeadPosition && hasHeadRotation;
+        }
+
+        private void ApplyTrackedRig()
+        {
+            if (head != null)
+            {
+                head.localPosition = trackedHeadPosition;
+                head.localRotation = trackedHeadRotation;
+            }
+
+            if (leftHand != null && hasTrackedLeftHandPose)
+            {
+                leftHand.localPosition = trackedLeftHandPosition;
+                leftHand.localRotation = trackedLeftHandRotation;
+            }
+
+            if (rightHand != null && hasTrackedRightHandPose)
+            {
+                rightHand.localPosition = trackedRightHandPosition;
+                rightHand.localRotation = trackedRightHandRotation;
+            }
+        }
+
+        private void ApplyXrPoseBeforeRender()
+        {
+            if (TryReadXrRig())
+            {
+                ApplyTrackedRig();
+            }
+        }
+
+        private static bool IsXrDisplayRunning()
+        {
+            var displays = new System.Collections.Generic.List<XRDisplaySubsystem>();
+            SubsystemManager.GetSubsystems(displays);
+            foreach (var display in displays)
+            {
+                if (display.running)
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         private void UpdateCursorLock()

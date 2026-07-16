@@ -44,6 +44,18 @@ namespace Wapawapa.Gameplay
         private Quaternion trackedLeftHandRotation = Quaternion.identity;
         private Vector3 trackedRightHandPosition;
         private Quaternion trackedRightHandRotation = Quaternion.identity;
+        private bool hasTrackedLeftHandPose;
+        private bool hasTrackedRightHandPose;
+
+        private void OnEnable()
+        {
+            Application.onBeforeRender += ApplyLocalXrPoseBeforeRender;
+        }
+
+        private void OnDisable()
+        {
+            Application.onBeforeRender -= ApplyLocalXrPoseBeforeRender;
+        }
 
         private void Awake()
         {
@@ -84,7 +96,13 @@ namespace Wapawapa.Gameplay
             }
 
             xrTrackingAvailable = TryReadXrRig();
-            if (!xrTrackingAvailable)
+            if (xrTrackingAvailable)
+            {
+                // Keep the local camera responsive at the render frame rate. The same
+                // pose is applied again in FixedUpdateNetwork for network replication.
+                ApplyTrackedRig();
+            }
+            else
             {
                 CaptureDesktopLook();
                 CaptureKeyboardLook();
@@ -265,10 +283,12 @@ namespace Wapawapa.Gameplay
 
             var hasHeadPosition = headDevice.TryGetFeatureValue(XRCommonUsages.devicePosition, out trackedHeadPosition);
             var hasHeadRotation = headDevice.TryGetFeatureValue(XRCommonUsages.deviceRotation, out trackedHeadRotation);
-            leftDevice.TryGetFeatureValue(XRCommonUsages.devicePosition, out trackedLeftHandPosition);
-            leftDevice.TryGetFeatureValue(XRCommonUsages.deviceRotation, out trackedLeftHandRotation);
-            rightDevice.TryGetFeatureValue(XRCommonUsages.devicePosition, out trackedRightHandPosition);
-            rightDevice.TryGetFeatureValue(XRCommonUsages.deviceRotation, out trackedRightHandRotation);
+            hasTrackedLeftHandPose =
+                leftDevice.TryGetFeatureValue(XRCommonUsages.devicePosition, out trackedLeftHandPosition) &&
+                leftDevice.TryGetFeatureValue(XRCommonUsages.deviceRotation, out trackedLeftHandRotation);
+            hasTrackedRightHandPose =
+                rightDevice.TryGetFeatureValue(XRCommonUsages.devicePosition, out trackedRightHandPosition) &&
+                rightDevice.TryGetFeatureValue(XRCommonUsages.deviceRotation, out trackedRightHandRotation);
 
             return hasHeadPosition && hasHeadRotation;
         }
@@ -277,10 +297,28 @@ namespace Wapawapa.Gameplay
         {
             head.localPosition = trackedHeadPosition;
             head.localRotation = trackedHeadRotation;
-            leftHand.localPosition = trackedLeftHandPosition;
-            leftHand.localRotation = trackedLeftHandRotation;
-            rightHand.localPosition = trackedRightHandPosition;
-            rightHand.localRotation = trackedRightHandRotation;
+            if (hasTrackedLeftHandPose)
+            {
+                leftHand.localPosition = trackedLeftHandPosition;
+                leftHand.localRotation = trackedLeftHandRotation;
+            }
+
+            if (hasTrackedRightHandPose)
+            {
+                rightHand.localPosition = trackedRightHandPosition;
+                rightHand.localRotation = trackedRightHandRotation;
+            }
+        }
+
+        private void ApplyLocalXrPoseBeforeRender()
+        {
+            if (Object == null || !Object.HasStateAuthority || !TryReadXrRig())
+            {
+                return;
+            }
+
+            xrTrackingAvailable = true;
+            ApplyTrackedRig();
         }
 
         private static bool IsXrDisplayRunning()

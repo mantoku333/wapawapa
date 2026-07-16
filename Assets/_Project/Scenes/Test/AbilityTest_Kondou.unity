@@ -513,7 +513,7 @@ PrefabInstance:
       objectReference: {fileID: 1369764088}
     - target: {fileID: 8940767640447576866, guid: 00e6fc18643fd45638c9d68dd490e058, type: 3}
       propertyPath: slots.Array.data[1].activationKey
-      value: 42
+      value: 45
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -545,8 +545,11 @@ MonoBehaviour:
   cooldownSeconds: 0.15
   punchInputWindow: 1.2
   minimumPunchSpeed: 0.8
+  minimumPunchDistance: 0.18
   speed: 7.5
-  lifetime: 4
+  lifetime: 8
+  firstTravelDistance: 3.2
+  redirectedTravelDistance: 3.2
   radius: 0.28
   hitMask:
     serializedVersion: 2
@@ -557,6 +560,7 @@ MonoBehaviour:
   redirectedPushForce: 6
   initialColor: {r: 0.15, g: 0.85, b: 1, a: 0.9}
   redirectedColor: {r: 1, g: 0.2, b: 0.75, a: 0.95}
+  armedColor: {r: 1, g: 0.85, b: 0.2, a: 0.8}
 --- !u!1 &1775834476
 GameObject:
   m_ObjectHideFlags: 0
