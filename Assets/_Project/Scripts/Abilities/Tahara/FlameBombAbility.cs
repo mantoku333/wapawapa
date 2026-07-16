@@ -557,7 +557,7 @@ namespace Wapawapa.Abilities
                 return;
             }
 
-            var direction = transform.position - lookSource.position;
+            var direction = lookSource.position - transform.position;
             if (direction.sqrMagnitude <= 0.0001f)
             {
                 return;
