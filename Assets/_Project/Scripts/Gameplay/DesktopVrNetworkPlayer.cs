@@ -54,7 +54,7 @@ namespace Wapawapa.Gameplay
 
         public override void Spawned()
         {
-            var isLocal = HasStateAuthority;
+            var isLocal = HasStateAuthority || HasInputAuthority;
             if (localCamera != null)
             {
                 localCamera.enabled = isLocal;
@@ -78,13 +78,17 @@ namespace Wapawapa.Gameplay
 
         private void Update()
         {
-            if (!HasStateAuthority)
+            if (!CanControlLocalRig())
             {
                 return;
             }
 
             xrTrackingAvailable = TryReadXrRig();
-            if (!xrTrackingAvailable)
+            if (xrTrackingAvailable)
+            {
+                ApplyTrackedRig();
+            }
+            else
             {
                 CaptureDesktopLook();
                 CaptureKeyboardLook();
@@ -95,7 +99,7 @@ namespace Wapawapa.Gameplay
 
         public override void FixedUpdateNetwork()
         {
-            if (!HasStateAuthority)
+            if (!CanControlLocalRig())
             {
                 return;
             }
@@ -275,12 +279,22 @@ namespace Wapawapa.Gameplay
 
         private void ApplyTrackedRig()
         {
+            if (head == null || leftHand == null || rightHand == null)
+            {
+                return;
+            }
+
             head.localPosition = trackedHeadPosition;
             head.localRotation = trackedHeadRotation;
             leftHand.localPosition = trackedLeftHandPosition;
             leftHand.localRotation = trackedLeftHandRotation;
             rightHand.localPosition = trackedRightHandPosition;
             rightHand.localRotation = trackedRightHandRotation;
+        }
+
+        private bool CanControlLocalRig()
+        {
+            return HasStateAuthority || HasInputAuthority;
         }
 
         private static bool IsXrDisplayRunning()
