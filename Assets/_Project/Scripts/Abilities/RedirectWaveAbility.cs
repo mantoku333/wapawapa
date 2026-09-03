@@ -9,10 +9,13 @@ namespace Wapawapa.Abilities
         [Header("Punch Detection")]
         [SerializeField] private float punchInputWindow = 1.2f;
         [SerializeField] private float minimumPunchSpeed = 0.8f;
+        [SerializeField] private float minimumPunchDistance = 0.18f;
 
         [Header("Wave")]
         [SerializeField] private float speed = 7.5f;
-        [SerializeField] private float lifetime = 4f;
+        [SerializeField] private float lifetime = 8f;
+        [SerializeField] private float firstTravelDistance = 3.2f;
+        [SerializeField] private float redirectedTravelDistance = 3.2f;
         [SerializeField] private float radius = 0.28f;
         [SerializeField] private LayerMask hitMask = ~0;
 
@@ -25,11 +28,14 @@ namespace Wapawapa.Abilities
         [Header("Appearance")]
         [SerializeField] private Color initialColor = new Color(0.15f, 0.85f, 1f, 0.9f);
         [SerializeField] private Color redirectedColor = new Color(1f, 0.2f, 0.75f, 0.95f);
+        [SerializeField] private Color armedColor = new Color(1f, 0.85f, 0.2f, 0.8f);
 
         private Transform rightHand;
         private Transform fallbackAim;
         private GameObject owner;
         private RedirectWaveProjectile activeWave;
+        private GameObject armedMarker;
+        private Vector3 armedHandLocalPosition;
         private Vector3 previousHandLocalPosition;
         private Vector3 sampledPunchDirection;
         private float sampledPunchSpeed;
@@ -47,11 +53,14 @@ namespace Wapawapa.Abilities
             if (rightHand != null)
             {
                 previousHandLocalPosition = rightHand.localPosition;
+                armedHandLocalPosition = rightHand.localPosition;
             }
 
-            if (sampledPunchSpeed >= minimumPunchSpeed)
+            ShowArmedMarker();
+
+            if (TryGetCurrentPunchDirection(out var punchDirection))
             {
-                ConsumePunch(sampledPunchDirection);
+                ConsumePunch(punchDirection);
             }
             else
             {
@@ -73,13 +82,14 @@ namespace Wapawapa.Abilities
             if (Time.time > inputWindowEndsAt)
             {
                 waitingForPunch = false;
+                HideArmedMarker();
                 Debug.Log("Redirect Wave input window expired.");
                 return;
             }
 
-            if (sampledPunchSpeed >= minimumPunchSpeed)
+            if (TryGetCurrentPunchDirection(out var punchDirection))
             {
-                ConsumePunch(sampledPunchDirection);
+                ConsumePunch(punchDirection);
             }
         }
 
@@ -103,19 +113,73 @@ namespace Wapawapa.Abilities
             }
         }
 
+        private bool TryGetArmedPunchDirection(out Vector3 direction)
+        {
+            direction = Vector3.zero;
+
+            if (rightHand == null)
+            {
+                return false;
+            }
+
+            var localDelta = rightHand.localPosition - armedHandLocalPosition;
+            if (localDelta.magnitude < minimumPunchDistance)
+            {
+                return false;
+            }
+
+            var parent = rightHand.parent;
+            var worldDelta = parent != null ? parent.TransformVector(localDelta) : localDelta;
+            if (worldDelta.sqrMagnitude <= 0.000001f)
+            {
+                return false;
+            }
+
+            direction = worldDelta.normalized;
+            return true;
+        }
+
+        private bool TryGetCurrentPunchDirection(out Vector3 direction)
+        {
+            if (sampledPunchSpeed >= minimumPunchSpeed)
+            {
+                direction = ResolveForwardSafePunchDirection(sampledPunchDirection);
+                return true;
+            }
+
+            if (TryGetArmedPunchDirection(out direction))
+            {
+                direction = ResolveForwardSafePunchDirection(direction);
+                return true;
+            }
+
+            return false;
+        }
+
+        private Vector3 ResolveForwardSafePunchDirection(Vector3 direction)
+        {
+            var forward = fallbackAim != null ? fallbackAim.forward : transform.forward;
+            if (direction.sqrMagnitude <= 0.0001f)
+            {
+                return forward;
+            }
+
+            direction = direction.normalized;
+            return Vector3.Dot(direction, forward) < 0f ? forward : direction;
+        }
+
         private void ConsumePunch(Vector3 direction)
         {
             waitingForPunch = false;
+            HideArmedMarker();
             sampledPunchSpeed = 0f;
 
-            if (direction.sqrMagnitude <= 0.0001f)
-            {
-                direction = fallbackAim != null ? fallbackAim.forward : transform.forward;
-            }
+            direction = ResolveForwardSafePunchDirection(direction);
 
             if (activeWave == null)
             {
                 SpawnWave(direction.normalized);
+                Debug.Log("Redirect Wave spawned.");
                 return;
             }
 
@@ -129,7 +193,9 @@ namespace Wapawapa.Abilities
         {
             var origin = rightHand != null
                 ? rightHand.position + direction * 0.35f
-                : fallbackAim.position + direction * 0.6f;
+                : fallbackAim != null
+                    ? fallbackAim.position + direction * 0.6f
+                    : transform.position + direction * 0.6f;
 
             var waveObject = GameObject.CreatePrimitive(PrimitiveType.Sphere);
             waveObject.name = "Redirect Wave";
@@ -145,14 +211,23 @@ namespace Wapawapa.Abilities
             rigidbody.collisionDetectionMode = CollisionDetectionMode.ContinuousSpeculative;
 
             var renderer = waveObject.GetComponent<Renderer>();
-            var shader = Shader.Find("Universal Render Pipeline/Unlit") ?? Shader.Find("Sprites/Default");
+            var shader = Shader.Find("Universal Render Pipeline/Unlit")
+                ?? Shader.Find("Universal Render Pipeline/Lit")
+                ?? Shader.Find("Standard")
+                ?? Shader.Find("Sprites/Default");
             renderer.material = new Material(shader);
 
             var trail = waveObject.AddComponent<TrailRenderer>();
-            trail.time = 0.35f;
-            trail.startWidth = radius * 1.5f;
+            trail.time = 0.75f;
+            trail.startWidth = radius * 2.2f;
             trail.endWidth = 0f;
             trail.material = new Material(shader);
+
+            var light = waveObject.AddComponent<Light>();
+            light.type = LightType.Point;
+            light.range = 3f;
+            light.intensity = 2.5f;
+            light.color = initialColor;
 
             activeWave = waveObject.AddComponent<RedirectWaveProjectile>();
             activeWave.Initialize(
@@ -161,6 +236,8 @@ namespace Wapawapa.Abilities
                 direction,
                 speed,
                 lifetime,
+                firstTravelDistance,
+                redirectedTravelDistance,
                 initialDamage,
                 redirectedDamage,
                 initialPushForce,
@@ -168,9 +245,78 @@ namespace Wapawapa.Abilities
                 hitMask,
                 renderer,
                 trail,
+                light,
                 initialColor,
                 redirectedColor,
                 HandleWaveDestroyed);
+        }
+
+        private void ShowArmedMarker()
+        {
+            HideArmedMarker();
+
+            var markerPosition = rightHand != null
+                ? rightHand.position
+                : fallbackAim != null
+                    ? fallbackAim.position + fallbackAim.forward * 0.5f
+                    : transform.position + transform.forward * 0.5f;
+
+            armedMarker = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+            armedMarker.name = "Redirect Wave Armed Marker";
+            armedMarker.transform.position = markerPosition;
+            armedMarker.transform.localScale = Vector3.one * 0.18f;
+
+            var collider = armedMarker.GetComponent<Collider>();
+            if (collider != null)
+            {
+                Destroy(collider);
+            }
+
+            var renderer = armedMarker.GetComponent<Renderer>();
+            var shader = Shader.Find("Universal Render Pipeline/Unlit")
+                ?? Shader.Find("Universal Render Pipeline/Lit")
+                ?? Shader.Find("Standard")
+                ?? Shader.Find("Sprites/Default");
+            renderer.material = new Material(shader);
+            SetMaterialColor(renderer.material, armedColor);
+
+            var light = armedMarker.AddComponent<Light>();
+            light.type = LightType.Point;
+            light.range = 1.25f;
+            light.intensity = 1.5f;
+            light.color = armedColor;
+
+            Destroy(armedMarker, punchInputWindow);
+        }
+
+        private void HideArmedMarker()
+        {
+            if (armedMarker != null)
+            {
+                Destroy(armedMarker);
+                armedMarker = null;
+            }
+        }
+
+        private static void SetMaterialColor(Material material, Color color)
+        {
+            material.color = color;
+
+            if (material.HasProperty("_BaseColor"))
+            {
+                material.SetColor("_BaseColor", color);
+            }
+
+            if (material.HasProperty("_Color"))
+            {
+                material.SetColor("_Color", color);
+            }
+
+            if (material.HasProperty("_EmissionColor"))
+            {
+                material.EnableKeyword("_EMISSION");
+                material.SetColor("_EmissionColor", color * 2f);
+            }
         }
 
         private void HandleWaveDestroyed(RedirectWaveProjectile wave)
@@ -191,6 +337,8 @@ namespace Wapawapa.Abilities
         private Vector3 direction;
         private float speed;
         private float destroyTime;
+        private float remainingTravelDistance;
+        private float redirectedTravelDistance;
         private float initialDamage;
         private float redirectedDamage;
         private float initialPushForce;
@@ -198,6 +346,7 @@ namespace Wapawapa.Abilities
         private LayerMask hitMask;
         private Renderer waveRenderer;
         private TrailRenderer trail;
+        private Light waveLight;
         private Color redirectedColor;
         private Action<RedirectWaveProjectile> onDestroyed;
         private bool redirected;
@@ -208,6 +357,8 @@ namespace Wapawapa.Abilities
             Vector3 direction,
             float speed,
             float lifetime,
+            float firstTravelDistance,
+            float redirectedTravelDistance,
             float initialDamage,
             float redirectedDamage,
             float initialPushForce,
@@ -215,6 +366,7 @@ namespace Wapawapa.Abilities
             LayerMask hitMask,
             Renderer waveRenderer,
             TrailRenderer trail,
+            Light waveLight,
             Color initialColor,
             Color redirectedColor,
             Action<RedirectWaveProjectile> onDestroyed)
@@ -224,6 +376,8 @@ namespace Wapawapa.Abilities
             this.direction = direction;
             this.speed = Mathf.Max(0.1f, speed);
             destroyTime = Time.time + Mathf.Max(0.1f, lifetime);
+            remainingTravelDistance = Mathf.Max(0.1f, firstTravelDistance);
+            this.redirectedTravelDistance = Mathf.Max(0.1f, redirectedTravelDistance);
             this.initialDamage = initialDamage;
             this.redirectedDamage = redirectedDamage;
             this.initialPushForce = initialPushForce;
@@ -231,6 +385,7 @@ namespace Wapawapa.Abilities
             this.hitMask = hitMask;
             this.waveRenderer = waveRenderer;
             this.trail = trail;
+            this.waveLight = waveLight;
             this.redirectedColor = redirectedColor;
             this.onDestroyed = onDestroyed;
             SetColor(initialColor);
@@ -245,6 +400,7 @@ namespace Wapawapa.Abilities
 
             redirected = true;
             direction = newDirection.normalized;
+            remainingTravelDistance = redirectedTravelDistance;
             transform.rotation = Quaternion.LookRotation(direction, Vector3.up);
             SetColor(redirectedColor);
             Debug.Log("Redirect Wave changed direction.");
@@ -253,7 +409,18 @@ namespace Wapawapa.Abilities
 
         private void FixedUpdate()
         {
-            transform.position += direction * (speed * Time.fixedDeltaTime);
+            if (remainingTravelDistance > 0f)
+            {
+                var moveDistance = Mathf.Min(speed * Time.fixedDeltaTime, remainingTravelDistance);
+                transform.position += direction * moveDistance;
+                remainingTravelDistance -= moveDistance;
+
+                if (redirected && remainingTravelDistance <= 0f)
+                {
+                    Destroy(gameObject);
+                    return;
+                }
+            }
 
             if (Time.time >= destroyTime)
             {
@@ -294,13 +461,40 @@ namespace Wapawapa.Abilities
         {
             if (waveRenderer != null)
             {
-                waveRenderer.material.color = color;
+                SetProjectileMaterialColor(waveRenderer.material, color);
             }
 
             if (trail != null)
             {
                 trail.startColor = color;
                 trail.endColor = new Color(color.r, color.g, color.b, 0f);
+                SetProjectileMaterialColor(trail.material, color);
+            }
+
+            if (waveLight != null)
+            {
+                waveLight.color = color;
+            }
+        }
+
+        private static void SetProjectileMaterialColor(Material material, Color color)
+        {
+            material.color = color;
+
+            if (material.HasProperty("_BaseColor"))
+            {
+                material.SetColor("_BaseColor", color);
+            }
+
+            if (material.HasProperty("_Color"))
+            {
+                material.SetColor("_Color", color);
+            }
+
+            if (material.HasProperty("_EmissionColor"))
+            {
+                material.EnableKeyword("_EMISSION");
+                material.SetColor("_EmissionColor", color * 2f);
             }
         }
 
