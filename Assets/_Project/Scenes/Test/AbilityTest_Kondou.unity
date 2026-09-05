@@ -501,19 +501,31 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8940767640447576866, guid: 00e6fc18643fd45638c9d68dd490e058, type: 3}
       propertyPath: slots.Array.size
-      value: 2
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 8940767640447576866, guid: 00e6fc18643fd45638c9d68dd490e058, type: 3}
       propertyPath: slots.Array.data[1].label
       value: Redirect Wave
       objectReference: {fileID: 0}
     - target: {fileID: 8940767640447576866, guid: 00e6fc18643fd45638c9d68dd490e058, type: 3}
+      propertyPath: slots.Array.data[2].label
+      value: The Wall
+      objectReference: {fileID: 0}
+    - target: {fileID: 8940767640447576866, guid: 00e6fc18643fd45638c9d68dd490e058, type: 3}
       propertyPath: slots.Array.data[1].ability
-      value:
+      value: 
       objectReference: {fileID: 1369764088}
+    - target: {fileID: 8940767640447576866, guid: 00e6fc18643fd45638c9d68dd490e058, type: 3}
+      propertyPath: slots.Array.data[2].ability
+      value: 
+      objectReference: {fileID: 2060907001}
     - target: {fileID: 8940767640447576866, guid: 00e6fc18643fd45638c9d68dd490e058, type: 3}
       propertyPath: slots.Array.data[1].activationKey
       value: 45
+      objectReference: {fileID: 0}
+    - target: {fileID: 8940767640447576866, guid: 00e6fc18643fd45638c9d68dd490e058, type: 3}
+      propertyPath: slots.Array.data[2].activationKey
+      value: 47
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -522,6 +534,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 815842106983561014, guid: 00e6fc18643fd45638c9d68dd490e058, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1369764088}
+    - targetCorrespondingSourceObject: {fileID: 815842106983561014, guid: 00e6fc18643fd45638c9d68dd490e058, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 2060907001}
   m_SourcePrefab: {fileID: 100100000, guid: 00e6fc18643fd45638c9d68dd490e058, type: 3}
 --- !u!1 &1369764087 stripped
 GameObject:
@@ -538,7 +553,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 54ddd6ef0e7f79e41a77192dda9e24e6, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Wapawapa.Abilities.RedirectWaveAbility
   abilityId: kondou.redirect-wave
   abilityName: Redirect Wave
@@ -674,6 +689,38 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2060907001
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1369764087}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 86fb9aee20d840c8b5b4fe84a388ba5e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Wapawapa.Abilities.TheWallAbility
+  abilityId: kondou.the-wall
+  abilityName: The Wall
+  cooldownSeconds: 2
+  "\u58C1\u30E2\u30C7\u30EB\u8A2D\u5B9A\u30EA\u30B9\u30C8":
+  - "\u58C1\u30E2\u30C7\u30EBPrefab": {fileID: 8754935839455614052, guid: 7201631a8f9bfde45bd91f0c2b38fdfb, type: 3}
+    "\u56DE\u8EE2\u88DC\u6B63": {x: -90, y: 0, z: 0}
+    "\u58C1\u30B9\u30B1\u30FC\u30EB": 0.5
+    "\u751F\u3048\u308B\u6642\u9593": 1
+    "\u6301\u7D9A\u6642\u9593": 6
+    "\u5730\u9762\u4E0B\u306E\u6DF1\u3055": 2.4
+    "Collider\u304C\u7121\u3044\u6642\u3060\u3051\u88DC\u52A9Collider\u3092\u8FFD\u52A0": 1
+    "\u88DC\u52A9Collider\u30B5\u30A4\u30BA": {x: 1.8, y: 3.2, z: 0.8}
+    "\u88DC\u52A9Collider\u4E2D\u5FC3": {x: 0, y: 1.6, z: 0}
+    "\u63FA\u308C\u5E45": 0.04
+  "\u751F\u6210\u8DDD\u96E2": 2.2
+  "\u5730\u9762\u63A2\u7D22\u9AD8\u3055": 3
+  "\u5730\u9762\u63A2\u7D22\u8DDD\u96E2": 8
+  "\u5730\u9762\u30EC\u30A4\u30E4\u30FC":
+    serializedVersion: 2
+    m_Bits: 4294967295
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
