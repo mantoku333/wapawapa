@@ -641,6 +641,7 @@ namespace Wapawapa.Abilities
         {
             var forward = direction.sqrMagnitude > 0.0001f ? direction.normalized : transform.forward;
             var effect = Instantiate(impactParticlePrefab, position, Quaternion.LookRotation(forward, Vector3.up));
+            CombatPostProcessController.Instance.ConfigureUnprocessedVfx(effect.gameObject);
             effect.transform.localScale *= impactEffectScale;
             effect.Play(true);
 

@@ -783,10 +783,6 @@ PrefabInstance:
       propertyPath: m_Name
       value: ps_pfb_CriticalPunchHit (1)
       objectReference: {fileID: 0}
-    - target: {fileID: 4278494019756370493, guid: e3051a3ab09d80940935c0c0df4baac8, type: 3}
-      propertyPath: m_IsActive
-      value: 0
-      objectReference: {fileID: 0}
     - target: {fileID: 8400700001322197076, guid: e3051a3ab09d80940935c0c0df4baac8, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0

@@ -20,6 +20,8 @@ namespace Wapawapa.Abilities
         private GameObject hitDebugMarker;
         private Canvas debugCanvas;
         private Texture2D debugCircleTexture;
+        private Camera vfxOverlayCamera;
+        private const int VfxLayer = 31;
         private bool hasLoggedCreation;
 
         public static CombatPostProcessController Instance
@@ -74,6 +76,47 @@ namespace Wapawapa.Abilities
                 contrast,
                 flashCount,
                 interval));
+        }
+
+        public void ConfigureUnprocessedVfx(GameObject vfxObject)
+        {
+            if (vfxObject == null) return;
+            EnsureVfxOverlayCamera();
+            SetLayerRecursively(vfxObject.transform, VfxLayer);
+        }
+
+        private void EnsureVfxOverlayCamera()
+        {
+            if (vfxOverlayCamera != null) return;
+            var baseCamera = Camera.main;
+            if (baseCamera == null && Camera.allCamerasCount > 0) baseCamera = Camera.allCameras[0];
+            if (baseCamera == null) return;
+
+            var baseData = baseCamera.GetComponent<UniversalAdditionalCameraData>();
+            if (baseData == null) baseData = baseCamera.gameObject.AddComponent<UniversalAdditionalCameraData>();
+            baseData.renderPostProcessing = true;
+            baseCamera.cullingMask &= ~(1 << VfxLayer);
+
+            var overlayObject = new GameObject("Blood Focus VFX Overlay Camera");
+            overlayObject.transform.SetParent(baseCamera.transform, false);
+            vfxOverlayCamera = overlayObject.AddComponent<Camera>();
+            vfxOverlayCamera.CopyFrom(baseCamera);
+            vfxOverlayCamera.cullingMask = 1 << VfxLayer;
+            vfxOverlayCamera.clearFlags = CameraClearFlags.Depth;
+            vfxOverlayCamera.depth = baseCamera.depth + 1f;
+            vfxOverlayCamera.enabled = true;
+
+            var overlayData = overlayObject.AddComponent<UniversalAdditionalCameraData>();
+            overlayData.renderType = CameraRenderType.Overlay;
+            overlayData.renderPostProcessing = false;
+            overlayData.renderShadows = false;
+            baseData.cameraStack.Add(vfxOverlayCamera);
+        }
+
+        private static void SetLayerRecursively(Transform root, int layer)
+        {
+            root.gameObject.layer = layer;
+            for (var i = 0; i < root.childCount; i++) SetLayerRecursively(root.GetChild(i), layer);
         }
 
         public void ShowHitPositionDebug(Vector3 worldPosition)
