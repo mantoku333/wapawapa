@@ -396,6 +396,15 @@ MonoBehaviour:
   focusVisualScale: 0.5
   impactEffectLifetime: 0.35
   impactEffectScale: 1.2
+  playScreenFlash: 1
+  screenFlashCount: 1
+  screenFlashDuration: 0.12
+  screenFlashFadeIn: 0.035
+  screenFlashFadeOut: 0.18
+  screenFlashSaturation: -100
+  screenFlashContrast: 100
+  screenFlashInterval: 0.04
+  enableDebugLogs: 1
   blackFlashClip: {fileID: 8300000, guid: d305c6bc97894ef8b3c45ded6919821a, type: 3}
   blackFlashLightningClip: {fileID: 8300000, guid: e5e656ec29cd48fcb27e2c8aa3935f93, type: 3}
   blackFlashVolume: 1
@@ -823,7 +832,7 @@ MonoBehaviour:
     m_Bits: 1
   m_VolumeTrigger: {fileID: 0}
   m_VolumeFrameworkUpdateModeOption: 2
-  m_RenderPostProcessing: 0
+  m_RenderPostProcessing: 1
   m_Antialiasing: 0
   m_AntialiasingQuality: 2
   m_StopNaN: 0

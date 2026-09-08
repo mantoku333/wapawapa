@@ -34,6 +34,17 @@ namespace Wapawapa.Abilities
         [SerializeField] private float impactEffectLifetime = 0.35f;
         [SerializeField] private float impactEffectScale = 1.2f;
 
+        [Header("Blood Focus Post Process")]
+        [SerializeField] private bool playScreenFlash = true;
+        [SerializeField, Range(1, 6)] private int screenFlashCount = 1;
+        [SerializeField, Min(0f)] private float screenFlashDuration = 0.12f;
+        [SerializeField, Min(0f)] private float screenFlashFadeIn = 0.035f;
+        [SerializeField, Min(0f)] private float screenFlashFadeOut = 0.18f;
+        [SerializeField, Range(-100f, 0f)] private float screenFlashSaturation = -100f;
+        [SerializeField, Range(-100f, 100f)] private float screenFlashContrast = 100f;
+        [SerializeField, Min(0f)] private float screenFlashInterval = 0.04f;
+        [SerializeField] private bool enableDebugLogs;
+
         [Header("Sound")]
         [SerializeField] private AudioClip blackFlashClip;
         [SerializeField] private AudioClip blackFlashLightningClip;
@@ -201,8 +212,10 @@ namespace Wapawapa.Abilities
 
                 if (AbilityDamageUtility.TryApplyDamage(hit, damage))
                 {
+                    DebugLog($"Damage applied. networked={IsNetworkedActive}, point={hitPoint}");
                     if (!IsNetworkedActive)
                     {
+                        PlayScreenFlash();
                         PlayBlackFlashSound(hitPoint);
                         SpawnBlackFlashEffect(hitPoint, velocity.normalized);
                     }
@@ -435,6 +448,33 @@ namespace Wapawapa.Abilities
         {
             PlayerCombatAudio.PlayBlackFlashImpact(position);
             SpawnSharedBlackFlashEffect(position, direction);
+        }
+
+        private void PlayScreenFlash()
+        {
+            if (!playScreenFlash)
+            {
+                DebugLog("Screen flash skipped: playScreenFlash is disabled.");
+                return;
+            }
+
+            DebugLog("Calling CombatPostProcessController.");
+            CombatPostProcessController.Instance.PlayBloodFocusStrikeFlash(
+                screenFlashDuration,
+                screenFlashFadeIn,
+                screenFlashFadeOut,
+                screenFlashSaturation,
+                screenFlashContrast,
+                screenFlashCount,
+                screenFlashInterval);
+        }
+
+        private void DebugLog(string message)
+        {
+            if (enableDebugLogs)
+            {
+                Debug.Log($"[BloodFocusStrikeAbility] {message}", this);
+            }
         }
 
         private static AudioClip GetSharedGeneratedBlackFlashClip()
