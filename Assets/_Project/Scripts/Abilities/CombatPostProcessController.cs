@@ -2,6 +2,8 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
+using UnityEngine.UI;
+using Wapawapa.Rendering;
 
 namespace Wapawapa.Abilities
 {
@@ -15,6 +17,9 @@ namespace Wapawapa.Abilities
         private Volume volume;
         private ColorAdjustments colorAdjustments;
         private Coroutine activeEffect;
+        private GameObject hitDebugMarker;
+        private Canvas debugCanvas;
+        private Texture2D debugCircleTexture;
         private bool hasLoggedCreation;
 
         public static CombatPostProcessController Instance
@@ -70,6 +75,127 @@ namespace Wapawapa.Abilities
                 flashCount,
                 interval));
         }
+
+        public void ShowHitPositionDebug(Vector3 worldPosition)
+        {
+            var camera = Camera.main;
+            if (camera == null && Camera.allCamerasCount > 0) camera = Camera.allCameras[0];
+            if (camera == null) return;
+
+            var screen = camera.WorldToScreenPoint(worldPosition);
+            if (screen.z <= 0f) return;
+
+            EnsureDebugCanvas();
+            if (hitDebugMarker == null)
+            {
+                hitDebugMarker = new GameObject("Blood Focus Hit Position Debug");
+                hitDebugMarker.transform.SetParent(debugCanvas.transform, false);
+                var image = hitDebugMarker.AddComponent<Image>();
+                image.sprite = CreateDebugCircleSprite();
+                image.color = Color.red;
+                image.raycastTarget = false;
+                var rect = image.rectTransform;
+                rect.sizeDelta = new Vector2(64f, 64f);
+            }
+
+            var markerRect = hitDebugMarker.GetComponent<RectTransform>();
+            markerRect.position = screen;
+            hitDebugMarker.SetActive(true);
+            CancelInvoke(nameof(HideHitPositionDebug));
+            Invoke(nameof(HideHitPositionDebug), 1.5f);
+        }
+
+        private void EnsureDebugCanvas()
+        {
+            if (debugCanvas != null) return;
+            var canvasObject = new GameObject("Blood Focus Debug Overlay");
+            canvasObject.transform.SetParent(transform, false);
+            debugCanvas = canvasObject.AddComponent<Canvas>();
+            debugCanvas.renderMode = RenderMode.ScreenSpaceOverlay;
+            debugCanvas.sortingOrder = 5000;
+            canvasObject.AddComponent<CanvasScaler>();
+            canvasObject.AddComponent<GraphicRaycaster>();
+        }
+
+        private Sprite CreateDebugCircleSprite()
+        {
+            if (debugCircleTexture == null)
+            {
+                const int size = 64;
+                debugCircleTexture = new Texture2D(size, size, TextureFormat.RGBA32, false);
+                var pixels = new Color[size * size];
+                var center = (size - 1) * 0.5f;
+                for (var y = 0; y < size; y++)
+                {
+                    for (var x = 0; x < size; x++)
+                    {
+                        var distance = Vector2.Distance(new Vector2(x, y), new Vector2(center, center));
+                        pixels[y * size + x] = distance <= 29f && distance >= 24f ? Color.red : Color.clear;
+                    }
+                }
+                debugCircleTexture.SetPixels(pixels);
+                debugCircleTexture.Apply();
+            }
+
+            return Sprite.Create(debugCircleTexture, new Rect(0, 0, debugCircleTexture.width, debugCircleTexture.height), new Vector2(0.5f, 0.5f), 64f);
+        }
+
+        private void HideHitPositionDebug()
+        {
+            if (hitDebugMarker != null) hitDebugMarker.SetActive(false);
+        }
+
+        public void PlayRadialGrayscale(Vector3 worldPosition, float duration, float startRadius, float endRadius, float edge)
+        {
+            EnsureRadialGrayscaleFeature();
+            var camera = Camera.main;
+            if (camera == null && Camera.allCamerasCount > 0) camera = Camera.allCameras[0];
+            if (camera == null) return;
+
+            var viewport = camera.WorldToViewportPoint(worldPosition);
+            if (viewport.z <= 0f) return;
+
+            BloodFocusRadialGrayscaleFeature.Center = viewport;
+            BloodFocusRadialGrayscaleFeature.Radius = startRadius;
+            BloodFocusRadialGrayscaleFeature.Edge = edge;
+            BloodFocusRadialGrayscaleFeature.Strength = 1f;
+            Debug.Log($"[CombatPostProcessController] Radial grayscale requested center={viewport}, radius={startRadius}->{endRadius}", this);
+            StartCoroutine(AnimateRadialGrayscale(duration, startRadius, endRadius));
+        }
+
+        private IEnumerator AnimateRadialGrayscale(float duration, float startRadius, float endRadius)
+        {
+            var elapsed = 0f;
+            while (elapsed < Mathf.Max(0.01f, duration))
+            {
+                elapsed += Time.unscaledDeltaTime;
+                BloodFocusRadialGrayscaleFeature.Radius = Mathf.Lerp(startRadius, endRadius, elapsed / duration);
+                yield return null;
+            }
+            BloodFocusRadialGrayscaleFeature.Strength = 0f;
+        }
+
+        private void EnsureRadialGrayscaleFeature()
+        {
+            var rendererData = Resources.FindObjectsOfTypeAll<ScriptableRendererData>();
+            for (var i = 0; i < rendererData.Length; i++)
+            {
+                if (rendererData[i] == null) continue;
+                var exists = false;
+                for (var j = 0; j < rendererData[i].rendererFeatures.Count; j++)
+                {
+                    if (rendererData[i].rendererFeatures[j] is BloodFocusRadialGrayscaleFeature) { exists = true; break; }
+                }
+                if (!exists)
+                {
+                    var feature = ScriptableObject.CreateInstance<BloodFocusRadialGrayscaleFeature>();
+                    rendererData[i].rendererFeatures.Add(feature);
+                    feature.Create();
+                    rendererData[i].SetDirty();
+                }
+            }
+        }
+
 
         private IEnumerator PlayBloodFocusStrikeFlashRoutine(
             float duration,

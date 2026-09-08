@@ -43,6 +43,13 @@ namespace Wapawapa.Abilities
         [SerializeField, Range(-100f, 0f)] private float screenFlashSaturation = -100f;
         [SerializeField, Range(-100f, 100f)] private float screenFlashContrast = 100f;
         [SerializeField, Min(0f)] private float screenFlashInterval = 0.04f;
+        [Header("Radial Grayscale")]
+        [SerializeField] private bool playRadialGrayscale = true;
+        [SerializeField, Min(0f)] private float radialGrayscaleDuration = 0.25f;
+        [SerializeField, Range(0f, 0.5f)] private float radialGrayscaleStartRadius = 0.02f;
+        [SerializeField, Range(0f, 2f)] private float radialGrayscaleEndRadius = 1.2f;
+        [SerializeField, Range(0.001f, 0.5f)] private float radialGrayscaleEdge = 0.08f;
+        [SerializeField] private bool showHitPositionDebug = true;
         [SerializeField] private bool enableDebugLogs;
 
         [Header("Sound")]
@@ -216,6 +223,11 @@ namespace Wapawapa.Abilities
                     if (!IsNetworkedActive)
                     {
                         PlayScreenFlash();
+                        PlayRadialGrayscale(hitPoint);
+                        if (showHitPositionDebug)
+                        {
+                            CombatPostProcessController.Instance.ShowHitPositionDebug(hitPoint);
+                        }
                         PlayBlackFlashSound(hitPoint);
                         SpawnBlackFlashEffect(hitPoint, velocity.normalized);
                     }
@@ -468,6 +480,20 @@ namespace Wapawapa.Abilities
                 screenFlashCount,
                 screenFlashInterval);
         }
+
+        private void PlayRadialGrayscale(Vector3 hitPoint)
+        {
+            if (playRadialGrayscale)
+            {
+                CombatPostProcessController.Instance.PlayRadialGrayscale(
+                    hitPoint,
+                    radialGrayscaleDuration,
+                    radialGrayscaleStartRadius,
+                    radialGrayscaleEndRadius,
+                    radialGrayscaleEdge);
+            }
+        }
+
 
         private void DebugLog(string message)
         {
