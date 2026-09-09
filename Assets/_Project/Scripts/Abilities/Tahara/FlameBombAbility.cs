@@ -110,6 +110,7 @@ namespace Wapawapa.Abilities
         private float flightStartedAt;
         private AbilityActivationData activeActivation;
         private GameObject activeEffect;
+        private bool launchArmed;
 
         private void OnEnable()
         {
@@ -126,13 +127,19 @@ namespace Wapawapa.Abilities
         private void Update()
         {
             var context = CreateContext();
-            var handIsOpen = IsRightHandOpen();
-            var handIsClosed = IsRightHandClosed();
+            var hasGripInput = TryReadGripValue(out var gripValue);
+            var handIsOpen = hasGripInput && IsRightHandOpen(gripValue);
+            var handIsClosed = hasGripInput && IsRightHandClosed(gripValue);
             var handIsForward = IsRightHandPushedForward(context);
 
             switch (state)
             {
                 case FlameBombState.Waiting:
+                    if (handIsClosed)
+                    {
+                        launchArmed = true;
+                    }
+
                     UpdateWaiting(context, handIsOpen, handIsForward);
                     break;
                 case FlameBombState.Charging:
@@ -156,11 +163,13 @@ namespace Wapawapa.Abilities
 
         private void UpdateWaiting(in AbilityContext context, bool handIsOpen, bool handIsForward)
         {
-            if (!handIsOpen || !handIsForward)
+            if (!launchArmed || !handIsOpen || !handIsForward)
             {
                 return;
             }
 
+            // 起動時から手が開いているだけでは発射せず、必ず一度握ってから開く操作を要求する。
+            launchArmed = false;
             chargeStartedAt = Time.time;
             state = FlameBombState.Charging;
         }
@@ -224,25 +233,27 @@ namespace Wapawapa.Abilities
                 context.Owner);
         }
 
-        private bool IsRightHandOpen()
+        private bool IsRightHandOpen(float gripValue)
         {
-            return ReadGripValue() <= 開き判定しきい値;
+            return gripValue <= 開き判定しきい値;
         }
 
-        private bool IsRightHandClosed()
+        private bool IsRightHandClosed(float gripValue)
         {
-            return ReadGripValue() >= 握り判定しきい値;
+            return gripValue >= 握り判定しきい値;
         }
 
-        private float ReadGripValue()
+        private bool TryReadGripValue(out float gripValue)
         {
             var action = 右手グリップ.action;
-            if (action == null)
+            if (action == null || !action.enabled || action.controls.Count == 0)
             {
-                return 1f;
+                gripValue = 0f;
+                return false;
             }
 
-            return Mathf.Clamp01(action.ReadValue<float>());
+            gripValue = Mathf.Clamp01(action.ReadValue<float>());
+            return true;
         }
 
         private bool IsDebugExplosionKeyPressed()
@@ -414,6 +425,7 @@ namespace Wapawapa.Abilities
             state = FlameBombState.Waiting;
             chargeStartedAt = 0f;
             flightStartedAt = 0f;
+            launchArmed = false;
             damagedRoots.Clear();
         }
 
