@@ -7,7 +7,7 @@ using XRCommonUsages = UnityEngine.XR.CommonUsages;
 
 namespace Wapawapa.Testing
 {
-    public sealed class KeyboardHandTestRig : MonoBehaviour
+    public sealed class KeyboardHandTestRig : MonoBehaviour, IPlayerMovementLock
     {
         [SerializeField] private Transform head;
         [SerializeField] private Transform leftHand;
@@ -30,6 +30,7 @@ namespace Wapawapa.Testing
         private float pitch;
         private float verticalVelocity;
         private float groundY;
+        private float movementLockedUntil;
         private Vector3 trackedHeadPosition;
         private Quaternion trackedHeadRotation = Quaternion.identity;
         private Vector3 trackedLeftHandPosition;
@@ -53,6 +54,11 @@ namespace Wapawapa.Testing
                     transform.position = new Vector3(transform.position.x, groundY, transform.position.z);
                 }
             }
+            // The offline rig is always the local player's first-person avatar.
+            var bodyRenderer = GetComponent<Renderer>();
+            if (bodyRenderer != null) bodyRenderer.enabled = false;
+            var headRenderer = head != null ? head.GetComponent<Renderer>() : null;
+            if (headRenderer != null) headRenderer.enabled = false;
 
             if (leftHand != null)
             {
@@ -98,13 +104,17 @@ namespace Wapawapa.Testing
             UpdateMouseLook();
 
             var move = Vector3.zero;
-            if (keyboard.wKey.isPressed) move += transform.forward;
-            if (keyboard.sKey.isPressed) move -= transform.forward;
-            if (keyboard.dKey.isPressed) move += transform.right;
-            if (keyboard.aKey.isPressed) move -= transform.right;
+            if (!IsMovementLocked)
+            {
+                if (keyboard.wKey.isPressed) move += transform.forward;
+                if (keyboard.sKey.isPressed) move -= transform.forward;
+                if (keyboard.dKey.isPressed) move += transform.right;
+                if (keyboard.aKey.isPressed) move -= transform.right;
+            }
+
             UpdateKeyboardLook(keyboard);
 
-            if (IsGrounded() && keyboard.spaceKey.wasPressedThisFrame)
+            if (!IsMovementLocked && IsGrounded() && keyboard.spaceKey.wasPressedThisFrame)
             {
                 verticalVelocity = Mathf.Sqrt(jumpHeight * -2f * gravity);
             }
@@ -151,6 +161,10 @@ namespace Wapawapa.Testing
             var forward = Vector3.ProjectOnPlane(head != null ? head.forward : transform.forward, Vector3.up).normalized;
             var right = Vector3.ProjectOnPlane(head != null ? head.right : transform.right, Vector3.up).normalized;
             var movement = (forward * moveInput.y + right * moveInput.x) * moveSpeed;
+            if (IsMovementLocked)
+            {
+                movement = Vector3.zero;
+            }
 
             verticalVelocity += gravity * Time.deltaTime;
             movement.y = verticalVelocity;
@@ -162,6 +176,18 @@ namespace Wapawapa.Testing
                 verticalVelocity = -0.5f;
             }
         }
+
+        public void LockMovement(float seconds)
+        {
+            if (seconds <= 0f)
+            {
+                return;
+            }
+
+            movementLockedUntil = Mathf.Max(movementLockedUntil, Time.time + seconds);
+        }
+
+        private bool IsMovementLocked => Time.time < movementLockedUntil;
 
         private bool TryReadXrRig()
         {

@@ -29,7 +29,7 @@ namespace Wapawapa.Abilities
         [Tooltip("Rayが床に当たらない時、前方何メートル先に仮の範囲を置くかです。")]
         [Min(0.1f)]
         [SerializeField] private float fallbackTargetDistance = 6f;
-        [Tooltip("ONにすると手からのRayではなく、マウスカーソル位置から範囲を指定します。テストシーン用です。")]
+        [Tooltip("ONにすると視線ではなく、マウスカーソル位置から範囲を指定します。デスクトップのテスト用です。")]
         [SerializeField] private bool useMouseCursorTargeting;
         [Tooltip("マウス指定に使うカメラです。未設定ならOwner配下のCamera、次にMainCameraを探します。")]
         [SerializeField] private Camera mouseTargetCamera;
@@ -47,7 +47,7 @@ namespace Wapawapa.Abilities
         [Range(1f, 89f)]
         [SerializeField] private float meteorAngleDegrees = 60f;
         [Tooltip("ONにすると、カメラから見て右上の方向からペンギンが降ります。")]
-        [SerializeField] private bool spawnFromCameraViewRight = true;
+        [SerializeField] private bool spawnFromCameraViewRight;
         [Tooltip("一度の発動で降らせるペンギンの数です。")]
         [Min(1)]
         [SerializeField] private int penguinCount = 8;
@@ -129,9 +129,18 @@ namespace Wapawapa.Abilities
 
         protected override void Activate(in AbilityContext context, in AbilityActivationData activation)
         {
-            if (!hasTarget)
+            if (useMouseCursorTargeting)
             {
                 UpdateTarget(context);
+            }
+            else
+            {
+                // Use the pose captured by the activating player and sent through the RPC,
+                // not the drawing hand or a target cached by a previous cast.
+                hasTarget = TryFindTarget(context,
+                    new Ray(activation.Origin, activation.Direction),
+                    activation.Rotation * Vector3.right,
+                    out targetCenter, out targetNormal, out targetForward);
             }
 
             if (!hasTarget)
@@ -159,6 +168,12 @@ namespace Wapawapa.Abilities
         private bool TryFindTarget(in AbilityContext context, out Vector3 center, out Vector3 normal, out Vector3 forward)
         {
             var ray = CreateTargetRay(context);
+            return TryFindTarget(context, ray, context.AimSource.right, out center, out normal, out forward);
+        }
+
+        private bool TryFindTarget(in AbilityContext context, Ray ray, Vector3 viewRight,
+            out Vector3 center, out Vector3 normal, out Vector3 forward)
+        {
             var hits = Physics.RaycastAll(ray, maxAimDistance, groundMask, QueryTriggerInteraction.Ignore);
             System.Array.Sort(hits, (a, b) => a.distance.CompareTo(b.distance));
 
@@ -172,13 +187,8 @@ namespace Wapawapa.Abilities
                 center = hit.point;
                 normal = hit.normal.sqrMagnitude > 0f ? hit.normal.normalized : Vector3.up;
                 forward = Vector3.ProjectOnPlane(ray.direction, normal);
-                if (forward.sqrMagnitude <= 0.0001f)
-                {
-                    forward = Vector3.ProjectOnPlane(context.AimSource.forward, normal);
-                }
-
                 forward = forward.sqrMagnitude > 0.0001f ? forward.normalized : Vector3.forward;
-                forward = GetMeteorApproachForward(context, normal, forward);
+                forward = GetMeteorApproachForward(viewRight, normal, forward);
                 return true;
             }
 
@@ -190,16 +200,11 @@ namespace Wapawapa.Abilities
                 normal = Vector3.up;
                 forward = Vector3.ProjectOnPlane(ray.direction, normal);
                 forward = forward.sqrMagnitude > 0.0001f ? forward.normalized : Vector3.forward;
-                forward = GetMeteorApproachForward(context, normal, forward);
+                forward = GetMeteorApproachForward(viewRight, normal, forward);
                 return true;
             }
 
             var fallbackForward = Vector3.ProjectOnPlane(ray.direction, Vector3.up);
-            if (fallbackForward.sqrMagnitude <= 0.0001f)
-            {
-                fallbackForward = Vector3.ProjectOnPlane(context.AimSource.forward, Vector3.up);
-            }
-
             if (fallbackForward.sqrMagnitude <= 0.0001f && context.Owner != null)
             {
                 fallbackForward = Vector3.ProjectOnPlane(context.Owner.transform.forward, Vector3.up);
@@ -211,7 +216,7 @@ namespace Wapawapa.Abilities
                 center = ray.origin + fallbackForward * Mathf.Min(fallbackTargetDistance, maxAimDistance);
                 center.y = planeY;
                 normal = Vector3.up;
-                forward = GetMeteorApproachForward(context, normal, fallbackForward);
+                forward = GetMeteorApproachForward(viewRight, normal, fallbackForward);
                 return true;
             }
 
@@ -228,7 +233,7 @@ namespace Wapawapa.Abilities
                 return mouseRay;
             }
 
-            var raySource = context.RightHand != null ? context.RightHand : context.LeftHand != null ? context.LeftHand : context.AimSource;
+            var raySource = context.AimSource;
             return new Ray(raySource.position, raySource.forward);
         }
 
@@ -247,34 +252,15 @@ namespace Wapawapa.Abilities
             return true;
         }
 
-        private Vector3 GetMeteorApproachForward(in AbilityContext context, Vector3 normal, Vector3 fallbackForward)
+        private Vector3 GetMeteorApproachForward(Vector3 viewRight, Vector3 normal, Vector3 fallbackForward)
         {
-            if (spawnFromCameraViewRight && TryGetCameraRightForward(context, normal, out var cameraRightForward))
+            var cameraRight = Vector3.ProjectOnPlane(viewRight, normal);
+            if (spawnFromCameraViewRight && cameraRight.sqrMagnitude > 0.0001f)
             {
-                return cameraRightForward;
+                return -cameraRight.normalized;
             }
 
             return fallbackForward.sqrMagnitude > 0.0001f ? fallbackForward.normalized : Vector3.forward;
-        }
-
-        private bool TryGetCameraRightForward(in AbilityContext context, Vector3 normal, out Vector3 forward)
-        {
-            var camera = GetTargetCamera(context);
-            if (camera == null)
-            {
-                forward = default;
-                return false;
-            }
-
-            var cameraRight = Vector3.ProjectOnPlane(camera.transform.right, normal);
-            if (cameraRight.sqrMagnitude <= 0.0001f)
-            {
-                forward = default;
-                return false;
-            }
-
-            forward = -cameraRight.normalized;
-            return true;
         }
 
         private Camera GetTargetCamera(in AbilityContext context)

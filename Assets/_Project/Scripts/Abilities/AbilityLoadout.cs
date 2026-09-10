@@ -109,32 +109,37 @@ namespace Wapawapa.Abilities
             }
         }
 
+        public bool RequestActivateSlot(int slotIndex)
+        {
+            return CanReadLocalInput() && TryActivateSlot(slotIndex);
+        }
+
         private bool CanReadLocalInput()
         {
             return networkObject == null || !networkObject.IsValid || networkObject.HasStateAuthority;
         }
 
-        private void TryActivateSlot(int slotIndex)
+        private bool TryActivateSlot(int slotIndex)
         {
             if (!TryGetSlot(slotIndex, out var slot))
             {
-                return;
+                return false;
             }
 
             if (!slot.Ability.IsReady)
             {
                 Debug.Log($"Ability not ready: {slot.Label} ({slot.Ability.RemainingCooldown:0.0}s)");
-                return;
+                return false;
             }
 
             var activation = AbilityActivationData.FromContext(slot.Ability.AbilityId, CreateContext());
             if (networkObject != null && networkObject.IsValid)
             {
                 RPC_ActivateAbility(slotIndex, activation.Origin, activation.Direction, activation.Rotation);
-                return;
+                return true;
             }
 
-            ActivateSlot(slot, activation, true);
+            return ActivateSlot(slot, activation, true);
         }
 
         [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
@@ -166,13 +171,15 @@ namespace Wapawapa.Abilities
             return new AbilityContext(gameObject, head, leftHand, rightHand);
         }
 
-        private void ActivateSlot(AbilitySlot slot, in AbilityActivationData activation, bool logNotReady)
+        private bool ActivateSlot(AbilitySlot slot, in AbilityActivationData activation, bool logNotReady)
         {
             var activated = slot.Ability.TryActivate(CreateContext(), activation);
             if (!activated && logNotReady)
             {
                 Debug.Log($"Ability not ready: {slot.Label} ({slot.Ability.RemainingCooldown:0.0}s)");
             }
+
+            return activated;
         }
     }
 }

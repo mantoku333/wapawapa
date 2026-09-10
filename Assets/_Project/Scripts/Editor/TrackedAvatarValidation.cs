@@ -57,6 +57,11 @@ namespace Wapawapa.Editor
             {
                 foreach (Transform node in root.GetComponentsInChildren<Transform>(true))
                     Require(GameObjectUtility.GetMonoBehavioursWithMissingScriptCount(node.gameObject) == 0, path + ": missing script on " + node.name);
+                Require(root.GetComponent<Wapawapa.Gestures.AirGestureRecorder>() != null, path + ": gesture recorder missing");
+                Require(root.GetComponent<Wapawapa.Gestures.AirGestureRecognizer>() != null, path + ": gesture recognizer missing");
+                Require(root.GetComponent<Wapawapa.GestureActions.GestureActionRouter>() != null, path + ": gesture router missing");
+                Require(root.GetComponent<Wapawapa.GestureActions.AbilityLoadoutGestureAdapter>() != null, path + ": gesture adapter missing");
+                Require(root.GetComponent<Wapawapa.Gestures.AirGestureDebugView>() != null, path + ": gesture debug view missing");
                 var driver = root.GetComponent<TrackedAvatar>();
                 Require(driver != null, path + ": avatar driver missing");
                 var serialized = new SerializedObject(driver);
@@ -69,6 +74,15 @@ namespace Wapawapa.Editor
                 {
                     Require(root.GetComponent<NetworkObject>() != null, "NetworkObject must remain attached");
                     Require(root.GetComponent<DesktopVrNetworkPlayer>() != null, "Network movement must remain attached");
+                    var player = root.GetComponent<DesktopVrNetworkPlayer>();
+                    typeof(DesktopVrNetworkPlayer).GetMethod("Awake", BindingFlags.NonPublic | BindingFlags.Instance).Invoke(player, null);
+                    var setVisible = typeof(DesktopVrNetworkPlayer).GetMethod("SetLocalAvatarVisible", BindingFlags.NonPublic | BindingFlags.Instance);
+                    foreach (bool visible in new[] { false, true })
+                    {
+                        setVisible.Invoke(player, new object[] { visible });
+                        Require(!root.GetComponent<Renderer>().enabled, "Primitive body must stay hidden with tracked avatar");
+                        Require(!root.transform.Find("Head").GetComponent<Renderer>().enabled, "Primitive head must stay hidden with tracked avatar");
+                    }
                     var cc = root.GetComponent<CharacterController>();
                     Require(cc != null && Mathf.Abs(cc.center.y - cc.height * 0.5f) < 0.01f, "Controller origin must be at feet");
                 }

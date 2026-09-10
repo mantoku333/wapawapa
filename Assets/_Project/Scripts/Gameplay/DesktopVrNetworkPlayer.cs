@@ -8,7 +8,7 @@ using XRCommonUsages = UnityEngine.XR.CommonUsages;
 namespace Wapawapa.Gameplay
 {
     [RequireComponent(typeof(CharacterController))]
-    public sealed class DesktopVrNetworkPlayer : NetworkBehaviour
+    public sealed class DesktopVrNetworkPlayer : NetworkBehaviour, IPlayerMovementLock
     {
         [Header("Rig")]
         [SerializeField] private Camera localCamera;
@@ -39,6 +39,7 @@ namespace Wapawapa.Gameplay
         private bool leftPunchRequested;
         private bool rightPunchRequested;
         private float verticalVelocity;
+        private float movementLockedUntil;
         private bool xrTrackingAvailable;
 
         private Vector3 trackedHeadPosition;
@@ -82,7 +83,7 @@ namespace Wapawapa.Gameplay
                 }
             }
 
-            SetLocalHeadVisible(!isLocal);
+            SetLocalAvatarVisible(!isLocal);
 
             if (isLocal && !IsXrDisplayRunning())
             {
@@ -174,6 +175,12 @@ namespace Wapawapa.Gameplay
 
             var forward = Vector3.ProjectOnPlane(transform.forward, Vector3.up).normalized;
             var right = Vector3.ProjectOnPlane(transform.right, Vector3.up).normalized;
+            if (IsMovementLocked)
+            {
+                moveInput = Vector2.zero;
+                jumpRequested = false;
+            }
+
             var movement = (forward * moveInput.y + right * moveInput.x) * moveSpeed;
 
             if (characterController.isGrounded && verticalVelocity < 0f)
@@ -197,6 +204,19 @@ namespace Wapawapa.Gameplay
             trackedAvatar?.SetHandInput(HasStateAuthority ? localHandInput : NetworkHandInput);
             trackedAvatar?.SetLocalView(HasStateAuthority);
         }
+
+        public void LockMovement(float seconds)
+        {
+            if (seconds <= 0f)
+            {
+                return;
+            }
+
+            movementLockedUntil = Mathf.Max(movementLockedUntil, Time.time + seconds);
+            jumpRequested = false;
+        }
+
+        private bool IsMovementLocked => Time.time < movementLockedUntil;
 
         private Vector2 ReadMovement()
         {
@@ -355,8 +375,15 @@ namespace Wapawapa.Gameplay
             return false;
         }
 
-        private void SetLocalHeadVisible(bool visible)
+        private void SetLocalAvatarVisible(bool visible)
         {
+            // Only change this client's body mesh. Hands, colliders and network state stay active.
+            var bodyRenderer = GetComponent<Renderer>();
+            if (bodyRenderer != null)
+            {
+                bodyRenderer.enabled = visible && trackedAvatar == null;
+            }
+
             if (head == null)
             {
                 return;

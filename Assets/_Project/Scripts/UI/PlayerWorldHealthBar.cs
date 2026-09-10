@@ -42,6 +42,7 @@ namespace Wapawapa.UI
 
         private void OnDisable()
         {
+            if (canvas != null) canvas.enabled = false;
             if (receiver != null)
             {
                 receiver.HealthChanged -= OnHealthChanged;
@@ -54,6 +55,10 @@ namespace Wapawapa.UI
             {
                 return;
             }
+
+            // Each client sees only other players' overhead bars.
+            canvas.enabled = receiver != null && !receiver.IsLocalPlayer;
+            if (!canvas.enabled) return;
 
             canvas.transform.position = followTarget.position + worldOffset;
             targetCamera = ResolveCamera();
@@ -76,6 +81,7 @@ namespace Wapawapa.UI
             var canvasObject = new GameObject("World HP Bar");
             canvasObject.transform.SetParent(transform, false);
             canvas = canvasObject.AddComponent<Canvas>();
+            canvas.enabled = false;
             canvas.renderMode = RenderMode.WorldSpace;
             canvas.sortingOrder = 20;
 
