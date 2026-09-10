@@ -13,6 +13,7 @@ namespace Wapawapa.GestureActions
         {
             new GestureAbilityBinding("ability.slot.0", 0),
             new GestureAbilityBinding("ability.slot.1", 1),
+            new GestureAbilityBinding("ability.slot.2", 2),
         };
         [SerializeField] private bool logRequests;
 

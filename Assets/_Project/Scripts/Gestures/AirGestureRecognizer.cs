@@ -167,6 +167,14 @@ namespace Wapawapa.Gestures
                     new Vector2(0.55f, -0.42f),
                     new Vector2(0f, 0.58f),
                 }));
+                AddBuiltInTemplate("square", true, CreatePolylineTemplate(new[]
+                {
+                    new Vector2(-0.5f, 0.5f),
+                    new Vector2(0.5f, 0.5f),
+                    new Vector2(0.5f, -0.5f),
+                    new Vector2(-0.5f, -0.5f),
+                    new Vector2(-0.5f, 0.5f),
+                }));
             }
 
             if (templateSet == null)

@@ -9,8 +9,9 @@ namespace Wapawapa.GestureActions
         [SerializeField] private AirGestureRecognizer recognizer;
         [SerializeField] private GestureActionBinding[] bindings =
         {
-            new GestureActionBinding("circle", "ability.slot.0"),
             new GestureActionBinding("triangle", "ability.slot.1"),
+            new GestureActionBinding("square", "ability.slot.0"),
+            new GestureActionBinding("circle", "ability.slot.2"),
         };
         [SerializeField] private float actionCooldown = 0.2f;
         [SerializeField] private bool logActions;

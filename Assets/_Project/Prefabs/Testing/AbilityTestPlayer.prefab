@@ -154,7 +154,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 3.5714286, y: 3.5714286, z: 3.5714286}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 7225072393771125982}
@@ -236,6 +236,11 @@ GameObject:
   - component: {fileID: 720230613002}
   - component: {fileID: 6629011852349001201}
   - component: {fileID: 8940767640447576866}
+  - component: {fileID: 880000000000000011}
+  - component: {fileID: 880000000000000012}
+  - component: {fileID: 880000000000000013}
+  - component: {fileID: 880000000000000014}
+  - component: {fileID: 880000000000000015}
   m_Layer: 0
   m_Name: AbilityTestPlayer
   m_TagString: Untagged
@@ -458,7 +463,7 @@ MonoBehaviour:
   targetFillColor: {r: 1, g: 0, b: 0, a: 0.22}
   maxAimDistance: 30
   fallbackTargetDistance: 6
-  useMouseCursorTargeting: 1
+  useMouseCursorTargeting: 0
   mouseTargetCamera: {fileID: 8262331073779829304}
   groundMask:
     serializedVersion: 2
@@ -466,7 +471,7 @@ MonoBehaviour:
   activationDelay: 0.5
   meteorHeight: 7
   meteorAngleDegrees: 60
-  spawnFromCameraViewRight: 1
+  spawnFromCameraViewRight: 0
   penguinCount: 8
   emissionDuration: 1.2
   launchSpeed: 12
@@ -729,3 +734,114 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Wapawapa.Boxing.PunchHitbox
   punchSettings: {fileID: 154464258500715438}
+--- !u!114 &880000000000000011
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 815842106983561014}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c9b9bdc015cb1d44789b92c1731d2270, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::Wapawapa.Gestures.AirGestureRecorder
+  drawPoint: {fileID: 7287373612709021972}
+  viewReference: {fileID: 7225072393771125982}
+  inputHand: 5
+  requireTrigger: 1
+  triggerThreshold: 0.55
+  allowKeyboardDebugGate: 0
+  keyboardDebugKey: 21
+  minimumPointCount: 8
+  maximumPointCount: 256
+  minimumSampleDistance: 0.015
+--- !u!114 &880000000000000012
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 815842106983561014}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: da44465b0e0d31048af4b88244b3c717, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::Wapawapa.Gestures.AirGestureRecognizer
+  recorder: {fileID: 880000000000000011}
+  templateSet: {fileID: 0}
+  includeBuiltInTemplates: 1
+  resamplePointCount: 64
+  minimumPathLength: 0.18
+  minimumBoundsSize: 0.08
+  minimumDuration: 0.12
+  maximumDuration: 2.5
+  maximumScore: 0.22
+  minimumConfidence: 0.35
+  closedShapeShiftStep: 4
+  rotationSearchDegrees: 30
+  rotationSearchStepDegrees: 15
+  resultCooldown: 0.25
+  logResults: 1
+--- !u!114 &880000000000000013
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 815842106983561014}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2c270829fdbaa1044840ac5d0bee9daf, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::Wapawapa.GestureActions.GestureActionRouter
+  recognizer: {fileID: 880000000000000012}
+  bindings:
+  - gestureId: triangle
+    actionId: ability.slot.2
+  - gestureId: square
+    actionId: ability.slot.1
+  - gestureId: circle
+    actionId: ability.slot.0
+  actionCooldown: 0.2
+  logActions: 1
+--- !u!114 &880000000000000014
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 815842106983561014}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 73ababfcb3d2e3c43900bb8cfe49f4c6, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::Wapawapa.GestureActions.AbilityLoadoutGestureAdapter
+  router: {fileID: 880000000000000013}
+  loadout: {fileID: 8940767640447576866}
+  bindings:
+  - actionId: ability.slot.0
+    slotIndex: 0
+  - actionId: ability.slot.1
+    slotIndex: 1
+  - actionId: ability.slot.2
+    slotIndex: 2
+  logRequests: 1
+
+--- !u!114 &880000000000000015
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 815842106983561014}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6b1b09f7d8087d4439d123c81470c201, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::Wapawapa.Gestures.AirGestureDebugView
+  recorder: {fileID: 880000000000000011}
+  recognizer: {fileID: 880000000000000012}
+  logRecognition: 0
+  trailMaterial: {fileID: 2100000, guid: b9289bb6b94f44efa9fb2045da7090a2, type: 2}
+  trailWidth: 0.012

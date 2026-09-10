@@ -80,6 +80,8 @@ namespace Wapawapa.Editor
 
             var cameraObject = new GameObject("PlayerCamera");
             cameraObject.transform.SetParent(head.transform, false);
+            // Keep the camera at unit world scale despite the scaled head mesh.
+            cameraObject.transform.localScale = Vector3.one / head.transform.localScale.x;
             var playerCamera = cameraObject.AddComponent<Camera>();
             playerCamera.nearClipPlane = 0.05f;
             cameraObject.AddComponent<AudioListener>();
