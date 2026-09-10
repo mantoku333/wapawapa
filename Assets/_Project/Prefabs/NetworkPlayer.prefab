@@ -235,25 +235,73 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Wapawapa.Abilities.RailwayPassAbility
   abilityId: fuyuno.railway_pass
   abilityName: Railway Pass
-  cooldownSeconds: 2
+  cooldownSeconds: 4
+  vehicleVariants:
+  - label: Koryoin Train
+    prefab: {fileID: 4805999474358170395, guid: 9f46b3bc92d84f84380e3044d963b067, type: 3}
+    localPosition: {x: 0, y: 0, z: 0}
+    localScale: {x: 1, y: 1, z: 1}
+    localEulerAngles: {x: 0, y: 0, z: 0}
+    overrideSpawnRightOffset: 1
+    spawnRightOffset: 280
+    preLaunchSound: {fileID: 8300000, guid: 784d33747feb44cfc93c621241463c0e, type: 3}
+    launchSound: {fileID: 8300000, guid: 0659c2a97b4348bdbe490eb4497f84dc, type: 3}
+    hitSound: {fileID: 8300000, guid: cdb3fe386a43428a9f29a7b1ef9a2c54, type: 3}
+    hitEffectPrefab: {fileID: 0}
+    hitEffectCount: 0
+    hitEffectRadius: 0.8
+    hitEffectScale: 1
+    hitEffectLifetime: 3
+  - label: Helicopter
+    prefab: {fileID: 100172, guid: f55006f6a32a71b45a114b4680c1e575, type: 3}
+    localPosition: {x: 0, y: 0, z: 0}
+    localScale: {x: 3.5, y: 3.5, z: 3.5}
+    localEulerAngles: {x: 0, y: 0, z: 0}
+    overrideSpawnRightOffset: 1
+    spawnRightOffset: 140
+    preLaunchSound: {fileID: 8300000, guid: 784d33747feb44cfc93c621241463c0e, type: 3}
+    launchSound: {fileID: 8300000, guid: 1893a4b25867f944a86381a436b97d79, type: 3}
+    hitSound: {fileID: 8300000, guid: cdb3fe386a43428a9f29a7b1ef9a2c54, type: 3}
+    hitEffectPrefab: {fileID: 0}
+    hitEffectCount: 0
+    hitEffectRadius: 0.8
+    hitEffectScale: 1
+    hitEffectLifetime: 3
+  - label: Colonial Ship
+    prefab: {fileID: 1205614443198496, guid: f855683b127eede4c9d170be2672ae27, type: 3}
+    localPosition: {x: 0, y: 0, z: 0}
+    localScale: {x: 1, y: 1, z: 1}
+    localEulerAngles: {x: 0, y: 0, z: 0}
+    overrideSpawnRightOffset: 1
+    spawnRightOffset: 280
+    preLaunchSound: {fileID: 8300000, guid: 784d33747feb44cfc93c621241463c0e, type: 3}
+    launchSound: {fileID: 8300000, guid: 0659c2a97b4348bdbe490eb4497f84dc, type: 3}
+    hitSound: {fileID: 8300000, guid: cdb3fe386a43428a9f29a7b1ef9a2c54, type: 3}
+    hitEffectPrefab: {fileID: 2586947100091486788, guid: bf97aaa7a02fd834782d32dcc497cbef, type: 3}
+    hitEffectCount: 4
+    hitEffectRadius: 1.4
+    hitEffectScale: 1.25
+    hitEffectLifetime: 3.5
   trainPrefab: {fileID: 4805999474358170395, guid: 9f46b3bc92d84f84380e3044d963b067, type: 3}
-  trainPrefabLocalPosition: {x: 0, y: -0.75, z: 0}
+  trainPrefabLocalPosition: {x: 0, y: 0, z: 0}
   trainPrefabScale: {x: 1, y: 1, z: 1}
-  trainPrefabEulerAngles: {x: 0, y: -90, z: 0}
+  trainPrefabEulerAngles: {x: 0, y: 0, z: 0}
   targetDistance: 10
-  spawnRightOffset: 14
-  trainSpeed: 50
+  spawnRightOffset: 140
+  trainSpeed: 300
   lifetime: 10
   trainSize: {x: 2, y: 2, z: 8}
   heightOffset: 0.05
-  damage: 80
-  pushForce: 40
+  damage: 30
+  pushForce: 12
   hitMask:
     serializedVersion: 2
     m_Bits: 4294967295
   trainSound: {fileID: 8300000, guid: 0659c2a97b4348bdbe490eb4497f84dc, type: 3}
   hornSound: {fileID: 0}
-  soundDuration: 0.1
+  hitSound: {fileID: 8300000, guid: cdb3fe386a43428a9f29a7b1ef9a2c54, type: 3}
+  preLaunchDelay: 2
+  soundDuration: 2.5
   soundVolume: 10
   soundSpatialBlend: 0.15
   soundMinDistance: 8
