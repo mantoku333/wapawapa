@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.XR;
 using Wapawapa.Boxing;
+using Wapawapa.Gameplay;
 using XRCommonUsages = UnityEngine.XR.CommonUsages;
 
 namespace Wapawapa.Testing
@@ -22,6 +23,7 @@ namespace Wapawapa.Testing
         [SerializeField] private float punchHitWindow = 0.35f;
 
         private Vector3 leftRestLocalPosition;
+        private TrackedAvatar trackedAvatar;
         private Vector3 rightRestLocalPosition;
         private PunchHitbox leftPunchHitbox;
         private PunchHitbox rightPunchHitbox;
@@ -40,6 +42,17 @@ namespace Wapawapa.Testing
         private void Awake()
         {
             groundY = transform.position.y;
+            trackedAvatar = GetComponent<TrackedAvatar>();
+            if (trackedAvatar != null)
+            {
+                trackedAvatar.SetLocalView(true);
+                // Avatar roots represent the floor, not the center of the old capsule.
+                if (trackedAvatar.TryFindFloor(transform.position + Vector3.up * 0.25f, 3f, out var floor))
+                {
+                    groundY = floor.point.y;
+                    transform.position = new Vector3(transform.position.x, groundY, transform.position.z);
+                }
+            }
 
             if (leftHand != null)
             {
@@ -66,7 +79,9 @@ namespace Wapawapa.Testing
 
         private void Update()
         {
-            if (TryReadXrRig())
+            bool xrActive = TryReadXrRig();
+            trackedAvatar?.SetHandInput(AvatarHandInput.Read(xrActive, true));
+            if (xrActive)
             {
                 ApplyTrackedRig();
                 UpdateVrLocomotion();
@@ -286,6 +301,8 @@ namespace Wapawapa.Testing
             }
 
             var target = restPosition + Vector3.forward * (punching ? punchDistance : 0f);
+            if (trackedAvatar != null)
+                target = trackedAvatar.ClampDesktopHandPosition(target, hand == leftHand);
             hand.localPosition = Vector3.Lerp(hand.localPosition, target, 1f - Mathf.Exp(-punchSpeed * Time.deltaTime));
         }
     }
