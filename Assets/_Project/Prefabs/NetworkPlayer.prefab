@@ -448,6 +448,7 @@ MonoBehaviour:
   gaugeAnchoredPosition: {x: -88, y: 0}
   gaugeSize: {x: 34, y: 260}
   spawnDebugVisuals: 1
+  impactParticlePrefab: {fileID: 5344348883797498948, guid: e3051a3ab09d80940935c0c0df4baac8, type: 3}
   focusVisualScale: 0.5
   impactEffectLifetime: 0.35
   impactEffectScale: 1.2
@@ -459,6 +460,12 @@ MonoBehaviour:
   screenFlashSaturation: -100
   screenFlashContrast: 100
   screenFlashInterval: 0.04
+  playRadialGrayscale: 1
+  radialGrayscaleDuration: 0.25
+  radialGrayscaleStartRadius: 0.02
+  radialGrayscaleEndRadius: 1.2
+  radialGrayscaleEdge: 0.08
+  showHitPositionDebug: 1
   enableDebugLogs: 1
   blackFlashClip: {fileID: 8300000, guid: d305c6bc97894ef8b3c45ded6919821a, type: 3}
   blackFlashLightningClip: {fileID: 8300000, guid: e5e656ec29cd48fcb27e2c8aa3935f93, type: 3}
