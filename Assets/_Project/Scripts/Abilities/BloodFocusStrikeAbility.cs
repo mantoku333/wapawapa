@@ -75,6 +75,9 @@ namespace Wapawapa.Abilities
         private Image maxZoneImage;
         private AudioClip generatedBlackFlashClip;
         private static AudioClip sharedGeneratedBlackFlashClip;
+        private static ParticleSystem sharedImpactParticlePrefab;
+        private static float sharedImpactEffectLifetime = 0.35f;
+        private static float sharedImpactEffectScale = 1.2f;
         private NetworkObject networkObject;
 
         protected override void Activate(in AbilityContext context, in AbilityActivationData activation)
@@ -86,6 +89,7 @@ namespace Wapawapa.Abilities
         {
             networkObject = GetComponentInParent<NetworkObject>();
             currentOwner = gameObject;
+            RegisterSharedImpactParticle();
             DiscoverHandReferences();
             UpdatePreviousHandPositions();
 
@@ -243,6 +247,18 @@ namespace Wapawapa.Abilities
 
         private bool IsGaugeInMaxZone => gaugeRatio >= maxZoneStartRatio;
         private bool IsNetworkedActive => networkObject != null && networkObject.IsValid;
+
+        private void RegisterSharedImpactParticle()
+        {
+            if (impactParticlePrefab == null)
+            {
+                return;
+            }
+
+            sharedImpactParticlePrefab = impactParticlePrefab;
+            sharedImpactEffectLifetime = impactEffectLifetime;
+            sharedImpactEffectScale = impactEffectScale;
+        }
 
         private void CacheContext(in AbilityContext context)
         {
@@ -534,6 +550,12 @@ namespace Wapawapa.Abilities
 
         private static void SpawnSharedBlackFlashEffect(Vector3 position, Vector3 direction)
         {
+            if (sharedImpactParticlePrefab != null)
+            {
+                PlaySharedImpactParticle(position, direction);
+                return;
+            }
+
             var root = new GameObject("Black Flash Network Impact");
             root.transform.position = position;
             Destroy(root, 0.45f);
@@ -572,6 +594,24 @@ namespace Wapawapa.Abilities
                     renderer.sharedMaterial = emberMaterial;
                 }
             }
+        }
+
+        private static void PlaySharedImpactParticle(Vector3 position, Vector3 direction)
+        {
+            var forward = direction.sqrMagnitude > 0.0001f ? direction.normalized : Vector3.forward;
+            var effect = Instantiate(sharedImpactParticlePrefab, position, Quaternion.LookRotation(forward, Vector3.up));
+            CombatPostProcessController.Instance.ConfigureUnprocessedVfx(effect.gameObject);
+            effect.transform.localScale *= sharedImpactEffectScale;
+            effect.Play(true);
+
+            var lifetime = Mathf.Max(0.1f, sharedImpactEffectLifetime);
+            var main = effect.main;
+            if (!main.loop)
+            {
+                lifetime = Mathf.Max(lifetime, main.duration + main.startLifetime.constantMax);
+            }
+
+            Destroy(effect.gameObject, lifetime + 0.1f);
         }
 
         private void SpawnBlackFlashEffect(Vector3 position, Vector3 direction)
