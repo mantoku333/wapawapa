@@ -755,7 +755,11 @@ MonoBehaviour:
   keyboardDebugKey: 21
   minimumPointCount: 8
   maximumPointCount: 256
-  minimumSampleDistance: 0.015
+  minimumSampleDistance: 0.007
+  leftPunchHand: {fileID: 8875108605018845296}
+  minimumPunchSpeed: 0.8
+  signLifetime: 20
+  maximumStrokeCount: 4
 --- !u!114 &880000000000000012
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -775,7 +779,7 @@ MonoBehaviour:
   minimumPathLength: 0.18
   minimumBoundsSize: 0.08
   minimumDuration: 0.12
-  maximumDuration: 2.5
+  maximumDuration: 5
   maximumScore: 0.22
   minimumConfidence: 0.35
   closedShapeShiftStep: 4
@@ -801,7 +805,7 @@ MonoBehaviour:
     actionId: ability.slot.2
   - gestureId: square
     actionId: ability.slot.1
-  - gestureId: circle
+  - gestureId: pe
     actionId: ability.slot.0
   actionCooldown: 0.2
   logActions: 1

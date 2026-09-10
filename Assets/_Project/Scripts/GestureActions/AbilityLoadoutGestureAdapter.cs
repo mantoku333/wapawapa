@@ -45,11 +45,13 @@ namespace Wapawapa.GestureActions
         {
             if (loadout == null)
             {
+                router.ConfirmActivation(false);
                 return;
             }
 
             if (!TryFindSlot(actionId, out var slotIndex))
             {
+                router.ConfirmActivation(false);
                 if (logRequests)
                 {
                     Debug.Log($"No ability binding for gesture action: {actionId}");
@@ -59,6 +61,7 @@ namespace Wapawapa.GestureActions
             }
 
             var accepted = loadout.RequestActivateSlot(slotIndex);
+            router.ConfirmActivation(accepted);
             if (logRequests)
             {
                 Debug.Log($"Gesture ability request: {result.GestureId} -> slot {slotIndex}, accepted={accepted}");

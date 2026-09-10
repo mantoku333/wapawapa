@@ -11,7 +11,7 @@ namespace Wapawapa.GestureActions
         {
             new GestureActionBinding("triangle", "ability.slot.1"),
             new GestureActionBinding("square", "ability.slot.0"),
-            new GestureActionBinding("circle", "ability.slot.2"),
+            new GestureActionBinding("pe", "ability.slot.2"),
         };
         [SerializeField] private float actionCooldown = 0.2f;
         [SerializeField] private bool logActions;
@@ -19,6 +19,11 @@ namespace Wapawapa.GestureActions
         private float nextActionTime;
 
         public event Action<string, AirGestureResult> ActionRequested;
+
+        public void ConfirmActivation(bool accepted)
+        {
+            if (recognizer != null) recognizer.ConfirmActivation(accepted);
+        }
 
         private void OnEnable()
         {
@@ -40,11 +45,13 @@ namespace Wapawapa.GestureActions
         {
             if (!result.Succeeded || Time.time < nextActionTime)
             {
+                ConfirmActivation(false);
                 return;
             }
 
             if (!TryFindAction(result.GestureId, out var actionId))
             {
+                ConfirmActivation(false);
                 if (logActions)
                 {
                     Debug.Log($"No action binding for gesture: {result.GestureId}");

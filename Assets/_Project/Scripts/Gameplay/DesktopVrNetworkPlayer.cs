@@ -77,7 +77,7 @@ namespace Wapawapa.Gameplay
                 }
             }
 
-            SetLocalHeadVisible(!isLocal);
+            SetLocalAvatarVisible(!isLocal);
 
             if (isLocal && !IsXrDisplayRunning())
             {
@@ -336,8 +336,15 @@ namespace Wapawapa.Gameplay
             return false;
         }
 
-        private void SetLocalHeadVisible(bool visible)
+        private void SetLocalAvatarVisible(bool visible)
         {
+            // Only change this client's body mesh. Hands, colliders and network state stay active.
+            var bodyRenderer = GetComponent<Renderer>();
+            if (bodyRenderer != null)
+            {
+                bodyRenderer.enabled = visible;
+            }
+
             if (head == null)
             {
                 return;

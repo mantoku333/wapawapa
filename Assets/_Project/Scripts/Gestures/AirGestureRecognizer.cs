@@ -56,7 +56,7 @@ namespace Wapawapa.Gestures
         {
             if (recorder != null)
             {
-                recorder.StrokeCompleted += HandleStrokeCompleted;
+                recorder.SignSubmitted += HandleSignSubmitted;
             }
         }
 
@@ -64,7 +64,7 @@ namespace Wapawapa.Gestures
         {
             if (recorder != null)
             {
-                recorder.StrokeCompleted -= HandleStrokeCompleted;
+                recorder.SignSubmitted -= HandleSignSubmitted;
             }
         }
 
@@ -125,22 +125,94 @@ namespace Wapawapa.Gestures
             return new AirGestureResult(bestGestureId, confidence, bestScore, normalized.Length);
         }
 
-        private void HandleStrokeCompleted(AirGestureStroke stroke)
+        public AirGestureResult RecognizeSign(IReadOnlyList<AirGestureStroke> strokes)
         {
-            var result = Recognize(stroke);
+            if (strokes == null || strokes.Count == 0 || strokes.Count > 2)
+                return AirGestureResult.Failed();
+            if (strokes.Count == 1) return Recognize(strokes[0]);
+
+            // Both strokes are projected in the first stroke's plane before checking layout.
+            var first = strokes[0];
+            var second = new AirGestureStroke(strokes[1].WorldPoints, strokes[1].Duration,
+                first.PlaneOrigin, first.PlaneRight, first.PlaneUp);
+            var body = AirGestureProjector.ProjectToStrokePlane(first);
+            var mark = AirGestureProjector.ProjectToStrokePlane(second);
+            if (!first.IsValid || !second.IsValid || first.Duration < minimumDuration ||
+                second.Duration < 0.06f || first.Duration > 5f || second.Duration > 5f)
+                return AirGestureResult.Failed();
+
+            var bodyBounds = GetBounds(body);
+            var markBounds = GetBounds(mark);
+            var width = bodyBounds.size.x;
+            var markSize = Mathf.Max(markBounds.size.x, markBounds.size.y);
+            if (width < minimumBoundsSize || markSize < width * 0.1f || markSize > width * 0.6f ||
+                markBounds.center.x < bodyBounds.min.x + width * 0.45f ||
+                markBounds.center.x > bodyBounds.max.x + width * 0.55f ||
+                markBounds.center.y < bodyBounds.max.y - width * 0.12f ||
+                markBounds.center.y > bodyBounds.max.y + width * 0.7f)
+                return AirGestureResult.Failed();
+
+            var normal = Vector3.Cross(first.PlaneRight, first.PlaneUp).normalized;
+            foreach (var point in second.WorldPoints)
+                if (Mathf.Abs(Vector3.Dot(point - first.PlaneOrigin, normal)) > Mathf.Max(0.18f, width * 0.5f))
+                    return AirGestureResult.Failed();
+
+            var bodyResult = RecognizePart(body, "he", 0.08f);
+            var markResult = RecognizePart(mark, "circle", 0.015f);
+            if (!bodyResult.Succeeded || !markResult.Succeeded) return AirGestureResult.Failed();
+            return new AirGestureResult("pe", Mathf.Min(bodyResult.Confidence, markResult.Confidence),
+                Mathf.Max(bodyResult.Score, markResult.Score), body.Length + mark.Length);
+        }
+
+        private static Bounds GetBounds(Vector2[] points)
+        {
+            if (points.Length == 0) return new Bounds();
+            var bounds = new Bounds(points[0], Vector3.zero);
+            foreach (var point in points) bounds.Encapsulate(point);
+            return bounds;
+        }
+
+        private AirGestureResult RecognizePart(Vector2[] points, string id, float minimumSize)
+        {
+            if (!AirGestureNormalizer.TryNormalize(points, resamplePointCount, minimumSize * 2f,
+                minimumSize, out var normalized, out _, out var size)) return AirGestureResult.Failed();
+            if (id == "circle" && Vector2.Distance(points[0], points[points.Length - 1]) >
+                Mathf.Max(size.x, size.y) * 0.45f) return AirGestureResult.Failed();
+            if (templates.Count == 0) RebuildTemplates();
+            foreach (var template in templates)
+            {
+                if (template.GestureId != id) continue;
+                var score = CalculateBestScore(normalized, template);
+                var confidence = Mathf.Clamp01(1f - score / maximumScore);
+                return confidence >= minimumConfidence ?
+                    new AirGestureResult(id, confidence, score, points.Length) : AirGestureResult.Failed();
+            }
+            return AirGestureResult.Failed();
+        }
+
+        public void ConfirmActivation(bool accepted)
+        {
+            if (recorder != null) recorder.ResolveSign(accepted);
+        }
+
+        private void HandleSignSubmitted(IReadOnlyList<AirGestureStroke> strokes)
+        {
+            var result = RecognizeSign(strokes);
             if (!result.Succeeded)
             {
                 if (logResults)
                 {
-                    Debug.Log("Air gesture rejected.");
+                    Debug.Log("Air sign rejected on punch. Draw again after the red flash.");
                 }
 
                 GestureRejected?.Invoke(result);
+                ConfirmActivation(false);
                 return;
             }
 
             if (Time.time < nextResultTime)
             {
+                ConfirmActivation(false);
                 return;
             }
 
@@ -160,6 +232,10 @@ namespace Wapawapa.Gestures
             if (includeBuiltInTemplates)
             {
                 AddBuiltInTemplate("circle", true, CreateCirclePoints(resamplePointCount));
+                AddBuiltInTemplate("he", false, CreatePolylineTemplate(new[]
+                {
+                    new Vector2(-0.5f, -0.05f), new Vector2(-0.18f, 0.3f), new Vector2(0.5f, -0.25f),
+                }));
                 AddBuiltInTemplate("triangle", true, CreatePolylineTemplate(new[]
                 {
                     new Vector2(0f, 0.58f),

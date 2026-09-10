@@ -40,6 +40,11 @@ namespace Wapawapa.Testing
         private void Awake()
         {
             groundY = transform.position.y;
+            // The offline rig is always the local player's first-person avatar.
+            var bodyRenderer = GetComponent<Renderer>();
+            if (bodyRenderer != null) bodyRenderer.enabled = false;
+            var headRenderer = head != null ? head.GetComponent<Renderer>() : null;
+            if (headRenderer != null) headRenderer.enabled = false;
 
             if (leftHand != null)
             {

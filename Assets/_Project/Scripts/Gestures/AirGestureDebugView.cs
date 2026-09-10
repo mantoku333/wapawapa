@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.Collections.Generic;
 
 namespace Wapawapa.Gestures
 {
@@ -13,24 +14,40 @@ namespace Wapawapa.Gestures
         [SerializeField, Min(0.001f)] private float sparkleSize = 0.009f;
 
         private LineRenderer lineRenderer;
+        private readonly List<LineRenderer> completedLines = new List<LineRenderer>();
+        private MaterialPropertyBlock lineProperties;
         private ParticleSystem sparkles;
         private Mesh sparkleMesh;
         private int sparkledPointCount;
 
         private void Awake()
         {
+            EnsureResources();
+        }
+
+        private void EnsureResources()
+        {
+            // Native Unity resources must be created on the main thread, not in field initializers.
+            // OnEnable also restores the non-serialized property block after a script reload.
+            if (lineProperties == null) lineProperties = new MaterialPropertyBlock();
+            if (lineRenderer == null) lineRenderer = CreateLine();
+            if (sparkles == null) CreateSparkles();
+        }
+
+        private LineRenderer CreateLine()
+        {
             var trail = new GameObject("Air Gesture Trail");
             trail.transform.SetParent(transform, false);
-            lineRenderer = trail.AddComponent<LineRenderer>();
-            lineRenderer.useWorldSpace = true;
-            lineRenderer.sharedMaterial = trailMaterial;
-            lineRenderer.widthMultiplier = trailWidth;
-            lineRenderer.numCapVertices = 4;
-            lineRenderer.numCornerVertices = 4;
-            lineRenderer.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
-            lineRenderer.receiveShadows = false;
-            lineRenderer.positionCount = 0;
-            CreateSparkles();
+            var line = trail.AddComponent<LineRenderer>();
+            line.useWorldSpace = true;
+            line.sharedMaterial = trailMaterial;
+            line.widthMultiplier = trailWidth;
+            line.numCapVertices = 4;
+            line.numCornerVertices = 4;
+            line.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+            line.receiveShadows = false;
+            line.positionCount = 0;
+            return line;
         }
 
         private void CreateSparkles()
@@ -88,6 +105,8 @@ namespace Wapawapa.Gestures
 
         private void OnEnable()
         {
+            EnsureResources();
+            if (recorder != null) recorder.SignResolved += HandleSignResolved;
             if (recognizer != null)
             {
                 recognizer.GestureRecognized += HandleGestureRecognized;
@@ -97,6 +116,8 @@ namespace Wapawapa.Gestures
 
         private void OnDisable()
         {
+            if (recorder != null) recorder.SignResolved -= HandleSignResolved;
+            foreach (var line in completedLines) line.positionCount = 0;
             sparkledPointCount = 0;
             if (sparkles != null)
             {
@@ -116,6 +137,21 @@ namespace Wapawapa.Gestures
 
         private void LateUpdate()
         {
+            var count = recorder != null ? recorder.Strokes.Count : 0;
+            while (completedLines.Count < count) completedLines.Add(CreateLine());
+            var color = recorder != null && recorder.ShowingFeedback ?
+                (recorder.LastSignAccepted ? new Color(0.2f, 1f, 0.45f) : new Color(1f, 0.15f, 0.1f)) :
+                new Color(0.1f, 0.9f, 1f);
+            lineProperties.SetColor("_BaseColor", color);
+            for (var i = 0; i < completedLines.Count; i++)
+            {
+                var line = completedLines[i];
+                line.SetPropertyBlock(lineProperties);
+                if (i >= count) { line.positionCount = 0; continue; }
+                var strokePoints = recorder.Strokes[i].WorldPoints;
+                line.positionCount = strokePoints.Length;
+                line.SetPositions(strokePoints);
+            }
             if (recorder == null || !recorder.IsRecording)
             {
                 sparkledPointCount = 0;
@@ -154,17 +190,44 @@ namespace Wapawapa.Gestures
 
         private void OnDestroy()
         {
+            foreach (var line in completedLines)
+                if (line != null) ReleaseResource(line.gameObject);
             if (sparkles != null)
             {
-                Destroy(sparkles.gameObject);
+                ReleaseResource(sparkles.gameObject);
             }
             if (sparkleMesh != null)
             {
-                Destroy(sparkleMesh);
+                ReleaseResource(sparkleMesh);
             }
             if (lineRenderer != null)
             {
-                Destroy(lineRenderer.gameObject);
+                ReleaseResource(lineRenderer.gameObject);
+            }
+        }
+
+        private static void ReleaseResource(Object resource)
+        {
+            if (Application.isPlaying) Destroy(resource);
+            else DestroyImmediate(resource);
+        }
+
+        private void HandleSignResolved(bool accepted)
+        {
+            if (!accepted || !showSparkles || recorder == null) return;
+            if (!sparkles.isPlaying) sparkles.Play();
+            foreach (var stroke in recorder.Strokes)
+            {
+                var step = Mathf.Max(1, stroke.WorldPoints.Length / 24);
+                for (var i = 0; i < stroke.WorldPoints.Length; i += step)
+                {
+                    var particle = new ParticleSystem.EmitParams
+                    {
+                        position = stroke.WorldPoints[i],
+                        velocity = Random.insideUnitSphere * 0.35f,
+                    };
+                    sparkles.Emit(particle, 2);
+                }
             }
         }
 
