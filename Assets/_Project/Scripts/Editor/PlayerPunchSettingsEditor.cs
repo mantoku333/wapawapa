@@ -25,6 +25,14 @@ namespace Wapawapa.Editor
             Draw("ignoreHandToHandHits", "手と手の接触は無効", "ONの場合、相手の手に当たってもダメージは入りません。");
             Draw("ignoreSelfHits", "自分自身への接触は無効", "ONの場合、自分の体や手に当たってもダメージは入りません。");
 
+            EditorGUILayout.Space();
+            EditorGUILayout.LabelField("突き出し判定・振動", EditorStyles.boldLabel);
+            Draw("minimumPunchDistance", "最低突き出し距離", "身体に対して手を前に動かす距離です。単位はUnityのワールド単位です。");
+            Draw("minimumForwardDot", "前方向の一致度", "1に近いほど正面への突き出しだけを受け付けます。");
+            Draw("punchRetractDistance", "再受付に必要な引き戻し距離", "パンチ後、この距離だけ手を引くと次のパンチを受け付けます。");
+            Draw("hitHapticAmplitude", "命中時の振動の強さ", "0で無効。命中した手の対応コントローラーだけを振動させます。");
+            Draw("hitHapticDuration", "命中時の振動時間", "振動の長さ（秒）です。対応機器でのみ動作します。");
+
             serializedObject.ApplyModifiedProperties();
         }
 

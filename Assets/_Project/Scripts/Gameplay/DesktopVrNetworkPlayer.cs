@@ -28,6 +28,9 @@ namespace Wapawapa.Gameplay
         [SerializeField] private float desktopPunchHitWindow = 0.45f;
 
         private CharacterController characterController;
+        private TrackedAvatar trackedAvatar;
+        private Vector4 localHandInput;
+        [Networked] private Vector4 NetworkHandInput { get; set; }
         private PunchHitbox leftPunchHitbox;
         private PunchHitbox rightPunchHitbox;
         private Vector2 accumulatedMouseDelta;
@@ -61,6 +64,7 @@ namespace Wapawapa.Gameplay
         private void Awake()
         {
             characterController = GetComponent<CharacterController>();
+            trackedAvatar = GetComponent<TrackedAvatar>();
             leftPunchHitbox = leftHand != null ? leftHand.GetComponent<PunchHitbox>() : null;
             rightPunchHitbox = rightHand != null ? rightHand.GetComponent<PunchHitbox>() : null;
         }
@@ -68,6 +72,7 @@ namespace Wapawapa.Gameplay
         public override void Spawned()
         {
             var isLocal = HasStateAuthority;
+            trackedAvatar?.SetLocalView(isLocal);
             if (localCamera != null)
             {
                 localCamera.enabled = isLocal;
@@ -97,6 +102,8 @@ namespace Wapawapa.Gameplay
             }
 
             xrTrackingAvailable = TryReadXrRig();
+            localHandInput = AvatarHandInput.Read(xrTrackingAvailable, false);
+            trackedAvatar?.SetHandInput(localHandInput);
             if (xrTrackingAvailable)
             {
                 // Keep the local camera responsive at the render frame rate. The same
@@ -119,6 +126,7 @@ namespace Wapawapa.Gameplay
                 return;
             }
 
+            NetworkHandInput = localHandInput;
             var moveInput = ReadMovement();
             if (xrTrackingAvailable)
             {
@@ -153,6 +161,11 @@ namespace Wapawapa.Gameplay
                 rightPunchRequested = false;
                 var leftHandTarget = new Vector3(-0.32f, 1.25f, 0.38f + (leftPunching ? desktopPunchDistance : 0f));
                 var rightHandTarget = new Vector3(0.32f, 1.25f, 0.38f + (rightPunching ? desktopPunchDistance : 0f));
+                if (trackedAvatar != null)
+                {
+                    leftHandTarget = trackedAvatar.ClampDesktopHandPosition(leftHandTarget, true);
+                    rightHandTarget = trackedAvatar.ClampDesktopHandPosition(rightHandTarget, false);
+                }
                 leftHand.localPosition = Vector3.Lerp(leftHand.localPosition, leftHandTarget, 1f - Mathf.Exp(-desktopPunchSpeed * Runner.DeltaTime));
                 leftHand.localRotation = Quaternion.identity;
                 rightHand.localPosition = Vector3.Lerp(rightHand.localPosition, rightHandTarget, 1f - Mathf.Exp(-desktopPunchSpeed * Runner.DeltaTime));
@@ -184,6 +197,12 @@ namespace Wapawapa.Gameplay
             verticalVelocity += gravity * Runner.DeltaTime;
             movement.y = verticalVelocity;
             characterController.Move(movement * Runner.DeltaTime);
+        }
+
+        public override void Render()
+        {
+            trackedAvatar?.SetHandInput(HasStateAuthority ? localHandInput : NetworkHandInput);
+            trackedAvatar?.SetLocalView(HasStateAuthority);
         }
 
         public void LockMovement(float seconds)
@@ -362,7 +381,7 @@ namespace Wapawapa.Gameplay
             var bodyRenderer = GetComponent<Renderer>();
             if (bodyRenderer != null)
             {
-                bodyRenderer.enabled = visible;
+                bodyRenderer.enabled = visible && trackedAvatar == null;
             }
 
             if (head == null)
@@ -373,7 +392,7 @@ namespace Wapawapa.Gameplay
             var renderer = head.GetComponent<Renderer>();
             if (renderer != null)
             {
-                renderer.enabled = visible;
+                renderer.enabled = visible && trackedAvatar == null;
             }
         }
 

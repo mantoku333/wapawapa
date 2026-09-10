@@ -29,7 +29,7 @@ Transform:
   m_GameObject: {fileID: 3527873008620263}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0.35, y: 1.25, z: 0.45}
+  m_LocalPosition: {x: -0.32, y: 1.25, z: 0.38}
   m_LocalScale: {x: 0.16, y: 0.16, z: 0.16}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -50,7 +50,7 @@ MeshRenderer:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3527873008620263}
-  m_Enabled: 1
+  m_Enabled: 0
   m_CastShadows: 1
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
@@ -219,37 +219,6 @@ AudioListener:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 461109649202776441}
   m_Enabled: 1
---- !u!114 &4231835124093062292
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 461109649202776441}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a79441f348de89743a2939f4d699eac1, type: 3}
-  m_Name:
-  m_EditorClassIdentifier: Unity.RenderPipelines.Universal.Runtime::UnityEngine.Rendering.Universal.UniversalAdditionalCameraData
-  m_RenderShadows: 1
-  m_RequiresDepthTextureOption: 2
-  m_RequiresOpaqueTextureOption: 2
-  m_CameraType: 0
-  m_Cameras: []
-  m_RendererIndex: -1
-  m_VolumeLayerMask:
-    serializedVersion: 2
-    m_Bits: 1
-  m_VolumeTrigger: {fileID: 0}
-  m_VolumeFrameworkUpdateModeOption: 2
-  m_RenderPostProcessing: 1
-  m_Antialiasing: 0
-  m_AntialiasingQuality: 2
-  m_StopNaN: 0
-  m_Dithering: 0
-  m_ClearDepth: 1
-  m_AllowXRRendering: 1
-  m_AllowHDROutput: 1
 --- !u!1 &815842106983561014
 GameObject:
   m_ObjectHideFlags: 0
@@ -269,6 +238,7 @@ GameObject:
   - component: {fileID: 6629011852349001201}
   - component: {fileID: 5932207941308481228}
   - component: {fileID: 8940767640447576866}
+  - component: {fileID: 880100000000000005}
   - component: {fileID: 880000000000000011}
   - component: {fileID: 880000000000000012}
   - component: {fileID: 880000000000000013}
@@ -297,6 +267,7 @@ Transform:
   - {fileID: 7225072393771125982}
   - {fileID: 8875108605018845296}
   - {fileID: 7287373612709021972}
+  - {fileID: 880100000000000002}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!33 &5812095077211737737
@@ -314,7 +285,7 @@ MeshRenderer:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 815842106983561014}
-  m_Enabled: 1
+  m_Enabled: 0
   m_CastShadows: 1
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
@@ -573,34 +544,6 @@ MonoBehaviour:
   penguinSpawnMaxDistance: 80
   penguinDamageSound: {fileID: 8300000, guid: 71033ea0dfc243c6a2cbd74190e1289e, type: 3}
   penguinDamageVolume: 1
---- !u!114 &5932207941308481228
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 815842106983561014}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9a73bf47b7844a23b3f9ab3c8e23f7d1, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Wapawapa.Abilities.TeleportAbility
-  abilityId: fuyuno.teleport
-  abilityName: Fuyuno Teleport
-  cooldownSeconds: 2
-  teleportDistance: 5
-  movementLockSeconds: 1.5
-  groundMask:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  groundProbeUp: 8
-  groundProbeDown: 30
-  groundClearance: 0.03
-  activationSound: {fileID: 0}
-  activationVolume: 1
-  activationSpatialBlend: 0.2
-  activationMinDistance: 4
-  activationMaxDistance: 25
 --- !u!114 &8940767640447576866
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -678,7 +621,7 @@ MeshRenderer:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5232864735544927397}
-  m_Enabled: 1
+  m_Enabled: 0
   m_CastShadows: 1
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
@@ -749,7 +692,7 @@ Transform:
   m_GameObject: {fileID: 7520898642805836143}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.35, y: 1.25, z: 0.45}
+  m_LocalPosition: {x: 0.32, y: 1.25, z: 0.38}
   m_LocalScale: {x: 0.16, y: 0.16, z: 0.16}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -770,7 +713,7 @@ MeshRenderer:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7520898642805836143}
-  m_Enabled: 1
+  m_Enabled: 0
   m_CastShadows: 1
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
@@ -846,6 +789,183 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Wapawapa.Boxing.PunchHitbox
   punchSettings: {fileID: 154464258500715438}
+--- !u!1 &880100000000000001
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 880100000000000002}
+  m_Layer: 0
+  m_Name: AvatarVisual
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &880100000000000002
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 880100000000000001}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 880100000000000003}
+  m_Father: {fileID: 7245141313056844371}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1001 &880100000000000004
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 880100000000000002}
+    m_Modifications:
+    - target: {fileID: 8116823156750195368, guid: 666bc34e56ed3d84491b3fc2bad82189, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8116823156750195368, guid: 666bc34e56ed3d84491b3fc2bad82189, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8116823156750195368, guid: 666bc34e56ed3d84491b3fc2bad82189, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -0.12441324449083427
+      objectReference: {fileID: 0}
+    - target: {fileID: 8116823156750195368, guid: 666bc34e56ed3d84491b3fc2bad82189, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8116823156750195368, guid: 666bc34e56ed3d84491b3fc2bad82189, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8116823156750195368, guid: 666bc34e56ed3d84491b3fc2bad82189, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8116823156750195368, guid: 666bc34e56ed3d84491b3fc2bad82189, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8116823156750195368, guid: 666bc34e56ed3d84491b3fc2bad82189, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 0.8968975010859254
+      objectReference: {fileID: 0}
+    - target: {fileID: 8116823156750195368, guid: 666bc34e56ed3d84491b3fc2bad82189, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 0.8968975010859254
+      objectReference: {fileID: 0}
+    - target: {fileID: 8116823156750195368, guid: 666bc34e56ed3d84491b3fc2bad82189, type: 3}
+      propertyPath: m_LocalScale.z
+      value: 0.8968975010859254
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 666bc34e56ed3d84491b3fc2bad82189, type: 3}
+--- !u!4 &880100000000000003 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 8116823156750195368, guid: 666bc34e56ed3d84491b3fc2bad82189, type: 3}
+  m_PrefabInstance: {fileID: 880100000000000004}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &880100000000000005
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 815842106983561014}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7cb209d2187a58ae9875b3ccd9719261, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::Wapawapa.Gameplay.TrackedAvatar
+  avatarRoot: {fileID: 880100000000000003}
+  headTarget: {fileID: 7225072393771125982}
+  leftHandTarget: {fileID: 8875108605018845296}
+  rightHandTarget: {fileID: 7287373612709021972}
+  ownerCamera: {fileID: 8262331073779829304}
+  modelEyePosition: {x: 0, y: 1.8396751, z: 0.13871512}
+  standingEyeHeight: 1.65
+  wristOffset: {x: 0, y: 0, z: -0.04}
+  leftWristEuler: {x: 0, y: 0, z: 0}
+  rightWristEuler: {x: 0, y: 0, z: 0}
+  groundMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  stepDistance: 0.22
+  stepDuration: 0.18
+  stepHeight: 0.1
+--- !u!114 &4231835124093062292
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 461109649202776441}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a79441f348de89743a2939f4d699eac1, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Unity.RenderPipelines.Universal.Runtime::UnityEngine.Rendering.Universal.UniversalAdditionalCameraData
+  m_RenderShadows: 1
+  m_RequiresDepthTextureOption: 2
+  m_RequiresOpaqueTextureOption: 2
+  m_CameraType: 0
+  m_Cameras: []
+  m_RendererIndex: -1
+  m_VolumeLayerMask:
+    serializedVersion: 2
+    m_Bits: 1
+  m_VolumeTrigger: {fileID: 0}
+  m_VolumeFrameworkUpdateModeOption: 2
+  m_RenderPostProcessing: 1
+  m_Antialiasing: 0
+  m_AntialiasingQuality: 2
+  m_StopNaN: 0
+  m_Dithering: 0
+  m_ClearDepth: 1
+  m_AllowXRRendering: 1
+  m_AllowHDROutput: 1
+--- !u!114 &5932207941308481228
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 815842106983561014}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9a73bf47b7844a23b3f9ab3c8e23f7d1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Wapawapa.Abilities.TeleportAbility
+  abilityId: fuyuno.teleport
+  abilityName: Fuyuno Teleport
+  cooldownSeconds: 2
+  teleportDistance: 5
+  movementLockSeconds: 1.5
+  groundMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  groundProbeUp: 8
+  groundProbeDown: 30
+  groundClearance: 0.03
+  activationSound: {fileID: 0}
+  activationVolume: 1
+  activationSpatialBlend: 0.2
+  activationMinDistance: 4
+  activationMaxDistance: 25
 --- !u!114 &880000000000000011
 MonoBehaviour:
   m_ObjectHideFlags: 0
