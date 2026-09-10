@@ -173,8 +173,9 @@ namespace Wapawapa.Gameplay
                 accumulatedMouseDelta = Vector2.zero;
             }
 
-            var forward = Vector3.ProjectOnPlane(transform.forward, Vector3.up).normalized;
-            var right = Vector3.ProjectOnPlane(transform.right, Vector3.up).normalized;
+            var locomotionBasis = xrTrackingAvailable && head != null ? head : transform;
+            var forward = Vector3.ProjectOnPlane(locomotionBasis.forward, Vector3.up).normalized;
+            var right = Vector3.ProjectOnPlane(locomotionBasis.right, Vector3.up).normalized;
             if (IsMovementLocked)
             {
                 moveInput = Vector2.zero;
