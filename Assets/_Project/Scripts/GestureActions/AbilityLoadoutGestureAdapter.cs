@@ -13,6 +13,7 @@ namespace Wapawapa.GestureActions
         {
             new GestureAbilityBinding("ability.slot.0", 0),
             new GestureAbilityBinding("ability.slot.1", 1),
+            new GestureAbilityBinding("ability.slot.2", 2),
         };
         [SerializeField] private bool logRequests;
 
@@ -44,11 +45,13 @@ namespace Wapawapa.GestureActions
         {
             if (loadout == null)
             {
+                router.ConfirmActivation(false);
                 return;
             }
 
             if (!TryFindSlot(actionId, out var slotIndex))
             {
+                router.ConfirmActivation(false);
                 if (logRequests)
                 {
                     Debug.Log($"No ability binding for gesture action: {actionId}");
@@ -58,6 +61,7 @@ namespace Wapawapa.GestureActions
             }
 
             var accepted = loadout.RequestActivateSlot(slotIndex);
+            router.ConfirmActivation(accepted);
             if (logRequests)
             {
                 Debug.Log($"Gesture ability request: {result.GestureId} -> slot {slotIndex}, accepted={accepted}");
