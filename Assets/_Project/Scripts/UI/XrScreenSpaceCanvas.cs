@@ -60,6 +60,7 @@ namespace Wapawapa.UI
             var nextCamera = ResolveLocalCamera();
             if (nextCamera == null)
             {
+                RestoreDesktopCanvas();
                 return;
             }
 
