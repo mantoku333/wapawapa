@@ -30,6 +30,7 @@ namespace Wapawapa.Networking
         private bool isConnecting;
         private bool localPlayerJoined;
         private Canvas uiCanvas;
+        private XrScreenSpaceCanvas xrCanvas;
         private GameObject titleUi;
         private GameObject gameStatusUi;
         private TMP_InputField playerNameInput;
@@ -77,6 +78,16 @@ namespace Wapawapa.Networking
             }
 
             var onTitleScreen = SceneManager.GetActiveScene().buildIndex == 0;
+            xrCanvas.enabled = !onTitleScreen;
+            if (onTitleScreen)
+            {
+                // Keep the title usable with a mouse even while XR is running.
+                uiCanvas.renderMode = RenderMode.ScreenSpaceOverlay;
+                uiCanvas.worldCamera = null;
+                Cursor.lockState = CursorLockMode.None;
+                Cursor.visible = true;
+            }
+
             titleUi.SetActive(onTitleScreen);
             gameStatusUi.SetActive(!onTitleScreen);
 
@@ -283,7 +294,7 @@ namespace Wapawapa.Networking
             scaler.referenceResolution = new Vector2(1920f, 1080f);
             scaler.matchWidthOrHeight = 0.5f;
             canvasObject.AddComponent<GraphicRaycaster>();
-            canvasObject.AddComponent<XrScreenSpaceCanvas>();
+            xrCanvas = canvasObject.AddComponent<XrScreenSpaceCanvas>();
 
             titleUi = CreateRect("Title UI", canvasObject.transform).gameObject;
             Stretch((RectTransform)titleUi.transform);
