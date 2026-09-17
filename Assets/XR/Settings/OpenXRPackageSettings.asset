@@ -733,12 +733,12 @@ MonoBehaviour:
   nameUi: Android XR Support
   version: 1.0.0
   featureIdInternal: com.unity.openxr.feature.androidxr-support
-  openxrExtensionStrings: 
+  openxrExtensionStrings:
   company: Unity Technologies
   priority: 0
-  targetOpenXRApiVersion: 
+  targetOpenXRApiVersion:
   required: 0
-  customRuntimeLoaderName: 
+  customRuntimeLoaderName:
   symmetricProjection: 0
   optimizeBufferDiscards: 1
   multiviewRenderRegionsOptimizationMode: 0
@@ -852,9 +852,9 @@ MonoBehaviour:
   openxrExtensionStrings: XR_ANDROID_hand_mesh
   company: Unity Technologies
   priority: 0
-  targetOpenXRApiVersion: 
+  targetOpenXRApiVersion:
   required: 0
-  customRuntimeLoaderName: 
+  customRuntimeLoaderName:
 --- !u!114 &-2778858118241658710
 MonoBehaviour:
   m_ObjectHideFlags: 0

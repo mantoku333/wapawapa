@@ -403,15 +403,19 @@ namespace Wapawapa.Networking
             input.characterLimit = characterLimit;
             input.lineType = TMP_InputField.LineType.SingleLine;
 
-            var valueText = CreateText("Text", background.transform, string.Empty, 20f, FontStyles.Normal, TextAlignmentOptions.MidlineLeft);
+            var viewport = CreateRect("Viewport", background.transform);
+            Stretch(viewport, new Vector2(16f, 5f), new Vector2(-16f, -5f));
+            viewport.gameObject.AddComponent<RectMask2D>();
+
+            var valueText = CreateText("Text", viewport, string.Empty, 20f, FontStyles.Normal, TextAlignmentOptions.MidlineLeft);
             valueText.color = new Color(0.035f, 0.045f, 0.06f, 1f);
-            Stretch(valueText.rectTransform, new Vector2(16f, 5f), new Vector2(-16f, -5f));
+            Stretch(valueText.rectTransform);
 
-            var placeholder = CreateText("Placeholder", background.transform, placeholderValue, 20f, FontStyles.Italic, TextAlignmentOptions.MidlineLeft);
+            var placeholder = CreateText("Placeholder", viewport, placeholderValue, 20f, FontStyles.Italic, TextAlignmentOptions.MidlineLeft);
             placeholder.color = new Color(0.2f, 0.23f, 0.28f, 0.58f);
-            Stretch(placeholder.rectTransform, new Vector2(16f, 5f), new Vector2(-16f, -5f));
+            Stretch(placeholder.rectTransform);
 
-            input.textViewport = background.rectTransform;
+            input.textViewport = viewport;
             input.textComponent = valueText;
             input.placeholder = placeholder;
             return input;
@@ -444,6 +448,12 @@ namespace Wapawapa.Networking
             var eventSystem = FindFirstObjectByType<EventSystem>();
             if (eventSystem != null)
             {
+                var legacyModule = eventSystem.GetComponent<StandaloneInputModule>();
+                if (legacyModule != null)
+                {
+                    legacyModule.enabled = false;
+                }
+
                 var existingModule = eventSystem.GetComponent<InputSystemUIInputModule>();
                 if (existingModule == null)
                 {

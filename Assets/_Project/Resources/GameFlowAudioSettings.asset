@@ -14,4 +14,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   gameStartVoice: {fileID: 8300000, guid: 04003f8449b4e4d28be92ae57fc28af5, type: 3}
   gameStartMusic: {fileID: 8300000, guid: 7d28bd58a61cf49de86cc7f5c493efc9, type: 3}
+  backgroundMusic: {fileID: 8300000, guid: d1af220265cc346aba959f837e49e2d3, type: 3}
   resultSting: {fileID: 8300000, guid: 3025aa008efbc44fbbda80b7e92c06ba, type: 3}

@@ -7,12 +7,11 @@ namespace Wapawapa.Gameplay
     public sealed class GameFlowAudio : MonoBehaviour
     {
         private const string GameSceneName = "Game";
-        private const float ListenerWaitTimeout = 5f;
-
         private static GameFlowAudio instance;
 
         private AudioSource startVoiceSource;
         private AudioSource startMusicSource;
+        private AudioSource backgroundMusicSource;
         private AudioSource resultSource;
         private Coroutine startRoutine;
         private bool resultPlayed;
@@ -74,11 +73,12 @@ namespace Wapawapa.Gameplay
 
             startVoiceSource = CreateSource("Game Start Voice", settings.GameStartVoice, 1f);
             startMusicSource = CreateSource("Game Start Music", settings.GameStartMusic, 0.75f);
+            backgroundMusicSource = CreateSource("Background Music", settings.BackgroundMusic, 0.55f, true);
             resultSource = CreateSource("Result Sting", settings.ResultSting, 1f);
             BeginGameStartPlayback();
         }
 
-        private AudioSource CreateSource(string sourceName, AudioClip clip, float volume)
+        private AudioSource CreateSource(string sourceName, AudioClip clip, float volume, bool loop = false)
         {
             var sourceObject = new GameObject(sourceName);
             sourceObject.transform.SetParent(transform, false);
@@ -87,6 +87,7 @@ namespace Wapawapa.Gameplay
             source.volume = volume;
             source.spatialBlend = 0f;
             source.playOnAwake = false;
+            source.loop = loop;
             return source;
         }
 
@@ -96,6 +97,7 @@ namespace Wapawapa.Gameplay
             resultSource?.Stop();
             startVoiceSource?.Stop();
             startMusicSource?.Stop();
+            backgroundMusicSource?.Stop();
 
             if (startRoutine != null)
             {
@@ -106,14 +108,20 @@ namespace Wapawapa.Gameplay
 
         private IEnumerator PlayStartWhenListenerIsReady()
         {
-            var waitStartedAt = Time.realtimeSinceStartup;
-            while (!HasActiveAudioListener() && Time.realtimeSinceStartup - waitStartedAt < ListenerWaitTimeout)
+            while (!HasActiveAudioListener())
             {
                 yield return null;
             }
 
             startVoiceSource?.Play();
             startMusicSource?.Play();
+
+            while (IsPlaying(startVoiceSource) || IsPlaying(startMusicSource))
+            {
+                yield return null;
+            }
+
+            backgroundMusicSource?.Play();
             startRoutine = null;
         }
 
@@ -132,7 +140,13 @@ namespace Wapawapa.Gameplay
             }
             startVoiceSource?.Stop();
             startMusicSource?.Stop();
+            backgroundMusicSource?.Stop();
             resultSource?.Play();
+        }
+
+        private static bool IsPlaying(AudioSource source)
+        {
+            return source != null && source.clip != null && source.isPlaying;
         }
 
         private static bool HasActiveAudioListener()
