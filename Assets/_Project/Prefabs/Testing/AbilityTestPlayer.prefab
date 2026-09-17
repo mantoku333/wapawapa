@@ -908,9 +908,8 @@ MonoBehaviour:
   groundMask:
     serializedVersion: 2
     m_Bits: 4294967295
-  stepDistance: 0.22
-  stepDuration: 0.18
-  stepHeight: 0.1
+  locomotionController: {fileID: 9100000, guid: 764789c7e21766e44940083f8e7e1e2d, type: 2}
+  animationMoveSpeed: 3
 --- !u!114 &4231835124093062292
 MonoBehaviour:
   m_ObjectHideFlags: 0

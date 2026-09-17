@@ -7,7 +7,7 @@ namespace Wapawapa.Gameplay
 {
     /// <summary>Visual-only three-point avatar. Gameplay tracking targets remain independent of bones.</summary>
     [DefaultExecutionOrder(10000)]
-    public sealed class TrackedAvatar : MonoBehaviour
+    public sealed class TrackedAvatar : MonoBehaviour, IDisposable
     {
         [SerializeField] private Transform avatarRoot;
         [SerializeField] private Transform headTarget;
@@ -20,18 +20,20 @@ namespace Wapawapa.Gameplay
         [SerializeField] private Vector3 leftWristEuler;
         [SerializeField] private Vector3 rightWristEuler;
         [SerializeField] private LayerMask groundMask = ~0;
-        [SerializeField] private float stepDistance = 0.22f;
-        [SerializeField] private float stepDuration = 0.18f;
-        [SerializeField] private float stepHeight = 0.10f;
+        [SerializeField] private RuntimeAnimatorController locomotionController;
+        [SerializeField] private float animationMoveSpeed = 3.5f;
 
         private Animator animator;
         private Transform hips, skull;
         private Transform[] bones;
         private Vector3[] restPositions;
         private Quaternion[] restRotations;
+        private Vector3[] animatedPositions;
+        private Quaternion[] animatedRotations;
+        private AvatarLocomotionAnimation locomotion;
         private Vector3 eyeInHead;
         private Quaternion skullOffset;
-        private Limb leftArm, rightArm, leftLeg, rightLeg;
+        private Limb leftArm, rightArm;
         private readonly List<Finger> fingers = new List<Finger>();
         private readonly List<HeadMesh> headMeshes = new List<HeadMesh>();
         private AvatarBoneFollower[] followers;
@@ -39,9 +41,8 @@ namespace Wapawapa.Gameplay
         private bool ready, localView;
         private float bodyYaw;
         private Vector3 previousBody;
-        private Vector3 velocity;
+        private float previousRootY;
         private readonly RaycastHit[] floorHits = new RaycastHit[32];
-        private Foot leftFoot, rightFoot;
 
         private sealed class Limb
         {
@@ -55,12 +56,6 @@ namespace Wapawapa.Gameplay
             public Vector3 axis;
             public bool left, index;
             public float angle;
-        }
-        private sealed class Foot
-        {
-            public Vector3 position, start, goal, home;
-            public Quaternion rotation;
-            public float phase = 1f;
         }
         private sealed class HeadMesh
         {
@@ -101,13 +96,20 @@ namespace Wapawapa.Gameplay
             RenderPipelineManager.endCameraRendering -= EndCamera;
             RestoreMeshes();
         }
-        private void OnDestroy()
+        private void OnDestroy() => Dispose();
+
+        // Also used by editor validation, where MonoBehaviour teardown callbacks are not guaranteed.
+        public void Dispose()
         {
+            RestoreMeshes();
+            locomotion?.Dispose();
+            locomotion = null;
             foreach (var entry in headMeshes)
             {
                 if (entry.firstPerson == null) continue;
                 if (Application.isPlaying) Destroy(entry.firstPerson);
                 else DestroyImmediate(entry.firstPerson);
+                entry.firstPerson = null;
             }
         }
 
@@ -121,7 +123,12 @@ namespace Wapawapa.Gameplay
                 Debug.LogError("TrackedAvatar requires a valid Humanoid avatar.", this);
                 return false;
             }
-            // This solver owns the pose; an Animator Controller must not overwrite it afterwards.
+            if (locomotionController == null)
+            {
+                Debug.LogError("TrackedAvatar requires a locomotion controller.", this);
+                return false;
+            }
+            // The animation graph is evaluated manually before the tracking overrides.
             animator.applyRootMotion = false;
             animator.enabled = false;
             avatarRoot.localScale = Vector3.one * (standingEyeHeight / modelEyePosition.y);
@@ -131,9 +138,7 @@ namespace Wapawapa.Gameplay
             skull = animator.GetBoneTransform(HumanBodyBones.Head);
             leftArm = MakeLimb(HumanBodyBones.LeftUpperArm, HumanBodyBones.LeftLowerArm, HumanBodyBones.LeftHand);
             rightArm = MakeLimb(HumanBodyBones.RightUpperArm, HumanBodyBones.RightLowerArm, HumanBodyBones.RightHand);
-            leftLeg = MakeLimb(HumanBodyBones.LeftUpperLeg, HumanBodyBones.LeftLowerLeg, HumanBodyBones.LeftFoot);
-            rightLeg = MakeLimb(HumanBodyBones.RightUpperLeg, HumanBodyBones.RightLowerLeg, HumanBodyBones.RightFoot);
-            if (hips == null || skull == null || leftArm == null || rightArm == null || leftLeg == null || rightLeg == null) return false;
+            if (hips == null || skull == null || leftArm == null || rightArm == null) return false;
             eyeInHead = skull.InverseTransformPoint(avatarRoot.TransformPoint(modelEyePosition));
             skullOffset = Quaternion.Inverse(avatarRoot.rotation) * skull.rotation;
             SetupHand(leftArm, true);
@@ -141,17 +146,21 @@ namespace Wapawapa.Gameplay
             bones = avatarRoot.GetComponentsInChildren<Transform>(true);
             restPositions = new Vector3[bones.Length];
             restRotations = new Quaternion[bones.Length];
+            animatedPositions = new Vector3[bones.Length];
+            animatedRotations = new Quaternion[bones.Length];
             for (int i = 0; i < bones.Length; i++)
             {
                 restPositions[i] = bones[i].localPosition;
                 restRotations[i] = bones[i].localRotation;
             }
-            leftFoot = MakeFoot(leftLeg);
-            rightFoot = MakeFoot(rightLeg);
+            Array.Copy(restPositions, animatedPositions, bones.Length);
+            Array.Copy(restRotations, animatedRotations, bones.Length);
+            locomotion = new AvatarLocomotionAnimation(animator, locomotionController);
             followers = avatarRoot.GetComponentsInChildren<AvatarBoneFollower>(true);
             foreach (var follower in followers) follower.Initialize();
             bodyYaw = transform.eulerAngles.y;
             previousBody = headTarget.position;
+            previousRootY = transform.position.y;
             BuildFirstPersonMeshes();
             if (ownerCamera != null) ownerCamera.nearClipPlane = 0.025f;
             ready = true;
@@ -191,12 +200,6 @@ namespace Wapawapa.Gameplay
                 }
         }
 
-        private Foot MakeFoot(Limb leg)
-        {
-            Vector3 home = avatarRoot.InverseTransformPoint(leg.tip.position) * avatarRoot.localScale.x;
-            return new Foot { position = leg.tip.position, goal = leg.tip.position, home = home, rotation = leg.rotationOffset };
-        }
-
         private void LateUpdate() => Simulate(Time.deltaTime);
 
         /// <summary>Called once per frame; also used by the isolated avatar integration checks.</summary>
@@ -208,37 +211,50 @@ namespace Wapawapa.Gameplay
             Vector3 heading = Vector3.ProjectOnPlane(headTarget.forward, Vector3.up);
             if (heading.sqrMagnitude > 0.01f)
                 bodyYaw = Mathf.MoveTowardsAngle(bodyYaw, Quaternion.LookRotation(heading).eulerAngles.y, 180f * dt);
-            Vector3 displacement = Vector3.ProjectOnPlane(headTarget.position - previousBody, Vector3.up);
-            velocity = dt > 0f ? Vector3.ClampMagnitude(displacement / dt, 5f) : Vector3.zero;
+            Vector3 displacement = headTarget.position - previousBody;
+            Vector3 velocity = dt > 0f && displacement.magnitude < 1.2f
+                ? Vector3.ClampMagnitude(Vector3.ProjectOnPlane(displacement, Vector3.up) / dt, 5f) : Vector3.zero;
             previousBody = headTarget.position;
-            UpdateFeet(dt);
+            velocity.y = dt > 0f && Mathf.Abs(transform.position.y - previousRootY) < 1.2f
+                ? (transform.position.y - previousRootY) / dt : 0f;
+            previousRootY = transform.position.y;
+            bool grounded = TryFindFloor(transform.position + Vector3.up * 0.15f, 0.25f, out _);
+            RestorePose(restPositions, restRotations);
+            locomotion.Evaluate(Quaternion.Inverse(Quaternion.Euler(0f, bodyYaw, 0f)) * velocity,
+                grounded, animationMoveSpeed, dt);
+            for (int i = 0; i < bones.Length; i++)
+            {
+                animatedPositions[i] = bones[i].localPosition;
+                animatedRotations[i] = bones[i].localRotation;
+            }
             ApplyPose();
         }
 
         [BeforeRenderOrder(100)]
         private void BeforeRender()
         {
-            // Tracking rigs run first. Do not advance gait twice in the same frame.
+            // Reapply tracking to the cached animation pose, without advancing its time twice.
             if (ready && localView) ApplyPose();
         }
 
-        private void ApplyPose()
+        private void RestorePose(Vector3[] positions, Quaternion[] rotations)
         {
             for (int i = 0; i < bones.Length; i++)
             {
                 if (bones[i] == avatarRoot) continue;
-                bones[i].localPosition = restPositions[i];
-                bones[i].localRotation = restRotations[i];
+                bones[i].localPosition = positions[i];
+                bones[i].localRotation = rotations[i];
             }
+        }
+
+        private void ApplyPose()
+        {
+            RestorePose(animatedPositions, animatedRotations);
             avatarRoot.rotation = Quaternion.Euler(0f, bodyYaw, 0f);
             avatarRoot.position = new Vector3(headTarget.position.x, transform.position.y, headTarget.position.z);
             skull.rotation = headTarget.rotation * skullOffset;
             // Match the avatar's eyes, rather than its head-bone pivot, to the HMD.
             hips.position += headTarget.position - skull.TransformPoint(eyeInHead);
-            SolveLimb(leftLeg.upper, leftLeg.lower, leftLeg.tip, leftFoot.position,
-                avatarRoot.position + avatarRoot.forward * 2f, Quaternion.Euler(0f, bodyYaw, 0f) * leftFoot.rotation);
-            SolveLimb(rightLeg.upper, rightLeg.lower, rightLeg.tip, rightFoot.position,
-                avatarRoot.position + avatarRoot.forward * 2f, Quaternion.Euler(0f, bodyYaw, 0f) * rightFoot.rotation);
             ApplyArm(leftArm, leftHandTarget, -1f, leftWristEuler);
             ApplyArm(rightArm, rightHandTarget, 1f, rightWristEuler);
             foreach (var finger in fingers)
@@ -273,51 +289,6 @@ namespace Wapawapa.Gameplay
             upper.rotation = Quaternion.FromToRotation(b - a, elbow - a) * upper.rotation;
             lower.rotation = Quaternion.FromToRotation(tip.position - lower.position, a + axis * distance - lower.position) * lower.rotation;
             tip.rotation = rotation;
-        }
-
-        private void UpdateFeet(float dt)
-        {
-            var yaw = Quaternion.Euler(0f, bodyYaw, 0f);
-            Vector3 center = new Vector3(headTarget.position.x, transform.position.y, headTarget.position.z);
-            Vector3 Desired(Foot foot)
-            {
-                Vector3 desired = center + yaw * new Vector3(foot.home.x, 0f, foot.home.z) + velocity * 0.07f;
-                float floor = transform.position.y;
-                if (TryFindFloor(desired + Vector3.up * 0.8f, 2f, out var hit)) floor = hit.point.y;
-                // In the air the feet follow the player; don't stretch the legs down to the floor.
-                if (transform.position.y - floor > 0.3f) floor = transform.position.y;
-                desired.y = floor + foot.home.y;
-                return desired;
-            }
-            Vector3 leftGoal = Desired(leftFoot), rightGoal = Desired(rightFoot);
-            if (Vector3.Distance(leftFoot.position, leftGoal) > 1.2f || Vector3.Distance(rightFoot.position, rightGoal) > 1.2f)
-            {
-                leftFoot.position = leftFoot.goal = leftGoal;
-                rightFoot.position = rightFoot.goal = rightGoal;
-                leftFoot.phase = rightFoot.phase = 1f;
-            }
-            if (leftFoot.phase >= 1f && rightFoot.phase >= 1f)
-            {
-                float l = Vector3.Distance(leftFoot.position, leftGoal), r = Vector3.Distance(rightFoot.position, rightGoal);
-                if (Mathf.Max(l, r) > stepDistance)
-                {
-                    Foot moving = l >= r ? leftFoot : rightFoot;
-                    moving.start = moving.position;
-                    moving.goal = l >= r ? leftGoal : rightGoal;
-                    moving.phase = 0f;
-                }
-            }
-            AdvanceFoot(leftFoot, dt);
-            AdvanceFoot(rightFoot, dt);
-        }
-
-        private void AdvanceFoot(Foot foot, float dt)
-        {
-            if (foot.phase < 1f)
-            {
-                foot.phase = Mathf.Min(1f, foot.phase + dt / Mathf.Max(0.06f, stepDuration));
-                foot.position = Vector3.Lerp(foot.start, foot.goal, Mathf.SmoothStep(0f, 1f, foot.phase)) + Vector3.up * (Mathf.Sin(foot.phase * Mathf.PI) * stepHeight);
-            }
         }
 
         public bool TryFindFloor(Vector3 origin, float distance, out RaycastHit closest)
