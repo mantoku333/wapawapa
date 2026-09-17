@@ -232,6 +232,14 @@ namespace Wapawapa.Gestures
             if (includeBuiltInTemplates)
             {
                 AddBuiltInTemplate("circle", true, CreateCirclePoints(resamplePointCount));
+                AddBuiltInTemplate("w", false, CreatePolylineTemplate(new[]
+                {
+                    new Vector2(-0.5f, 0.3f),
+                    new Vector2(-0.25f, -0.3f),
+                    new Vector2(0f, 0.3f),
+                    new Vector2(0.25f, -0.3f),
+                    new Vector2(0.5f, 0.3f),
+                }));
                 AddBuiltInTemplate("he", false, CreatePolylineTemplate(new[]
                 {
                     new Vector2(-0.5f, -0.05f), new Vector2(-0.18f, 0.3f), new Vector2(0.5f, -0.25f),

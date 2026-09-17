@@ -12,6 +12,7 @@ namespace Wapawapa.GestureActions
             new GestureActionBinding("triangle", "ability.slot.1"),
             new GestureActionBinding("square", "ability.slot.0"),
             new GestureActionBinding("pe", "ability.slot.2"),
+            new GestureActionBinding("w", "ability.wall"),
         };
         [SerializeField] private float actionCooldown = 0.2f;
         [SerializeField] private bool logActions;
