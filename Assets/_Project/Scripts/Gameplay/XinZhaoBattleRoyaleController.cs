@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using Wapawapa.Abilities;
+using Wapawapa.UI;
 
 namespace Wapawapa.Gameplay
 {
@@ -498,6 +499,7 @@ namespace Wapawapa.Gameplay
             canvas.renderMode = RenderMode.ScreenSpaceOverlay;
             canvas.sortingOrder = 900;
             gameObject.AddComponent<CanvasScaler>().uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
+            gameObject.AddComponent<XrScreenSpaceCanvas>();
 
             overlay = new GameObject("Damage Flash").AddComponent<Image>();
             overlay.transform.SetParent(transform, false);
