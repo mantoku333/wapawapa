@@ -8,7 +8,7 @@ using XRCommonUsages = UnityEngine.XR.CommonUsages;
 namespace Wapawapa.Gameplay
 {
     [RequireComponent(typeof(CharacterController))]
-    public sealed class DesktopVrNetworkPlayer : NetworkBehaviour
+    public sealed class DesktopVrNetworkPlayer : NetworkBehaviour, IPlayerMovementLock
     {
         [Header("Rig")]
         [SerializeField] private Camera localCamera;
@@ -26,8 +26,12 @@ namespace Wapawapa.Gameplay
         [SerializeField] private float desktopPunchDistance = 0.95f;
         [SerializeField] private float desktopPunchSpeed = 12f;
         [SerializeField] private float desktopPunchHitWindow = 0.45f;
+        [SerializeField] private float externalImpulseDeceleration = 20f;
 
         private CharacterController characterController;
+        private TrackedAvatar trackedAvatar;
+        private Vector4 localHandInput;
+        [Networked] private Vector4 NetworkHandInput { get; set; }
         private PunchHitbox leftPunchHitbox;
         private PunchHitbox rightPunchHitbox;
         private Vector2 accumulatedMouseDelta;
@@ -36,6 +40,8 @@ namespace Wapawapa.Gameplay
         private bool leftPunchRequested;
         private bool rightPunchRequested;
         private float verticalVelocity;
+        private Vector3 externalVelocity;
+        private float movementLockedUntil;
         private bool xrTrackingAvailable;
 
         private Vector3 trackedHeadPosition;
@@ -60,6 +66,7 @@ namespace Wapawapa.Gameplay
         private void Awake()
         {
             characterController = GetComponent<CharacterController>();
+            trackedAvatar = GetComponent<TrackedAvatar>();
             leftPunchHitbox = leftHand != null ? leftHand.GetComponent<PunchHitbox>() : null;
             rightPunchHitbox = rightHand != null ? rightHand.GetComponent<PunchHitbox>() : null;
         }
@@ -67,6 +74,7 @@ namespace Wapawapa.Gameplay
         public override void Spawned()
         {
             var isLocal = HasStateAuthority;
+            trackedAvatar?.SetLocalView(isLocal);
             if (localCamera != null)
             {
                 localCamera.enabled = isLocal;
@@ -77,7 +85,7 @@ namespace Wapawapa.Gameplay
                 }
             }
 
-            SetLocalHeadVisible(!isLocal);
+            SetLocalAvatarVisible(!isLocal);
 
             if (isLocal && !IsXrDisplayRunning())
             {
@@ -96,6 +104,8 @@ namespace Wapawapa.Gameplay
             }
 
             xrTrackingAvailable = TryReadXrRig();
+            localHandInput = AvatarHandInput.Read(xrTrackingAvailable, false);
+            trackedAvatar?.SetHandInput(localHandInput);
             if (xrTrackingAvailable)
             {
                 // Keep the local camera responsive at the render frame rate. The same
@@ -118,6 +128,7 @@ namespace Wapawapa.Gameplay
                 return;
             }
 
+            NetworkHandInput = localHandInput;
             var moveInput = ReadMovement();
             if (xrTrackingAvailable)
             {
@@ -152,6 +163,11 @@ namespace Wapawapa.Gameplay
                 rightPunchRequested = false;
                 var leftHandTarget = new Vector3(-0.32f, 1.25f, 0.38f + (leftPunching ? desktopPunchDistance : 0f));
                 var rightHandTarget = new Vector3(0.32f, 1.25f, 0.38f + (rightPunching ? desktopPunchDistance : 0f));
+                if (trackedAvatar != null)
+                {
+                    leftHandTarget = trackedAvatar.ClampDesktopHandPosition(leftHandTarget, true);
+                    rightHandTarget = trackedAvatar.ClampDesktopHandPosition(rightHandTarget, false);
+                }
                 leftHand.localPosition = Vector3.Lerp(leftHand.localPosition, leftHandTarget, 1f - Mathf.Exp(-desktopPunchSpeed * Runner.DeltaTime));
                 leftHand.localRotation = Quaternion.identity;
                 rightHand.localPosition = Vector3.Lerp(rightHand.localPosition, rightHandTarget, 1f - Mathf.Exp(-desktopPunchSpeed * Runner.DeltaTime));
@@ -159,9 +175,17 @@ namespace Wapawapa.Gameplay
                 accumulatedMouseDelta = Vector2.zero;
             }
 
-            var forward = Vector3.ProjectOnPlane(transform.forward, Vector3.up).normalized;
-            var right = Vector3.ProjectOnPlane(transform.right, Vector3.up).normalized;
+            var locomotionBasis = xrTrackingAvailable && head != null ? head : transform;
+            var forward = Vector3.ProjectOnPlane(locomotionBasis.forward, Vector3.up).normalized;
+            var right = Vector3.ProjectOnPlane(locomotionBasis.right, Vector3.up).normalized;
+            if (IsMovementLocked)
+            {
+                moveInput = Vector2.zero;
+                jumpRequested = false;
+            }
+
             var movement = (forward * moveInput.y + right * moveInput.x) * moveSpeed;
+            movement += externalVelocity;
 
             if (characterController.isGrounded && verticalVelocity < 0f)
             {
@@ -177,7 +201,46 @@ namespace Wapawapa.Gameplay
             verticalVelocity += gravity * Runner.DeltaTime;
             movement.y = verticalVelocity;
             characterController.Move(movement * Runner.DeltaTime);
+            externalVelocity = Vector3.MoveTowards(
+                externalVelocity,
+                Vector3.zero,
+                externalImpulseDeceleration * Runner.DeltaTime);
         }
+
+        public override void Render()
+        {
+            trackedAvatar?.SetHandInput(HasStateAuthority ? localHandInput : NetworkHandInput);
+            trackedAvatar?.SetLocalView(HasStateAuthority);
+        }
+
+        public void LockMovement(float seconds)
+        {
+            if (seconds <= 0f)
+            {
+                return;
+            }
+
+            movementLockedUntil = Mathf.Max(movementLockedUntil, Time.time + seconds);
+            jumpRequested = false;
+        }
+
+        public void ApplyExternalImpulse(Vector3 velocity, float controlLockSeconds = 0.35f)
+        {
+            if (!HasStateAuthority)
+            {
+                return;
+            }
+
+            externalVelocity = velocity;
+            LockMovement(controlLockSeconds);
+        }
+
+        public void ClearExternalImpulse()
+        {
+            externalVelocity = Vector3.zero;
+        }
+
+        private bool IsMovementLocked => Time.time < movementLockedUntil;
 
         private Vector2 ReadMovement()
         {
@@ -336,8 +399,15 @@ namespace Wapawapa.Gameplay
             return false;
         }
 
-        private void SetLocalHeadVisible(bool visible)
+        private void SetLocalAvatarVisible(bool visible)
         {
+            // Only change this client's body mesh. Hands, colliders and network state stay active.
+            var bodyRenderer = GetComponent<Renderer>();
+            if (bodyRenderer != null)
+            {
+                bodyRenderer.enabled = visible && trackedAvatar == null;
+            }
+
             if (head == null)
             {
                 return;
@@ -346,7 +416,7 @@ namespace Wapawapa.Gameplay
             var renderer = head.GetComponent<Renderer>();
             if (renderer != null)
             {
-                renderer.enabled = visible;
+                renderer.enabled = visible && trackedAvatar == null;
             }
         }
 

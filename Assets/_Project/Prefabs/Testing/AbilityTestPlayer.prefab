@@ -29,7 +29,7 @@ Transform:
   m_GameObject: {fileID: 3527873008620263}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0.35, y: 1.25, z: 0.45}
+  m_LocalPosition: {x: -0.32, y: 1.25, z: 0.38}
   m_LocalScale: {x: 0.16, y: 0.16, z: 0.16}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -50,7 +50,7 @@ MeshRenderer:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3527873008620263}
-  m_Enabled: 1
+  m_Enabled: 0
   m_CastShadows: 1
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
@@ -137,9 +137,10 @@ GameObject:
   - component: {fileID: 2605969799557036626}
   - component: {fileID: 8262331073779829304}
   - component: {fileID: 797182904421105210}
+  - component: {fileID: 4231835124093062292}
   m_Layer: 0
   m_Name: TestCamera
-  m_TagString: Untagged
+  m_TagString: MainCamera
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -154,7 +155,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 3.5714286, y: 3.5714286, z: 3.5714286}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 7225072393771125982}
@@ -226,6 +227,7 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
+  - component: {fileID: 880000000000000020}
   - component: {fileID: 7245141313056844371}
   - component: {fileID: 5812095077211737737}
   - component: {fileID: 8502127712200072389}
@@ -235,7 +237,14 @@ GameObject:
   - component: {fileID: 8069183724186603606}
   - component: {fileID: 720230613002}
   - component: {fileID: 6629011852349001201}
+  - component: {fileID: 5932207941308481228}
   - component: {fileID: 8940767640447576866}
+  - component: {fileID: 880100000000000005}
+  - component: {fileID: 880000000000000011}
+  - component: {fileID: 880000000000000012}
+  - component: {fileID: 880000000000000013}
+  - component: {fileID: 880000000000000014}
+  - component: {fileID: 880000000000000015}
   m_Layer: 0
   m_Name: AbilityTestPlayer
   m_TagString: Untagged
@@ -259,6 +268,7 @@ Transform:
   - {fileID: 7225072393771125982}
   - {fileID: 8875108605018845296}
   - {fileID: 7287373612709021972}
+  - {fileID: 880100000000000002}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!33 &5812095077211737737
@@ -276,7 +286,7 @@ MeshRenderer:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 815842106983561014}
-  m_Enabled: 1
+  m_Enabled: 0
   m_CastShadows: 1
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
@@ -414,12 +424,58 @@ MonoBehaviour:
   abilityId: fuyuno.railway_pass
   abilityName: Railway Pass
   cooldownSeconds: 4
+  vehicleVariants:
+  - label: Koryoin Train
+    prefab: {fileID: 4805999474358170395, guid: 9f46b3bc92d84f84380e3044d963b067, type: 3}
+    localPosition: {x: 0, y: 0, z: 0}
+    localScale: {x: 1, y: 1, z: 1}
+    localEulerAngles: {x: 0, y: 0, z: 0}
+    overrideSpawnRightOffset: 1
+    spawnRightOffset: 280
+    preLaunchSound: {fileID: 8300000, guid: 784d33747feb44cfc93c621241463c0e, type: 3}
+    launchSound: {fileID: 8300000, guid: 0659c2a97b4348bdbe490eb4497f84dc, type: 3}
+    hitSound: {fileID: 8300000, guid: cdb3fe386a43428a9f29a7b1ef9a2c54, type: 3}
+    hitEffectPrefab: {fileID: 0}
+    hitEffectCount: 0
+    hitEffectRadius: 0.8
+    hitEffectScale: 1
+    hitEffectLifetime: 3
+  - label: Helicopter
+    prefab: {fileID: 100172, guid: f55006f6a32a71b45a114b4680c1e575, type: 3}
+    localPosition: {x: 0, y: 0, z: 0}
+    localScale: {x: 3.5, y: 3.5, z: 3.5}
+    localEulerAngles: {x: 0, y: 0, z: 0}
+    overrideSpawnRightOffset: 1
+    spawnRightOffset: 140
+    preLaunchSound: {fileID: 8300000, guid: 784d33747feb44cfc93c621241463c0e, type: 3}
+    launchSound: {fileID: 8300000, guid: 1893a4b25867f944a86381a436b97d79, type: 3}
+    hitSound: {fileID: 8300000, guid: cdb3fe386a43428a9f29a7b1ef9a2c54, type: 3}
+    hitEffectPrefab: {fileID: 0}
+    hitEffectCount: 0
+    hitEffectRadius: 0.8
+    hitEffectScale: 1
+    hitEffectLifetime: 3
+  - label: Colonial Ship
+    prefab: {fileID: 1205614443198496, guid: f855683b127eede4c9d170be2672ae27, type: 3}
+    localPosition: {x: 0, y: 0, z: 0}
+    localScale: {x: 1, y: 1, z: 1}
+    localEulerAngles: {x: 0, y: 0, z: 0}
+    overrideSpawnRightOffset: 1
+    spawnRightOffset: 280
+    preLaunchSound: {fileID: 8300000, guid: 784d33747feb44cfc93c621241463c0e, type: 3}
+    launchSound: {fileID: 8300000, guid: 0659c2a97b4348bdbe490eb4497f84dc, type: 3}
+    hitSound: {fileID: 8300000, guid: cdb3fe386a43428a9f29a7b1ef9a2c54, type: 3}
+    hitEffectPrefab: {fileID: 2586947100091486788, guid: bf97aaa7a02fd834782d32dcc497cbef, type: 3}
+    hitEffectCount: 4
+    hitEffectRadius: 1.4
+    hitEffectScale: 1.25
+    hitEffectLifetime: 3.5
   trainPrefab: {fileID: 4805999474358170395, guid: 9f46b3bc92d84f84380e3044d963b067, type: 3}
-  trainPrefabLocalPosition: {x: 0, y: -0.75, z: 0}
+  trainPrefabLocalPosition: {x: 0, y: 0, z: 0}
   trainPrefabScale: {x: 1, y: 1, z: 1}
-  trainPrefabEulerAngles: {x: 0, y: -90, z: 0}
+  trainPrefabEulerAngles: {x: 0, y: 0, z: 0}
   targetDistance: 10
-  spawnRightOffset: 14
+  spawnRightOffset: 140
   trainSpeed: 300
   lifetime: 10
   trainSize: {x: 2, y: 2, z: 8}
@@ -431,6 +487,8 @@ MonoBehaviour:
     m_Bits: 4294967295
   trainSound: {fileID: 8300000, guid: 0659c2a97b4348bdbe490eb4497f84dc, type: 3}
   hornSound: {fileID: 0}
+  hitSound: {fileID: 8300000, guid: cdb3fe386a43428a9f29a7b1ef9a2c54, type: 3}
+  preLaunchDelay: 2
   soundDuration: 2.5
   soundVolume: 10
   soundSpatialBlend: 0.15
@@ -458,7 +516,7 @@ MonoBehaviour:
   targetFillColor: {r: 1, g: 0, b: 0, a: 0.22}
   maxAimDistance: 30
   fallbackTargetDistance: 6
-  useMouseCursorTargeting: 1
+  useMouseCursorTargeting: 0
   mouseTargetCamera: {fileID: 8262331073779829304}
   groundMask:
     serializedVersion: 2
@@ -466,7 +524,7 @@ MonoBehaviour:
   activationDelay: 0.5
   meteorHeight: 7
   meteorAngleDegrees: 60
-  spawnFromCameraViewRight: 1
+  spawnFromCameraViewRight: 0
   penguinCount: 8
   emissionDuration: 1.2
   launchSpeed: 12
@@ -512,6 +570,12 @@ MonoBehaviour:
   - label: Railway Pass
     activationKey: 43
     ability: {fileID: 720230613002}
+  - label: Fuyuno Teleport
+    activationKey: 44
+    ability: {fileID: 5932207941308481228}
+  - label: The Wall
+    activationKey: 45
+    ability: {fileID: 880000000000000020}
 --- !u!1 &5232864735544927397
 GameObject:
   m_ObjectHideFlags: 0
@@ -561,7 +625,7 @@ MeshRenderer:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5232864735544927397}
-  m_Enabled: 1
+  m_Enabled: 0
   m_CastShadows: 1
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
@@ -632,7 +696,7 @@ Transform:
   m_GameObject: {fileID: 7520898642805836143}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.35, y: 1.25, z: 0.45}
+  m_LocalPosition: {x: 0.32, y: 1.25, z: 0.38}
   m_LocalScale: {x: 0.16, y: 0.16, z: 0.16}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -653,7 +717,7 @@ MeshRenderer:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7520898642805836143}
-  m_Enabled: 1
+  m_Enabled: 0
   m_CastShadows: 1
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
@@ -729,3 +793,330 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Wapawapa.Boxing.PunchHitbox
   punchSettings: {fileID: 154464258500715438}
+--- !u!1 &880100000000000001
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 880100000000000002}
+  m_Layer: 0
+  m_Name: AvatarVisual
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &880100000000000002
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 880100000000000001}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 880100000000000003}
+  m_Father: {fileID: 7245141313056844371}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1001 &880100000000000004
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 880100000000000002}
+    m_Modifications:
+    - target: {fileID: 8116823156750195368, guid: 666bc34e56ed3d84491b3fc2bad82189, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8116823156750195368, guid: 666bc34e56ed3d84491b3fc2bad82189, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8116823156750195368, guid: 666bc34e56ed3d84491b3fc2bad82189, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -0.12441324449083427
+      objectReference: {fileID: 0}
+    - target: {fileID: 8116823156750195368, guid: 666bc34e56ed3d84491b3fc2bad82189, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8116823156750195368, guid: 666bc34e56ed3d84491b3fc2bad82189, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8116823156750195368, guid: 666bc34e56ed3d84491b3fc2bad82189, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8116823156750195368, guid: 666bc34e56ed3d84491b3fc2bad82189, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8116823156750195368, guid: 666bc34e56ed3d84491b3fc2bad82189, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 0.8968975010859254
+      objectReference: {fileID: 0}
+    - target: {fileID: 8116823156750195368, guid: 666bc34e56ed3d84491b3fc2bad82189, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 0.8968975010859254
+      objectReference: {fileID: 0}
+    - target: {fileID: 8116823156750195368, guid: 666bc34e56ed3d84491b3fc2bad82189, type: 3}
+      propertyPath: m_LocalScale.z
+      value: 0.8968975010859254
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 666bc34e56ed3d84491b3fc2bad82189, type: 3}
+--- !u!4 &880100000000000003 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 8116823156750195368, guid: 666bc34e56ed3d84491b3fc2bad82189, type: 3}
+  m_PrefabInstance: {fileID: 880100000000000004}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &880100000000000005
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 815842106983561014}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7cb209d2187a58ae9875b3ccd9719261, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::Wapawapa.Gameplay.TrackedAvatar
+  avatarRoot: {fileID: 880100000000000003}
+  headTarget: {fileID: 7225072393771125982}
+  leftHandTarget: {fileID: 8875108605018845296}
+  rightHandTarget: {fileID: 7287373612709021972}
+  ownerCamera: {fileID: 8262331073779829304}
+  modelEyePosition: {x: 0, y: 1.8396751, z: 0.13871512}
+  standingEyeHeight: 1.65
+  wristOffset: {x: 0, y: 0, z: -0.04}
+  leftWristEuler: {x: 0, y: 0, z: 0}
+  rightWristEuler: {x: 0, y: 0, z: 0}
+  groundMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  locomotionController: {fileID: 9100000, guid: 764789c7e21766e44940083f8e7e1e2d, type: 2}
+  animationMoveSpeed: 3
+--- !u!114 &4231835124093062292
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 461109649202776441}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a79441f348de89743a2939f4d699eac1, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Unity.RenderPipelines.Universal.Runtime::UnityEngine.Rendering.Universal.UniversalAdditionalCameraData
+  m_RenderShadows: 1
+  m_RequiresDepthTextureOption: 2
+  m_RequiresOpaqueTextureOption: 2
+  m_CameraType: 0
+  m_Cameras: []
+  m_RendererIndex: -1
+  m_VolumeLayerMask:
+    serializedVersion: 2
+    m_Bits: 1
+  m_VolumeTrigger: {fileID: 0}
+  m_VolumeFrameworkUpdateModeOption: 2
+  m_RenderPostProcessing: 1
+  m_Antialiasing: 0
+  m_AntialiasingQuality: 2
+  m_StopNaN: 0
+  m_Dithering: 0
+  m_ClearDepth: 1
+  m_AllowXRRendering: 1
+  m_AllowHDROutput: 1
+--- !u!114 &5932207941308481228
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 815842106983561014}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9a73bf47b7844a23b3f9ab3c8e23f7d1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Wapawapa.Abilities.TeleportAbility
+  abilityId: fuyuno.teleport
+  abilityName: Fuyuno Teleport
+  cooldownSeconds: 2
+  teleportDistance: 5
+  movementLockSeconds: 1.5
+  groundMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  groundProbeUp: 8
+  groundProbeDown: 30
+  groundClearance: 0.03
+  activationSound: {fileID: 0}
+  activationVolume: 1
+  activationSpatialBlend: 0.2
+  activationMinDistance: 4
+  activationMaxDistance: 25
+--- !u!114 &880000000000000011
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 815842106983561014}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c9b9bdc015cb1d44789b92c1731d2270, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::Wapawapa.Gestures.AirGestureRecorder
+  drawPoint: {fileID: 7287373612709021972}
+  viewReference: {fileID: 7225072393771125982}
+  inputHand: 5
+  requireTrigger: 1
+  triggerThreshold: 0.55
+  allowKeyboardDebugGate: 0
+  keyboardDebugKey: 21
+  minimumPointCount: 8
+  maximumPointCount: 256
+  minimumSampleDistance: 0.007
+  leftPunchHand: {fileID: 8875108605018845296}
+  minimumPunchSpeed: 0.8
+  signLifetime: 20
+  maximumStrokeCount: 4
+--- !u!114 &880000000000000012
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 815842106983561014}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: da44465b0e0d31048af4b88244b3c717, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::Wapawapa.Gestures.AirGestureRecognizer
+  recorder: {fileID: 880000000000000011}
+  templateSet: {fileID: 0}
+  includeBuiltInTemplates: 1
+  resamplePointCount: 64
+  minimumPathLength: 0.18
+  minimumBoundsSize: 0.08
+  minimumDuration: 0.12
+  maximumDuration: 5
+  maximumScore: 0.22
+  minimumConfidence: 0.35
+  closedShapeShiftStep: 4
+  rotationSearchDegrees: 30
+  rotationSearchStepDegrees: 15
+  resultCooldown: 0.25
+  logResults: 1
+--- !u!114 &880000000000000013
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 815842106983561014}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2c270829fdbaa1044840ac5d0bee9daf, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::Wapawapa.GestureActions.GestureActionRouter
+  recognizer: {fileID: 880000000000000012}
+  bindings:
+  - gestureId: triangle
+    actionId: ability.slot.2
+  - gestureId: square
+    actionId: ability.slot.1
+  - gestureId: w
+    actionId: ability.wall
+  - gestureId: pe
+    actionId: ability.slot.0
+  actionCooldown: 0.2
+  logActions: 1
+--- !u!114 &880000000000000014
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 815842106983561014}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 73ababfcb3d2e3c43900bb8cfe49f4c6, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::Wapawapa.GestureActions.AbilityLoadoutGestureAdapter
+  router: {fileID: 880000000000000013}
+  loadout: {fileID: 8940767640447576866}
+  bindings:
+  - actionId: ability.wall
+    slotIndex: 4
+  - actionId: ability.slot.0
+    slotIndex: 0
+  - actionId: ability.slot.1
+    slotIndex: 1
+  - actionId: ability.slot.2
+    slotIndex: 2
+  logRequests: 1
+
+--- !u!114 &880000000000000015
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 815842106983561014}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6b1b09f7d8087d4439d123c81470c201, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::Wapawapa.Gestures.AirGestureDebugView
+  recorder: {fileID: 880000000000000011}
+  recognizer: {fileID: 880000000000000012}
+  logRecognition: 0
+  trailMaterial: {fileID: 2100000, guid: b9289bb6b94f44efa9fb2045da7090a2, type: 2}
+  trailWidth: 0.012
+--- !u!114 &880000000000000020
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 815842106983561014}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 86fb9aee20d840c8b5b4fe84a388ba5e, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::Wapawapa.Abilities.TheWallAbility
+  abilityId: kondou.the-wall
+  abilityName: The Wall
+  cooldownSeconds: 2
+  "\u58C1\u30E2\u30C7\u30EB\u8A2D\u5B9A\u30EA\u30B9\u30C8":
+  - "\u58C1\u30E2\u30C7\u30EBPrefab": {fileID: 8754935839455614052, guid: 7201631a8f9bfde45bd91f0c2b38fdfb, type: 3}
+    "\u56DE\u8EE2\u88DC\u6B63": {x: -90, y: 0, z: 0}
+    "\u58C1\u30B9\u30B1\u30FC\u30EB": 0.5
+    "\u751F\u3048\u308B\u6642\u9593": 1
+    "\u6301\u7D9A\u6642\u9593": 6
+    "\u5730\u9762\u4E0B\u306E\u6DF1\u3055": 2.4
+    "Collider\u304C\u7121\u3044\u6642\u3060\u3051\u88DC\u52A9Collider\u3092\u8FFD\u52A0": 1
+    "\u88DC\u52A9Collider\u30B5\u30A4\u30BA": {x: 1.8, y: 3.2, z: 0.8}
+    "\u88DC\u52A9Collider\u4E2D\u5FC3": {x: 0, y: 1.6, z: 0}
+    "\u63FA\u308C\u5E45": 0.04
+  "\u751F\u6210\u8DDD\u96E2": 2.2
+  "\u5730\u9762\u63A2\u7D22\u9AD8\u3055": 3
+  "\u5730\u9762\u63A2\u7D22\u8DDD\u96E2": 8
+  "\u5730\u9762\u30EC\u30A4\u30E4\u30FC":
+    serializedVersion: 2
+    m_Bits: 4294967295

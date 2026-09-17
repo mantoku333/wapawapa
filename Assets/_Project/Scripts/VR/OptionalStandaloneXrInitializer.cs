@@ -15,6 +15,8 @@ namespace Wapawapa.VR
 #endif
 
 #if UNITY_STANDALONE || UNITY_EDITOR
+        private static XRManagerSettings manuallyStartedManager;
+
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
         private static void InitializeWhenRequested()
         {
@@ -48,7 +50,19 @@ namespace Wapawapa.VR
                 return;
             }
 
-            settings.Manager.InitializeLoaderSync();
+            // Automatically managed XR owns its own shutdown lifecycle.
+            if (settings.InitManagerOnStart)
+            {
+                return;
+            }
+
+            manuallyStartedManager = settings.Manager;
+            Application.quitting -= ShutdownManualXr;
+            Application.quitting += ShutdownManualXr;
+            if (settings.Manager.activeLoader == null)
+            {
+                settings.Manager.InitializeLoaderSync();
+            }
             if (settings.Manager.activeLoader == null)
             {
                 Debug.LogError("No Standalone XR loader could be initialized.");
@@ -58,9 +72,49 @@ namespace Wapawapa.VR
             settings.Manager.StartSubsystems();
             Debug.Log("Wapawapa Standalone XR initialized.");
         }
+
+        private static void ShutdownManualXr()
+        {
+            Application.quitting -= ShutdownManualXr;
+            var manager = manuallyStartedManager;
+            manuallyStartedManager = null;
+#if UNITY_EDITOR
+            // Static fields may be reset by a Play Mode domain reload.
+            var settings = XRGeneralSettings.Instance;
+            if (manager == null && settings != null && !settings.InitManagerOnStart)
+            {
+                manager = settings.Manager;
+            }
+#endif
+            if (manager == null || manager.activeLoader == null)
+            {
+                return;
+            }
+
+            // DeinitializeLoader also stops the subsystems before destroying them.
+            manager.DeinitializeLoader();
+            Debug.Log("Wapawapa Standalone XR stopped and deinitialized.");
+        }
 #endif
 
 #if UNITY_EDITOR
+        [InitializeOnLoadMethod]
+        private static void RegisterEditorShutdown()
+        {
+            EditorApplication.playModeStateChanged -= HandlePlayModeStateChanged;
+            EditorApplication.playModeStateChanged += HandlePlayModeStateChanged;
+            AssemblyReloadEvents.beforeAssemblyReload -= ShutdownManualXr;
+            AssemblyReloadEvents.beforeAssemblyReload += ShutdownManualXr;
+        }
+
+        private static void HandlePlayModeStateChanged(PlayModeStateChange state)
+        {
+            if (state == PlayModeStateChange.ExitingPlayMode)
+            {
+                ShutdownManualXr();
+            }
+        }
+
         private static bool IsEditorXrEnabled()
         {
             return EditorPrefs.GetBool(EditorXrPreferenceKey, true);

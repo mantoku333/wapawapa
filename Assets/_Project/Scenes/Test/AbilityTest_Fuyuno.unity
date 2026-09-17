@@ -1023,6 +1023,42 @@ PrefabInstance:
       propertyPath: trainSpeed
       value: 90
       objectReference: {fileID: 0}
+    - target: {fileID: 720230613002, guid: 00e6fc18643fd45638c9d68dd490e058, type: 3}
+      propertyPath: vehicleVariants.Array.data[2].hitSound
+      value: 
+      objectReference: {fileID: 8300000, guid: ba8b886ddcfaf448bad1fed66af91927, type: 3}
+    - target: {fileID: 720230613002, guid: 00e6fc18643fd45638c9d68dd490e058, type: 3}
+      propertyPath: vehicleVariants.Array.data[0].launchSound
+      value: 
+      objectReference: {fileID: 8300000, guid: fb22a871eb90646e99925c19f0f3a5c9, type: 3}
+    - target: {fileID: 720230613002, guid: 00e6fc18643fd45638c9d68dd490e058, type: 3}
+      propertyPath: vehicleVariants.Array.data[1].launchSound
+      value: 
+      objectReference: {fileID: 8300000, guid: e279eea95fd21406ebb66ea6a9a96556, type: 3}
+    - target: {fileID: 720230613002, guid: 00e6fc18643fd45638c9d68dd490e058, type: 3}
+      propertyPath: vehicleVariants.Array.data[2].launchSound
+      value: 
+      objectReference: {fileID: 8300000, guid: 8e64ba968ffe847faa31ced904cf5961, type: 3}
+    - target: {fileID: 720230613002, guid: 00e6fc18643fd45638c9d68dd490e058, type: 3}
+      propertyPath: vehicleVariants.Array.data[0].preLaunchSound
+      value: 
+      objectReference: {fileID: 8300000, guid: 784d33747feb44cfc93c621241463c0e, type: 3}
+    - target: {fileID: 720230613002, guid: 00e6fc18643fd45638c9d68dd490e058, type: 3}
+      propertyPath: vehicleVariants.Array.data[1].preLaunchSound
+      value: 
+      objectReference: {fileID: 8300000, guid: 784d33747feb44cfc93c621241463c0e, type: 3}
+    - target: {fileID: 720230613002, guid: 00e6fc18643fd45638c9d68dd490e058, type: 3}
+      propertyPath: vehicleVariants.Array.data[2].preLaunchSound
+      value: 
+      objectReference: {fileID: 8300000, guid: 4a5e389f0a5b54cd9b9a56dd3a69575a, type: 3}
+    - target: {fileID: 720230613002, guid: 00e6fc18643fd45638c9d68dd490e058, type: 3}
+      propertyPath: vehicleVariants.Array.data[0].localEulerAngles.y
+      value: 90
+      objectReference: {fileID: 0}
+    - target: {fileID: 720230613002, guid: 00e6fc18643fd45638c9d68dd490e058, type: 3}
+      propertyPath: vehicleVariants.Array.data[1].localEulerAngles.y
+      value: -90
+      objectReference: {fileID: 0}
     - target: {fileID: 815842106983561014, guid: 00e6fc18643fd45638c9d68dd490e058, type: 3}
       propertyPath: m_Name
       value: AbilityTestPlayer
@@ -1033,7 +1069,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7245141313056844371, guid: 00e6fc18643fd45638c9d68dd490e058, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0.9
+      value: 0.95
       objectReference: {fileID: 0}
     - target: {fileID: 7245141313056844371, guid: 00e6fc18643fd45638c9d68dd490e058, type: 3}
       propertyPath: m_LocalPosition.z

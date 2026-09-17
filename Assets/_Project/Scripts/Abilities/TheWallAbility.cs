@@ -28,11 +28,6 @@ namespace Wapawapa.Abilities
             [SerializeField] private Vector3 補助Collider中心 = new Vector3(0f, 1.6f, 0f);
             [Tooltip("このモデルが生える時に少し揺れる強さです。")]
             [SerializeField] private float 揺れ幅 = 0.04f;
-            [Tooltip("このモデルが地面から出る時に鳴らす音です。")]
-            [SerializeField] private AudioClip 出現音;
-            [Tooltip("出現音の音量です。")]
-            [Range(0f, 1f)]
-            [SerializeField] private float 出現音量 = 1f;
 
             public GameObject Prefab => 壁モデルPrefab;
             public Vector3 RotationOffset => 回転補正;
@@ -44,8 +39,6 @@ namespace Wapawapa.Abilities
             public Vector3 FallbackColliderSize => 補助Colliderサイズ;
             public Vector3 FallbackColliderCenter => 補助Collider中心;
             public float ShakeAmount => Mathf.Max(0f, 揺れ幅);
-            public AudioClip SpawnSound => 出現音;
-            public float SpawnVolume => Mathf.Clamp01(出現音量);
         }
 
         [Header("生成設定")]
@@ -67,7 +60,6 @@ namespace Wapawapa.Abilities
             var model = ChooseModel();
             var rotation = Quaternion.LookRotation(forward, Vector3.up) * Quaternion.Euler(model.RotationOffset);
             var wall = CreateWallObject(spawnPoint, rotation, model);
-            PlaySpawnSound(model, spawnPoint);
 
             StartCoroutine(GrowAndDestroy(wall, spawnPoint, model));
         }
@@ -114,16 +106,6 @@ namespace Wapawapa.Abilities
             }
 
             return wall;
-        }
-
-        private static void PlaySpawnSound(壁モデル設定 model, Vector3 position)
-        {
-            if (model.SpawnSound == null || model.SpawnVolume <= 0f)
-            {
-                return;
-            }
-
-            AudioSource.PlayClipAtPoint(model.SpawnSound, position, model.SpawnVolume);
         }
 
         private 壁モデル設定 ChooseModel()

@@ -689,6 +689,79 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1001 &1854043782
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 1447019341343001611, guid: e406ec3eff150094880cbcd1014220fb, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 1447019341343001611, guid: e406ec3eff150094880cbcd1014220fb, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 1447019341343001611, guid: e406ec3eff150094880cbcd1014220fb, type: 3}
+      propertyPath: m_LocalScale.z
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 1447019341343001611, guid: e406ec3eff150094880cbcd1014220fb, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 1.4134216
+      objectReference: {fileID: 0}
+    - target: {fileID: 1447019341343001611, guid: e406ec3eff150094880cbcd1014220fb, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0.01
+      objectReference: {fileID: 0}
+    - target: {fileID: 1447019341343001611, guid: e406ec3eff150094880cbcd1014220fb, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 1.9192036
+      objectReference: {fileID: 0}
+    - target: {fileID: 1447019341343001611, guid: e406ec3eff150094880cbcd1014220fb, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1447019341343001611, guid: e406ec3eff150094880cbcd1014220fb, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1447019341343001611, guid: e406ec3eff150094880cbcd1014220fb, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1447019341343001611, guid: e406ec3eff150094880cbcd1014220fb, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1447019341343001611, guid: e406ec3eff150094880cbcd1014220fb, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1447019341343001611, guid: e406ec3eff150094880cbcd1014220fb, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1447019341343001611, guid: e406ec3eff150094880cbcd1014220fb, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1447019341343001611, guid: e406ec3eff150094880cbcd1014220fb, type: 3}
+      propertyPath: m_ConstrainProportionsScale
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2260535158781171377, guid: e406ec3eff150094880cbcd1014220fb, type: 3}
+      propertyPath: m_Name
+      value: Doujou
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: e406ec3eff150094880cbcd1014220fb, type: 3}
 --- !u!114 &2060907001
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -708,15 +781,13 @@ MonoBehaviour:
   - "\u58C1\u30E2\u30C7\u30EBPrefab": {fileID: 8754935839455614052, guid: 7201631a8f9bfde45bd91f0c2b38fdfb, type: 3}
     "\u56DE\u8EE2\u88DC\u6B63": {x: -90, y: 0, z: 0}
     "\u58C1\u30B9\u30B1\u30FC\u30EB": 0.5
-    "\u751F\u3048\u308B\u6642\u9593": 3
+    "\u751F\u3048\u308B\u6642\u9593": 1
     "\u6301\u7D9A\u6642\u9593": 6
     "\u5730\u9762\u4E0B\u306E\u6DF1\u3055": 2.4
     "Collider\u304C\u7121\u3044\u6642\u3060\u3051\u88DC\u52A9Collider\u3092\u8FFD\u52A0": 1
     "\u88DC\u52A9Collider\u30B5\u30A4\u30BA": {x: 1.8, y: 3.2, z: 0.8}
     "\u88DC\u52A9Collider\u4E2D\u5FC3": {x: 0, y: 1.6, z: 0}
-    "\u63FA\u308C\u5E45": 0.08
-    "\u51FA\u73FE\u97F3": {fileID: 8300000, guid: 9b8ebf54f20e4de2b60fb6c67f94d00c, type: 3}
-    "\u51FA\u73FE\u97F3\u91CF": 1
+    "\u63FA\u308C\u5E45": 0.04
   "\u751F\u6210\u8DDD\u96E2": 2.2
   "\u5730\u9762\u63A2\u7D22\u9AD8\u3055": 3
   "\u5730\u9762\u63A2\u7D22\u8DDD\u96E2": 8
@@ -734,3 +805,4 @@ SceneRoots:
   - {fileID: 1070104966}
   - {fileID: 953117132}
   - {fileID: 317092361}
+  - {fileID: 1854043782}

@@ -28,9 +28,29 @@ namespace Wapawapa.Abilities
 
         [Header("Visuals")]
         [SerializeField] private bool spawnDebugVisuals = true;
+        [Tooltip("指定すると、ヒット時にこの ParticleSystem prefab を再生します。未指定時は従来のランタイム生成 VFX を使用します。")]
+        [SerializeField] private ParticleSystem impactParticlePrefab;
         [SerializeField] private float focusVisualScale = 0.5f;
         [SerializeField] private float impactEffectLifetime = 0.35f;
         [SerializeField] private float impactEffectScale = 1.2f;
+
+        [Header("Blood Focus Post Process")]
+        [SerializeField] private bool playScreenFlash = true;
+        [SerializeField, Range(1, 6)] private int screenFlashCount = 1;
+        [SerializeField, Min(0f)] private float screenFlashDuration = 0.12f;
+        [SerializeField, Min(0f)] private float screenFlashFadeIn = 0.035f;
+        [SerializeField, Min(0f)] private float screenFlashFadeOut = 0.18f;
+        [SerializeField, Range(-100f, 0f)] private float screenFlashSaturation = -100f;
+        [SerializeField, Range(-100f, 100f)] private float screenFlashContrast = 100f;
+        [SerializeField, Min(0f)] private float screenFlashInterval = 0.04f;
+        [Header("Radial Grayscale")]
+        [SerializeField] private bool playRadialGrayscale = true;
+        [SerializeField, Min(0f)] private float radialGrayscaleDuration = 0.25f;
+        [SerializeField, Range(0f, 0.5f)] private float radialGrayscaleStartRadius = 0.02f;
+        [SerializeField, Range(0f, 2f)] private float radialGrayscaleEndRadius = 1.2f;
+        [SerializeField, Range(0.001f, 0.5f)] private float radialGrayscaleEdge = 0.08f;
+        [SerializeField] private bool showHitPositionDebug = true;
+        [SerializeField] private bool enableDebugLogs;
 
         [Header("Sound")]
         [SerializeField] private AudioClip blackFlashClip;
@@ -55,6 +75,9 @@ namespace Wapawapa.Abilities
         private Image maxZoneImage;
         private AudioClip generatedBlackFlashClip;
         private static AudioClip sharedGeneratedBlackFlashClip;
+        private static ParticleSystem sharedImpactParticlePrefab;
+        private static float sharedImpactEffectLifetime = 0.35f;
+        private static float sharedImpactEffectScale = 1.2f;
         private NetworkObject networkObject;
 
         protected override void Activate(in AbilityContext context, in AbilityActivationData activation)
@@ -66,6 +89,7 @@ namespace Wapawapa.Abilities
         {
             networkObject = GetComponentInParent<NetworkObject>();
             currentOwner = gameObject;
+            RegisterSharedImpactParticle();
             DiscoverHandReferences();
             UpdatePreviousHandPositions();
 
@@ -199,8 +223,15 @@ namespace Wapawapa.Abilities
 
                 if (AbilityDamageUtility.TryApplyDamage(hit, damage))
                 {
+                    DebugLog($"Damage applied. networked={IsNetworkedActive}, point={hitPoint}");
                     if (!IsNetworkedActive)
                     {
+                        PlayScreenFlash();
+                        PlayRadialGrayscale(hitPoint);
+                        if (showHitPositionDebug)
+                        {
+                            CombatPostProcessController.Instance.ShowHitPositionDebug(hitPoint);
+                        }
                         PlayBlackFlashSound(hitPoint);
                         SpawnBlackFlashEffect(hitPoint, velocity.normalized);
                     }
@@ -216,6 +247,18 @@ namespace Wapawapa.Abilities
 
         private bool IsGaugeInMaxZone => gaugeRatio >= maxZoneStartRatio;
         private bool IsNetworkedActive => networkObject != null && networkObject.IsValid;
+
+        private void RegisterSharedImpactParticle()
+        {
+            if (impactParticlePrefab == null)
+            {
+                return;
+            }
+
+            sharedImpactParticlePrefab = impactParticlePrefab;
+            sharedImpactEffectLifetime = impactEffectLifetime;
+            sharedImpactEffectScale = impactEffectScale;
+        }
 
         private void CacheContext(in AbilityContext context)
         {
@@ -435,6 +478,47 @@ namespace Wapawapa.Abilities
             SpawnSharedBlackFlashEffect(position, direction);
         }
 
+        private void PlayScreenFlash()
+        {
+            if (!playScreenFlash)
+            {
+                DebugLog("Screen flash skipped: playScreenFlash is disabled.");
+                return;
+            }
+
+            DebugLog("Calling CombatPostProcessController.");
+            CombatPostProcessController.Instance.PlayBloodFocusStrikeFlash(
+                screenFlashDuration,
+                screenFlashFadeIn,
+                screenFlashFadeOut,
+                screenFlashSaturation,
+                screenFlashContrast,
+                screenFlashCount,
+                screenFlashInterval);
+        }
+
+        private void PlayRadialGrayscale(Vector3 hitPoint)
+        {
+            if (playRadialGrayscale)
+            {
+                CombatPostProcessController.Instance.PlayRadialGrayscale(
+                    hitPoint,
+                    radialGrayscaleDuration,
+                    radialGrayscaleStartRadius,
+                    radialGrayscaleEndRadius,
+                    radialGrayscaleEdge);
+            }
+        }
+
+
+        private void DebugLog(string message)
+        {
+            if (enableDebugLogs)
+            {
+                Debug.Log($"[BloodFocusStrikeAbility] {message}", this);
+            }
+        }
+
         private static AudioClip GetSharedGeneratedBlackFlashClip()
         {
             if (sharedGeneratedBlackFlashClip != null)
@@ -466,6 +550,12 @@ namespace Wapawapa.Abilities
 
         private static void SpawnSharedBlackFlashEffect(Vector3 position, Vector3 direction)
         {
+            if (sharedImpactParticlePrefab != null)
+            {
+                PlaySharedImpactParticle(position, direction);
+                return;
+            }
+
             var root = new GameObject("Black Flash Network Impact");
             root.transform.position = position;
             Destroy(root, 0.45f);
@@ -506,10 +596,34 @@ namespace Wapawapa.Abilities
             }
         }
 
+        private static void PlaySharedImpactParticle(Vector3 position, Vector3 direction)
+        {
+            var forward = direction.sqrMagnitude > 0.0001f ? direction.normalized : Vector3.forward;
+            var effect = Instantiate(sharedImpactParticlePrefab, position, Quaternion.LookRotation(forward, Vector3.up));
+            CombatPostProcessController.Instance.ConfigureUnprocessedVfx(effect.gameObject);
+            effect.transform.localScale *= sharedImpactEffectScale;
+            effect.Play(true);
+
+            var lifetime = Mathf.Max(0.1f, sharedImpactEffectLifetime);
+            var main = effect.main;
+            if (!main.loop)
+            {
+                lifetime = Mathf.Max(lifetime, main.duration + main.startLifetime.constantMax);
+            }
+
+            Destroy(effect.gameObject, lifetime + 0.1f);
+        }
+
         private void SpawnBlackFlashEffect(Vector3 position, Vector3 direction)
         {
             if (!spawnDebugVisuals)
             {
+                return;
+            }
+
+            if (impactParticlePrefab != null)
+            {
+                PlayImpactParticle(position, direction);
                 return;
             }
 
@@ -561,6 +675,24 @@ namespace Wapawapa.Abilities
 
                 StartCoroutine(AnimateShard(spark.transform, sparkDirection, hitRadius * 3.5f, impactEffectLifetime, emberMaterial));
             }
+        }
+
+        private void PlayImpactParticle(Vector3 position, Vector3 direction)
+        {
+            var forward = direction.sqrMagnitude > 0.0001f ? direction.normalized : transform.forward;
+            var effect = Instantiate(impactParticlePrefab, position, Quaternion.LookRotation(forward, Vector3.up));
+            CombatPostProcessController.Instance.ConfigureUnprocessedVfx(effect.gameObject);
+            effect.transform.localScale *= impactEffectScale;
+            effect.Play(true);
+
+            var lifetime = Mathf.Max(0.1f, impactEffectLifetime);
+            var main = effect.main;
+            if (!main.loop)
+            {
+                lifetime = Mathf.Max(lifetime, main.duration + main.startLifetime.constantMax);
+            }
+
+            Destroy(effect.gameObject, lifetime + 0.1f);
         }
 
         private IEnumerator AnimatePulse(Transform target, Vector3 startScale, Vector3 endScale, float duration, Material material)

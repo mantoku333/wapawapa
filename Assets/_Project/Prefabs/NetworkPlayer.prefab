@@ -9,6 +9,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2908342431893988729}
+  - component: {fileID: 880000000000000020}
   - component: {fileID: 6951743891504479673}
   - component: {fileID: 764815478136586471}
   - component: {fileID: 2389484044324841213}
@@ -24,6 +25,12 @@ GameObject:
   - component: {fileID: 4983933929722795847}
   - component: {fileID: 648263914010001003}
   - component: {fileID: 648263914010001004}
+  - component: {fileID: 880100000000000005}
+  - component: {fileID: 880000000000000001}
+  - component: {fileID: 880000000000000002}
+  - component: {fileID: 880000000000000003}
+  - component: {fileID: 880000000000000004}
+  - component: {fileID: 880000000000000005}
   m_Layer: 0
   m_Name: NetworkPlayer
   m_TagString: Untagged
@@ -47,8 +54,41 @@ Transform:
   - {fileID: 7222152740694544162}
   - {fileID: 6374337054829635355}
   - {fileID: 7154422370393157995}
+  - {fileID: 880100000000000002}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &880000000000000020
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 378567223904163175}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 86fb9aee20d840c8b5b4fe84a388ba5e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Wapawapa.Abilities.TheWallAbility
+  abilityId: kondou.the-wall
+  abilityName: The Wall
+  cooldownSeconds: 2
+  "\u58C1\u30E2\u30C7\u30EB\u8A2D\u5B9A\u30EA\u30B9\u30C8":
+  - "\u58C1\u30E2\u30C7\u30EBPrefab": {fileID: 8754935839455614052, guid: 7201631a8f9bfde45bd91f0c2b38fdfb, type: 3}
+    "\u56DE\u8EE2\u88DC\u6B63": {x: -90, y: 0, z: 0}
+    "\u58C1\u30B9\u30B1\u30FC\u30EB": 0.5
+    "\u751F\u3048\u308B\u6642\u9593": 1
+    "\u6301\u7D9A\u6642\u9593": 6
+    "\u5730\u9762\u4E0B\u306E\u6DF1\u3055": 2.4
+    "Collider\u304C\u7121\u3044\u6642\u3060\u3051\u88DC\u52A9Collider\u3092\u8FFD\u52A0": 1
+    "\u88DC\u52A9Collider\u30B5\u30A4\u30BA": {x: 1.8, y: 3.2, z: 0.8}
+    "\u88DC\u52A9Collider\u4E2D\u5FC3": {x: 0, y: 1.6, z: 0}
+    "\u63FA\u308C\u5E45": 0.04
+  "\u751F\u6210\u8DDD\u96E2": 2.2
+  "\u5730\u9762\u63A2\u7D22\u9AD8\u3055": 3
+  "\u5730\u9762\u63A2\u7D22\u8DDD\u96E2": 8
+  "\u5730\u9762\u30EC\u30A4\u30E4\u30FC":
+    serializedVersion: 2
+    m_Bits: 4294967295
 --- !u!33 &6951743891504479673
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -64,7 +104,7 @@ MeshRenderer:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 378567223904163175}
-  m_Enabled: 1
+  m_Enabled: 0
   m_CastShadows: 1
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
@@ -124,13 +164,13 @@ CharacterController:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Height: 2.51
-  m_Radius: 0.54
+  m_Height: 1.8
+  m_Radius: 0.3
   m_SlopeLimit: 45
   m_StepOffset: 0.3
   m_SkinWidth: 0.08
   m_MinMoveDistance: 0.001
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Center: {x: 0, y: 0.9, z: 0}
 --- !u!114 &7625100185252443037
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -141,7 +181,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: -1552182283, guid: e725a070cec140c4caffb81624c8c787, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Fusion.Runtime.dll::Fusion.NetworkObject
   SortKey: 2640479367
   ObjectInterest: 1
@@ -166,7 +206,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 158639473, guid: e725a070cec140c4caffb81624c8c787, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Fusion.Runtime.dll::Fusion.NetworkTransform
   _stateAuthorityChangeErrorCorrectionDelta: 0
   SyncScale: 0
@@ -235,30 +275,78 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Wapawapa.Abilities.RailwayPassAbility
   abilityId: fuyuno.railway_pass
   abilityName: Railway Pass
-  cooldownSeconds: 2
+  cooldownSeconds: 4
+  vehicleVariants:
+  - label: Koryoin Train
+    prefab: {fileID: 4805999474358170395, guid: 9f46b3bc92d84f84380e3044d963b067, type: 3}
+    localPosition: {x: 0, y: 0, z: 0}
+    localScale: {x: 1, y: 1, z: 1}
+    localEulerAngles: {x: 0, y: 90, z: 0}
+    overrideSpawnRightOffset: 1
+    spawnRightOffset: 280
+    preLaunchSound: {fileID: 8300000, guid: 784d33747feb44cfc93c621241463c0e, type: 3}
+    launchSound: {fileID: 8300000, guid: fb22a871eb90646e99925c19f0f3a5c9, type: 3}
+    hitSound: {fileID: 8300000, guid: cdb3fe386a43428a9f29a7b1ef9a2c54, type: 3}
+    hitEffectPrefab: {fileID: 0}
+    hitEffectCount: 0
+    hitEffectRadius: 0.8
+    hitEffectScale: 1
+    hitEffectLifetime: 3
+  - label: Helicopter
+    prefab: {fileID: 100172, guid: f55006f6a32a71b45a114b4680c1e575, type: 3}
+    localPosition: {x: 0, y: 0, z: 0}
+    localScale: {x: 3.5, y: 3.5, z: 3.5}
+    localEulerAngles: {x: 0, y: -90, z: 0}
+    overrideSpawnRightOffset: 1
+    spawnRightOffset: 140
+    preLaunchSound: {fileID: 8300000, guid: 784d33747feb44cfc93c621241463c0e, type: 3}
+    launchSound: {fileID: 8300000, guid: e279eea95fd21406ebb66ea6a9a96556, type: 3}
+    hitSound: {fileID: 8300000, guid: cdb3fe386a43428a9f29a7b1ef9a2c54, type: 3}
+    hitEffectPrefab: {fileID: 0}
+    hitEffectCount: 0
+    hitEffectRadius: 0.8
+    hitEffectScale: 1
+    hitEffectLifetime: 3
+  - label: Colonial Ship
+    prefab: {fileID: 1205614443198496, guid: f855683b127eede4c9d170be2672ae27, type: 3}
+    localPosition: {x: 0, y: 0, z: 0}
+    localScale: {x: 1, y: 1, z: 1}
+    localEulerAngles: {x: 0, y: 0, z: 0}
+    overrideSpawnRightOffset: 1
+    spawnRightOffset: 280
+    preLaunchSound: {fileID: 8300000, guid: 4a5e389f0a5b54cd9b9a56dd3a69575a, type: 3}
+    launchSound: {fileID: 8300000, guid: 8e64ba968ffe847faa31ced904cf5961, type: 3}
+    hitSound: {fileID: 8300000, guid: ba8b886ddcfaf448bad1fed66af91927, type: 3}
+    hitEffectPrefab: {fileID: 2586947100091486788, guid: bf97aaa7a02fd834782d32dcc497cbef, type: 3}
+    hitEffectCount: 4
+    hitEffectRadius: 1.4
+    hitEffectScale: 1.25
+    hitEffectLifetime: 3.5
   trainPrefab: {fileID: 4805999474358170395, guid: 9f46b3bc92d84f84380e3044d963b067, type: 3}
-  trainPrefabLocalPosition: {x: 0, y: -0.75, z: 0}
+  trainPrefabLocalPosition: {x: 0, y: 0, z: 0}
   trainPrefabScale: {x: 1, y: 1, z: 1}
-  trainPrefabEulerAngles: {x: 0, y: -90, z: 0}
+  trainPrefabEulerAngles: {x: 0, y: 0, z: 0}
   targetDistance: 10
-  spawnRightOffset: 14
-  trainSpeed: 50
+  spawnRightOffset: 140
+  trainSpeed: 90
   lifetime: 10
   trainSize: {x: 2, y: 2, z: 8}
   heightOffset: 0.05
-  damage: 80
-  pushForce: 40
+  damage: 30
+  pushForce: 12
   hitMask:
     serializedVersion: 2
     m_Bits: 4294967295
   trainSound: {fileID: 8300000, guid: 0659c2a97b4348bdbe490eb4497f84dc, type: 3}
   hornSound: {fileID: 0}
-  soundDuration: 0.1
+  hitSound: {fileID: 8300000, guid: cdb3fe386a43428a9f29a7b1ef9a2c54, type: 3}
+  preLaunchDelay: 2
+  soundDuration: 2.5
   soundVolume: 10
   soundSpatialBlend: 0.15
   soundMinDistance: 8
   soundMaxDistance: 80
-  hornVolume: 10
+  hornVolume: 1.25
   trainHitSoundVolume: 3
 --- !u!114 &997422686782990025
 MonoBehaviour:
@@ -285,6 +373,9 @@ MonoBehaviour:
   - label: Penguin Meteor
     activationKey: 43
     ability: {fileID: 648263914010001004}
+  - label: The Wall
+    activationKey: 44
+    ability: {fileID: 880000000000000020}
 --- !u!114 &39447127725387979
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -364,6 +455,11 @@ MonoBehaviour:
   punchSwingVolume: 0.8
   ignoreHandToHandHits: 1
   ignoreSelfHits: 1
+  minimumPunchDistance: 0.08
+  minimumForwardDot: 0.65
+  punchRetractDistance: 0.08
+  hitHapticAmplitude: 0.5
+  hitHapticDuration: 0.08
 --- !u!114 &648263914010001003
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -374,7 +470,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: e835ac2d67ba415f97abf1754102ef07, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Wapawapa.Abilities.BloodFocusStrikeAbility
   abilityId: kita.blood_focus_strike
   abilityName: Blood Focus Strike
@@ -393,9 +489,25 @@ MonoBehaviour:
   gaugeAnchoredPosition: {x: -88, y: 0}
   gaugeSize: {x: 34, y: 260}
   spawnDebugVisuals: 1
+  impactParticlePrefab: {fileID: 5344348883797498948, guid: e3051a3ab09d80940935c0c0df4baac8, type: 3}
   focusVisualScale: 0.5
   impactEffectLifetime: 0.35
   impactEffectScale: 1.2
+  playScreenFlash: 1
+  screenFlashCount: 1
+  screenFlashDuration: 0.12
+  screenFlashFadeIn: 0.035
+  screenFlashFadeOut: 0.18
+  screenFlashSaturation: -100
+  screenFlashContrast: 100
+  screenFlashInterval: 0.04
+  playRadialGrayscale: 1
+  radialGrayscaleDuration: 0.25
+  radialGrayscaleStartRadius: 0.02
+  radialGrayscaleEndRadius: 1.2
+  radialGrayscaleEdge: 0.08
+  showHitPositionDebug: 1
+  enableDebugLogs: 1
   blackFlashClip: {fileID: 8300000, guid: d305c6bc97894ef8b3c45ded6919821a, type: 3}
   blackFlashLightningClip: {fileID: 8300000, guid: e5e656ec29cd48fcb27e2c8aa3935f93, type: 3}
   blackFlashVolume: 1
@@ -410,7 +522,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 4d3cdd150db520243897a57a5db98b27, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Wapawapa.Abilities.PenguinMeteorAbility
   abilityId: tamura.penguin_meteor
   abilityName: Penguin Meteor
@@ -420,7 +532,7 @@ MonoBehaviour:
   targetFillColor: {r: 1, g: 0, b: 0, a: 0.22}
   maxAimDistance: 30
   fallbackTargetDistance: 6
-  useMouseCursorTargeting: 1
+  useMouseCursorTargeting: 0
   mouseTargetCamera: {fileID: 7274429187156850369}
   groundMask:
     serializedVersion: 2
@@ -428,7 +540,7 @@ MonoBehaviour:
   activationDelay: 0.5
   meteorHeight: 7
   meteorAngleDegrees: 60
-  spawnFromCameraViewRight: 1
+  spawnFromCameraViewRight: 0
   penguinCount: 8
   emissionDuration: 1.2
   launchSpeed: 12
@@ -449,6 +561,185 @@ MonoBehaviour:
   penguinSpawnMaxDistance: 80
   penguinDamageSound: {fileID: 8300000, guid: 71033ea0dfc243c6a2cbd74190e1289e, type: 3}
   penguinDamageVolume: 1
+--- !u!114 &880100000000000005
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 378567223904163175}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7cb209d2187a58ae9875b3ccd9719261, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Wapawapa.Gameplay.TrackedAvatar
+  avatarRoot: {fileID: 8976239075196459692}
+  headTarget: {fileID: 7222152740694544162}
+  leftHandTarget: {fileID: 6374337054829635355}
+  rightHandTarget: {fileID: 7154422370393157995}
+  ownerCamera: {fileID: 7274429187156850369}
+  modelEyePosition: {x: 0, y: 1.8396751, z: 0.13871512}
+  standingEyeHeight: 1.65
+  wristOffset: {x: 0, y: 0, z: -0.04}
+  leftWristEuler: {x: 0, y: 0, z: 0}
+  rightWristEuler: {x: 0, y: 0, z: 0}
+  groundMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  locomotionController: {fileID: 9100000, guid: 764789c7e21766e44940083f8e7e1e2d, type: 2}
+  animationMoveSpeed: 3.5
+--- !u!114 &880000000000000001
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 378567223904163175}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c9b9bdc015cb1d44789b92c1731d2270, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Wapawapa.Gestures.AirGestureRecorder
+  drawPoint: {fileID: 7154422370393157995}
+  viewReference: {fileID: 7222152740694544162}
+  inputHand: 5
+  requireTrigger: 1
+  triggerThreshold: 0.55
+  allowKeyboardDebugGate: 0
+  keyboardDebugKey: 21
+  minimumPointCount: 8
+  maximumPointCount: 256
+  minimumSampleDistance: 0.007
+  leftPunchHand: {fileID: 6374337054829635355}
+  minimumPunchSpeed: 0.8
+  signLifetime: 20
+  maximumStrokeCount: 4
+--- !u!114 &880000000000000002
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 378567223904163175}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: da44465b0e0d31048af4b88244b3c717, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Wapawapa.Gestures.AirGestureRecognizer
+  recorder: {fileID: 880000000000000001}
+  templateSet: {fileID: 0}
+  includeBuiltInTemplates: 1
+  resamplePointCount: 64
+  minimumPathLength: 0.18
+  minimumBoundsSize: 0.08
+  minimumDuration: 0.12
+  maximumDuration: 5
+  maximumScore: 0.22
+  minimumConfidence: 0.35
+  closedShapeShiftStep: 4
+  rotationSearchDegrees: 30
+  rotationSearchStepDegrees: 15
+  resultCooldown: 0.25
+  logResults: 1
+--- !u!114 &880000000000000003
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 378567223904163175}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2c270829fdbaa1044840ac5d0bee9daf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Wapawapa.GestureActions.GestureActionRouter
+  recognizer: {fileID: 880000000000000002}
+  bindings:
+  - gestureId: triangle
+    actionId: ability.slot.1
+  - gestureId: square
+    actionId: ability.slot.0
+  - gestureId: w
+    actionId: ability.wall
+  - gestureId: pe
+    actionId: ability.slot.2
+  actionCooldown: 0.2
+  logActions: 1
+--- !u!114 &880000000000000004
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 378567223904163175}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 73ababfcb3d2e3c43900bb8cfe49f4c6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Wapawapa.GestureActions.AbilityLoadoutGestureAdapter
+  router: {fileID: 880000000000000003}
+  loadout: {fileID: 997422686782990025}
+  bindings:
+  - actionId: ability.wall
+    slotIndex: 3
+  - actionId: ability.slot.0
+    slotIndex: 0
+  - actionId: ability.slot.1
+    slotIndex: 1
+  - actionId: ability.slot.2
+    slotIndex: 2
+  logRequests: 1
+--- !u!114 &880000000000000005
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 378567223904163175}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6b1b09f7d8087d4439d123c81470c201, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Wapawapa.Gestures.AirGestureDebugView
+  recorder: {fileID: 880000000000000001}
+  recognizer: {fileID: 880000000000000002}
+  logRecognition: 0
+  trailMaterial: {fileID: 2100000, guid: b9289bb6b94f44efa9fb2045da7090a2, type: 2}
+  trailWidth: 0.012
+  showSparkles: 1
+  sparkleSize: 0.009
+--- !u!1 &880100000000000001
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 880100000000000002}
+  m_Layer: 0
+  m_Name: AvatarVisual
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &880100000000000002
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 880100000000000001}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 8976239075196459692}
+  m_Father: {fileID: 2908342431893988729}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &3812546525580562755
 GameObject:
   m_ObjectHideFlags: 0
@@ -479,7 +770,7 @@ Transform:
   m_GameObject: {fileID: 3812546525580562755}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.32, y: 0.23999995, z: 1.18}
+  m_LocalPosition: {x: 0.32, y: 1.25, z: 0.38}
   m_LocalScale: {x: 0.14, y: 0.14, z: 0.14}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -500,7 +791,7 @@ MeshRenderer:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3812546525580562755}
-  m_Enabled: 1
+  m_Enabled: 0
   m_CastShadows: 1
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
@@ -626,7 +917,7 @@ Transform:
   m_GameObject: {fileID: 4479789907585880043}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0.64000005, z: 0.79999995}
+  m_LocalPosition: {x: 0, y: 1.65, z: 0}
   m_LocalScale: {x: 0.28, y: 0.28, z: 0.28}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -648,7 +939,7 @@ MeshRenderer:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4479789907585880043}
-  m_Enabled: 1
+  m_Enabled: 0
   m_CastShadows: 1
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
@@ -736,7 +1027,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 3.5714285, y: 3.5714285, z: 3.5714285}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 7222152740694544162}
@@ -823,7 +1114,7 @@ MonoBehaviour:
     m_Bits: 1
   m_VolumeTrigger: {fileID: 0}
   m_VolumeFrameworkUpdateModeOption: 2
-  m_RenderPostProcessing: 0
+  m_RenderPostProcessing: 1
   m_Antialiasing: 0
   m_AntialiasingQuality: 2
   m_StopNaN: 0
@@ -874,7 +1165,7 @@ Transform:
   m_GameObject: {fileID: 9191764967159731463}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0.32, y: 0.24, z: 1.18}
+  m_LocalPosition: {x: -0.32, y: 1.25, z: 0.38}
   m_LocalScale: {x: 0.14, y: 0.14, z: 0.14}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -895,7 +1186,7 @@ MeshRenderer:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 9191764967159731463}
-  m_Enabled: 1
+  m_Enabled: 0
   m_CastShadows: 1
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
@@ -993,3 +1284,61 @@ MonoBehaviour:
     m_Bits: 4294967295
   overlapRadiusMultiplier: 2.5
   minimumOverlapRadius: 0.32
+--- !u!1001 &880100000000000004
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 880100000000000002}
+    m_Modifications:
+    - target: {fileID: 8116823156750195368, guid: 666bc34e56ed3d84491b3fc2bad82189, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 0.8968975
+      objectReference: {fileID: 0}
+    - target: {fileID: 8116823156750195368, guid: 666bc34e56ed3d84491b3fc2bad82189, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 0.8968975
+      objectReference: {fileID: 0}
+    - target: {fileID: 8116823156750195368, guid: 666bc34e56ed3d84491b3fc2bad82189, type: 3}
+      propertyPath: m_LocalScale.z
+      value: 0.8968975
+      objectReference: {fileID: 0}
+    - target: {fileID: 8116823156750195368, guid: 666bc34e56ed3d84491b3fc2bad82189, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8116823156750195368, guid: 666bc34e56ed3d84491b3fc2bad82189, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8116823156750195368, guid: 666bc34e56ed3d84491b3fc2bad82189, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -0.124413244
+      objectReference: {fileID: 0}
+    - target: {fileID: 8116823156750195368, guid: 666bc34e56ed3d84491b3fc2bad82189, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8116823156750195368, guid: 666bc34e56ed3d84491b3fc2bad82189, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8116823156750195368, guid: 666bc34e56ed3d84491b3fc2bad82189, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8116823156750195368, guid: 666bc34e56ed3d84491b3fc2bad82189, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 666bc34e56ed3d84491b3fc2bad82189, type: 3}
+--- !u!4 &8976239075196459692 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 8116823156750195368, guid: 666bc34e56ed3d84491b3fc2bad82189, type: 3}
+  m_PrefabInstance: {fileID: 880100000000000004}
+  m_PrefabAsset: {fileID: 0}
