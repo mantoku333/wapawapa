@@ -240,6 +240,17 @@ namespace Wapawapa.Abilities
         {
             SetHealth(maxHealth);
             knockedOutNotified = false;
+            XinZhaoBattleRoyaleController.ResetRound();
+            if (IsNetworked)
+            {
+                RPC_ResetBattleRoyaleHazards();
+            }
+        }
+
+        [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
+        private void RPC_ResetBattleRoyaleHazards()
+        {
+            XinZhaoBattleRoyaleController.ResetRound();
         }
 
         private void RespawnAtSpawnPoint()
@@ -251,6 +262,7 @@ namespace Wapawapa.Abilities
 
             var stateAuthority = IsNetworked ? Object.StateAuthority : PlayerRef.None;
             var spawnPose = PlayerSpawnPoints.GetSpawnPose(stateAuthority);
+            GetComponent<DesktopVrNetworkPlayer>()?.ClearExternalImpulse();
             var characterController = GetComponent<CharacterController>();
             if (characterController != null)
             {

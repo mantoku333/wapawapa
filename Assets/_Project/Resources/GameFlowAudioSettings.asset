@@ -1,0 +1,17 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c387de102f894612ae4f92788f1fb24c, type: 3}
+  m_Name: GameFlowAudioSettings
+  m_EditorClassIdentifier: 
+  gameStartVoice: {fileID: 8300000, guid: 04003f8449b4e4d28be92ae57fc28af5, type: 3}
+  gameStartMusic: {fileID: 8300000, guid: 7d28bd58a61cf49de86cc7f5c493efc9, type: 3}
+  resultSting: {fileID: 8300000, guid: 3025aa008efbc44fbbda80b7e92c06ba, type: 3}
