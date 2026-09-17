@@ -40,7 +40,8 @@ namespace Wapawapa.Editor
                 ValidatePrefab("Assets/_Project/Prefabs/NetworkPlayer.prefab", true);
                 var property = typeof(DesktopVrNetworkPlayer).GetProperty("NetworkHandInput", BindingFlags.NonPublic | BindingFlags.Instance);
                 Require(property != null && Attribute.IsDefined(property, typeof(NetworkedWeavedAttribute)), "Fusion must weave the grip/trigger network property.");
-                File.WriteAllText(Result, "PASS: both player prefabs import without missing scripts, all avatar references resolve, Humanoid IK and finger input execute, and Fusion hand data is woven.\n");
+                AvatarLocomotionValidation.Run();
+                File.WriteAllText(Result, "PASS: both player prefabs import without missing scripts, all avatar and locomotion references resolve, Humanoid animations and tracking execute, and Fusion hand data is woven.\n");
                 Debug.Log("Tracked avatar validation passed for both player prefabs.");
             }
             catch (Exception e)
@@ -65,7 +66,7 @@ namespace Wapawapa.Editor
                 var driver = root.GetComponent<TrackedAvatar>();
                 Require(driver != null, path + ": avatar driver missing");
                 var serialized = new SerializedObject(driver);
-                foreach (string field in new[] { "avatarRoot", "headTarget", "leftHandTarget", "rightHandTarget", "ownerCamera" })
+                foreach (string field in new[] { "avatarRoot", "headTarget", "leftHandTarget", "rightHandTarget", "ownerCamera", "locomotionController" })
                     Require(serialized.FindProperty(field).objectReferenceValue != null, path + ": unset " + field);
                 Require(driver.Initialize(), path + ": invalid Humanoid");
                 driver.SetHandInput(new Vector4(1f, 1f, 0f, 0f));
@@ -96,6 +97,7 @@ namespace Wapawapa.Editor
             finally
             {
                 // Test objects are discarded; the source prefab is never saved by this check.
+                root.GetComponent<TrackedAvatar>()?.Dispose();
                 PrefabUtility.UnloadPrefabContents(root);
             }
         }
