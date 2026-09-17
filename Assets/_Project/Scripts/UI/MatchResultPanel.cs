@@ -152,7 +152,6 @@ namespace Wapawapa.UI
             canvas.sortingOrder = 1000;
             gameObject.AddComponent<CanvasScaler>().uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
             gameObject.AddComponent<GraphicRaycaster>();
-            gameObject.AddComponent<XrScreenSpaceCanvas>();
 
             var dim = CreateImage("Dim", transform, new Color(0f, 0f, 0f, 0.62f));
             Stretch(dim.rectTransform, Vector2.zero, Vector2.one);
