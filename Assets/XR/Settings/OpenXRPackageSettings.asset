@@ -19,9 +19,9 @@ MonoBehaviour:
   openxrExtensionStrings: XR_ANDROID_performance_metrics
   company: Unity Technologies
   priority: 0
-  targetOpenXRApiVersion: 
+  targetOpenXRApiVersion:
   required: 0
-  customRuntimeLoaderName: 
+  customRuntimeLoaderName:
 --- !u!114 &-8999059302058509960
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -161,12 +161,12 @@ MonoBehaviour:
   nameUi: Runtime Debugger
   version: 1
   featureIdInternal: com.unity.openxr.features.runtimedebugger
-  openxrExtensionStrings: 
+  openxrExtensionStrings:
   company: Unity
   priority: 0
-  targetOpenXRApiVersion: 
+  targetOpenXRApiVersion:
   required: 0
-  customRuntimeLoaderName: 
+  customRuntimeLoaderName:
   cacheSize: 1048576
   perThreadCacheSize: 51200
 --- !u!114 &-7906847065409506537
@@ -188,9 +188,9 @@ MonoBehaviour:
   openxrExtensionStrings: XR_META_boundary_visibility
   company: Unity Technologies
   priority: 0
-  targetOpenXRApiVersion: 
+  targetOpenXRApiVersion:
   required: 0
-  customRuntimeLoaderName: 
+  customRuntimeLoaderName:
   m_SuppressVisibility: 0
 --- !u!114 &-7805550356827586176
 MonoBehaviour:
