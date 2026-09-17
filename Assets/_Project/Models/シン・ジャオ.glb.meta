@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 4c937b62da3305c444ce0d944842c948
+guid: 7052b645c06ff44848c6b74b8c95707f
 ScriptedImporter:
   internalIDToNameTable: []
   externalObjects: {}
@@ -12,7 +12,7 @@ ScriptedImporter:
     generateSecondaryUVSet: 0
   importSettings:
     nodeNameMethod: 1
-    animationMethod: 1
+    animationMethod: 2
     generateMipMaps: 1
     texturesReadable: 0
     defaultMinFilterMode: 9729

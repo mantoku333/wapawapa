@@ -6,6 +6,7 @@ using UnityEngine.InputSystem.UI;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using Wapawapa.Abilities;
+using Wapawapa.Gameplay;
 using Wapawapa.Networking;
 
 namespace Wapawapa.UI
@@ -99,6 +100,7 @@ namespace Wapawapa.UI
             titleText.text = localLost ? "YOU LOSE" : "YOU WIN";
             detailText.text = localLost ? "Your HP reached zero." : "Opponent HP reached zero.";
             canvas.enabled = true;
+            GameFlowAudio.PlayResult();
             Cursor.lockState = CursorLockMode.None;
             Cursor.visible = true;
         }
@@ -120,6 +122,7 @@ namespace Wapawapa.UI
             }
 
             Hide();
+            GameFlowAudio.PlayGameStart();
         }
 
         private void LeaveRoom()

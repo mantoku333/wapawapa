@@ -26,6 +26,7 @@ namespace Wapawapa.Gameplay
         [SerializeField] private float desktopPunchDistance = 0.95f;
         [SerializeField] private float desktopPunchSpeed = 12f;
         [SerializeField] private float desktopPunchHitWindow = 0.45f;
+        [SerializeField] private float externalImpulseDeceleration = 20f;
 
         private CharacterController characterController;
         private TrackedAvatar trackedAvatar;
@@ -39,6 +40,7 @@ namespace Wapawapa.Gameplay
         private bool leftPunchRequested;
         private bool rightPunchRequested;
         private float verticalVelocity;
+        private Vector3 externalVelocity;
         private float movementLockedUntil;
         private bool xrTrackingAvailable;
 
@@ -183,6 +185,7 @@ namespace Wapawapa.Gameplay
             }
 
             var movement = (forward * moveInput.y + right * moveInput.x) * moveSpeed;
+            movement += externalVelocity;
 
             if (characterController.isGrounded && verticalVelocity < 0f)
             {
@@ -198,6 +201,10 @@ namespace Wapawapa.Gameplay
             verticalVelocity += gravity * Runner.DeltaTime;
             movement.y = verticalVelocity;
             characterController.Move(movement * Runner.DeltaTime);
+            externalVelocity = Vector3.MoveTowards(
+                externalVelocity,
+                Vector3.zero,
+                externalImpulseDeceleration * Runner.DeltaTime);
         }
 
         public override void Render()
@@ -215,6 +222,22 @@ namespace Wapawapa.Gameplay
 
             movementLockedUntil = Mathf.Max(movementLockedUntil, Time.time + seconds);
             jumpRequested = false;
+        }
+
+        public void ApplyExternalImpulse(Vector3 velocity, float controlLockSeconds = 0.35f)
+        {
+            if (!HasStateAuthority)
+            {
+                return;
+            }
+
+            externalVelocity = velocity;
+            LockMovement(controlLockSeconds);
+        }
+
+        public void ClearExternalImpulse()
+        {
+            externalVelocity = Vector3.zero;
         }
 
         private bool IsMovementLocked => Time.time < movementLockedUntil;
