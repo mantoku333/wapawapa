@@ -9,7 +9,7 @@ namespace Wapawapa.Editor
 {
     public static class AirSignRegressionChecks
     {
-        private const string CheckKey = "Wapawapa.AirSignChecks.v3";
+        private const string CheckKey = "Wapawapa.AirSignChecks.v4";
 
         [InitializeOnLoadMethod]
         private static void ScheduleChecks()
@@ -34,6 +34,12 @@ namespace Wapawapa.Editor
             try
             {
                 var recognizer = root.AddComponent<AirGestureRecognizer>();
+                var w = Polyline(new Vector2(-0.25f, 0.15f), new Vector2(-0.125f, -0.15f),
+                    new Vector2(0f, 0.15f), new Vector2(0.125f, -0.15f), new Vector2(0.25f, 0.15f));
+                Check(recognizer.RecognizeSign(new[] { Stroke(w) }).GestureId == "w", "w wall sign", ref checks);
+                Array.Reverse(w);
+                Check(recognizer.RecognizeSign(new[] { Stroke(w) }).GestureId == "w", "w drawn backwards", ref checks);
+                Check(recognizer.RecognizeSign(new[] { Stroke(w, new Vector3(2f, 1f, -3f), Quaternion.Euler(10f, 120f, 0f)) }).GestureId == "w", "w rotated drawing plane", ref checks);
                 var he = Polyline(new Vector2(-0.2f, -0.02f), new Vector2(-0.072f, 0.12f), new Vector2(0.2f, -0.1f));
                 var circle = Circle(new Vector2(0.14f, 0.19f), 0.05f);
                 Check(recognizer.RecognizeSign(new[] { Stroke(he), Stroke(circle) }).GestureId == "pe", "pe", ref checks);
