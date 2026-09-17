@@ -4,6 +4,7 @@ using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
 using UnityEngine.UI;
 using Wapawapa.Rendering;
+using Wapawapa.UI;
 
 namespace Wapawapa.Abilities
 {
@@ -158,6 +159,7 @@ namespace Wapawapa.Abilities
             debugCanvas.sortingOrder = 5000;
             canvasObject.AddComponent<CanvasScaler>();
             canvasObject.AddComponent<GraphicRaycaster>();
+            canvasObject.AddComponent<XrScreenSpaceCanvas>();
         }
 
         private Sprite CreateDebugCircleSprite()

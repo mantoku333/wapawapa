@@ -63,6 +63,7 @@ namespace Wapawapa.Editor
         {
             var root = GameObject.CreatePrimitive(PrimitiveType.Capsule);
             root.name = "NetworkPlayer";
+            root.transform.localScale = Vector3.one * 1.2f;
             Object.DestroyImmediate(root.GetComponent<CapsuleCollider>());
 
             var characterController = root.AddComponent<CharacterController>();

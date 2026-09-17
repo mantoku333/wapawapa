@@ -48,6 +48,14 @@ namespace Wapawapa.UI
             opponentBar.UpdateFill();
         }
 
+        private void OnDestroy()
+        {
+            if (instance == this)
+            {
+                instance = null;
+            }
+        }
+
         private void BindReceivers()
         {
             var receivers = FindObjectsByType<PlayerDamageReceiver>(FindObjectsInactive.Exclude, FindObjectsSortMode.None);
@@ -83,6 +91,7 @@ namespace Wapawapa.UI
             var scaler = gameObject.AddComponent<CanvasScaler>();
             scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
             scaler.referenceResolution = new Vector2(1920f, 1080f);
+            gameObject.AddComponent<XrScreenSpaceCanvas>();
 
             localBar = CreateBar("Local HP", new Vector2(24f, -24f), new Vector2(0f, 1f), TextAlignmentOptions.Left, "YOU");
             opponentBar = CreateBar("Opponent HP", new Vector2(-24f, -24f), new Vector2(1f, 1f), TextAlignmentOptions.Right, "OPPONENT");

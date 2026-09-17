@@ -2,6 +2,7 @@ using System.Collections;
 using Fusion;
 using UnityEngine;
 using UnityEngine.UI;
+using Wapawapa.UI;
 
 namespace Wapawapa.Abilities
 {
@@ -322,6 +323,7 @@ namespace Wapawapa.Abilities
             var scaler = canvasObject.AddComponent<CanvasScaler>();
             scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
             scaler.referenceResolution = new Vector2(1920f, 1080f);
+            canvasObject.AddComponent<XrScreenSpaceCanvas>();
 
             var root = new GameObject("Gauge").AddComponent<RectTransform>();
             root.SetParent(gaugeCanvas.transform, false);

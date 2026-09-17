@@ -160,6 +160,7 @@ namespace Wapawapa.Editor
         {
             var root = GameObject.CreatePrimitive(PrimitiveType.Capsule);
             root.name = "AbilityTestPlayer";
+            root.transform.localScale = Vector3.one * 1.2f;
             root.transform.position = new Vector3(0f, 0.9f, -3f);
             Object.DestroyImmediate(root.GetComponent<CapsuleCollider>());
             root.AddComponent<PlayerDamageReceiver>();
