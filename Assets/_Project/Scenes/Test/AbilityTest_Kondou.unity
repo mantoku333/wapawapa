@@ -715,7 +715,7 @@ MonoBehaviour:
     "\u88DC\u52A9Collider\u30B5\u30A4\u30BA": {x: 1.8, y: 3.2, z: 0.8}
     "\u88DC\u52A9Collider\u4E2D\u5FC3": {x: 0, y: 1.6, z: 0}
     "\u63FA\u308C\u5E45": 0.08
-    "\u51FA\u73FE\u97F3": {fileID: 8300000, guid: 568ec540e48d4918bd78e163efca9327, type: 3}
+    "\u51FA\u73FE\u97F3": {fileID: 8300000, guid: 9b8ebf54f20e4de2b60fb6c67f94d00c, type: 3}
     "\u51FA\u73FE\u97F3\u91CF": 1
   "\u751F\u6210\u8DDD\u96E2": 2.2
   "\u5730\u9762\u63A2\u7D22\u9AD8\u3055": 3
